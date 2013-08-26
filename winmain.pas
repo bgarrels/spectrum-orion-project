@@ -7,18 +7,19 @@ interface
 uses
   Classes, SysUtils, FileUtil, TAGraph, TAChartImageList, TASources, TASeries,
   Forms, Controls, Graphics, Dialogs, ActnList, ComCtrls, Menus, ExtCtrls,
-  Buttons,
-  SpectrumControls;
+  Buttons, StdCtrls,
+  Plots, Diagram, SpectrumControls;
 
 type
   { TMainWnd }
 
-  TMainWnd = class(TForm)
-    ActionDiagramSaveAsImage: TAction;
-    ActionDiagramSaveAsProject: TAction;
-    ActionDiagramDelete: TAction;
-    ActionDiagramRename: TAction;
-    ActionDiagramNew: TAction;
+  TMainWnd = class(TForm, IPlotNotification)
+  {%region published}
+    ActionPlotSaveAsImage: TAction;
+    ActionPlotSaveAsProject: TAction;
+    ActionPlotDelete: TAction;
+    ActionPlotRename: TAction;
+    ActionPlotNew: TAction;
     ActionEditPasteFormat: TAction;
     ActionEditCopyFormat: TAction;
     ActionEditPasteTable: TAction;
@@ -34,10 +35,6 @@ type
     ActionProjectOpen: TAction;
     ActionAddRandom: TAction;
     ActionList: TActionList;
-    Chart1: TChart;
-    Chart1LineSeries1: TLineSeries;
-    Chart2: TChart;
-    Chart2LineSeries1: TLineSeries;
     Images24: TImageList;
     Images16: TImageList;
     PageAdd: TPage;
@@ -49,8 +46,6 @@ type
     ToolbarBook: TNotebook;
     PageProject: TPage;
     PlotsBook: TNotebook;
-    Page1: TPage;
-    Page2: TPage;
     RandomChartSource1: TRandomChartSource;
     RandomChartSource2: TRandomChartSource;
     StatusBar: TStatusBar;
@@ -81,11 +76,11 @@ type
     ToolButton9: TToolButton;
     procedure ActionAddFormulaExecute(Sender: TObject);
     procedure ActionAddRandomExecute(Sender: TObject);
-    procedure ActionDiagramDeleteExecute(Sender: TObject);
-    procedure ActionDiagramNewExecute(Sender: TObject);
-    procedure ActionDiagramRenameExecute(Sender: TObject);
-    procedure ActionDiagramSaveAsImageExecute(Sender: TObject);
-    procedure ActionDiagramSaveAsProjectExecute(Sender: TObject);
+    procedure ActionPlotDeleteExecute(Sender: TObject);
+    procedure ActionPlotNewExecute(Sender: TObject);
+    procedure ActionPlotRenameExecute(Sender: TObject);
+    procedure ActionPlotSaveAsImageExecute(Sender: TObject);
+    procedure ActionPlotSaveAsProjectExecute(Sender: TObject);
     procedure ActionEditCopyExecute(Sender: TObject);
     procedure ActionEditCopyFormatExecute(Sender: TObject);
     procedure ActionEditCutExecute(Sender: TObject);
@@ -95,12 +90,24 @@ type
     procedure ActionEditRedoExecute(Sender: TObject);
     procedure ActionEditUndoExecute(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
+  {%endregion}
   private
     FToolbarTabs: TNotebookTabs;
     FPlotTabs: TNotebookTabs;
+    FDiagrams: TDiagramList;
+
+    procedure Notify(AOperation: TPlotOperation; APlot: TPlot; AGraph: TGraph);
+    procedure ProcessPlotAdded(APlot: TPlot);
+
+    function GetCurPlot: TPlot;
+    function GetCurChart: TChart;
+    function GetCurDiagram: TDiagram;
   public
-    { public declarations }
+    property CurPlot: TPlot read GetCurPlot;
+    property CurChart: TChart read GetCurChart;
+    property CurDiagram: TDiagram read GetCurDiagram;
   end;
 
 var
@@ -110,12 +117,12 @@ implementation
 
 uses
   SpectrumStrings,
+
   DlgParamsRandom, DlgFormulaEditor;
 
 {$R *.lfm}
 
-{ TMainWnd }
-
+{%region TMainWnd}
 procedure TMainWnd.FormCreate(Sender: TObject);
 begin
   FToolbarTabs := TNotebookTabs.Create(ToolbarBook);
@@ -127,38 +134,55 @@ begin
   FPlotTabs.TabsPosition := ntpBottom;
   FPlotTabs.Align := alBottom;
   FPlotTabs.Parent := Self;
+
+  // initialize plot set
+  FDiagrams := TDiagramList.Create;
+  PlotSet := TPlots.Create;
+  PlotSet.RegisterNotifyClient(Self);
+  PlotSet.AddPlot('');
 end;
 
+procedure TMainWnd.FormDestroy(Sender: TObject);
+var
+  Diagram: TDiagram;
+begin
+  for Diagram in FDiagrams do
+    Diagram.Free;
+  FDiagrams.Free;
+end;
+
+{%region Form Events}
 procedure TMainWnd.FormShow(Sender: TObject);
 begin
 end;
-
-{%region Diagram Actions}
-procedure TMainWnd.ActionDiagramDeleteExecute(Sender: TObject);
-begin
-  //
-end;
-
-procedure TMainWnd.ActionDiagramNewExecute(Sender: TObject);
-begin
-  //
-end;
-
-procedure TMainWnd.ActionDiagramRenameExecute(Sender: TObject);
-begin
-  //
-end;
-
-procedure TMainWnd.ActionDiagramSaveAsImageExecute(Sender: TObject);
-begin
-  //
-end;
-
-procedure TMainWnd.ActionDiagramSaveAsProjectExecute(Sender: TObject);
-begin
-  //
-end;
 {%endregion}
+
+{%region Plot Actions}
+procedure TMainWnd.ActionPlotDeleteExecute(Sender: TObject);
+begin
+  //
+end;
+
+procedure TMainWnd.ActionPlotNewExecute(Sender: TObject);
+begin
+  PlotSet.AddPlot('');
+end;
+
+procedure TMainWnd.ActionPlotRenameExecute(Sender: TObject);
+begin
+  //
+end;
+
+procedure TMainWnd.ActionPlotSaveAsImageExecute(Sender: TObject);
+begin
+  //
+end;
+
+procedure TMainWnd.ActionPlotSaveAsProjectExecute(Sender: TObject);
+begin
+  //
+end;
+{%endregion Plot Actions}
 
 {%region Edit Actions}
 procedure TMainWnd.ActionEditCopyExecute(Sender: TObject);
@@ -200,7 +224,7 @@ procedure TMainWnd.ActionEditUndoExecute(Sender: TObject);
 begin
   //
 end;
-{%endregion}
+{%endregion Edit Actions}
 
 {%region Add Actions}
 procedure TMainWnd.ActionAddRandomExecute(Sender: TObject);
@@ -222,7 +246,45 @@ begin
     Free;
   end;
 end;
+{%endregion Add Actions}
+
+{%region Plot Accessors}
+function TMainWnd.GetCurPlot: TPlot;
+begin
+
+end;
+
+function TMainWnd.GetCurChart: TChart;
+begin
+
+end;
+
+function TMainWnd.GetCurDiagram: TDiagram;
+begin
+
+end;
 {%endregion}
 
+{%region Plot Events}
+procedure TMainWnd.Notify(AOperation: TPlotOperation; APlot: TPlot; AGraph: TGraph);
+begin
+  case AOperation of
+    poPlotAdded: ProcessPlotAdded(APlot);
+  end;
+end;
+
+procedure TMainWnd.ProcessPlotAdded(APlot: TPlot);
+var
+  Index: Integer;
+  Diagram: TDiagram;
+begin
+  Index := PlotsBook.Pages.Add(APlot.Title);
+  Diagram := TDiagram.Create(APlot, PlotsBook.Page[Index]);
+  FPlotTabs.AddTab(APlot.Title, Index, Diagram);
+  FDiagrams.Add(Diagram);
+end;
+{%endregion Plot Events}
+
+{%endregion TMainWnd}
 end.
 

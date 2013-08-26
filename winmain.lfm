@@ -1,12 +1,13 @@
 object MainWnd: TMainWnd
-  Left = 641
+  Left = 788
   Height = 729
-  Top = 223
+  Top = 239
   Width = 918
   Caption = 'Spectrum'
   ClientHeight = 729
   ClientWidth = 918
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnShow = FormShow
   Position = poScreenCenter
   LCLVersion = '1.0.10.0'
@@ -22,89 +23,16 @@ object MainWnd: TMainWnd
     Height = 666
     Top = 42
     Width = 918
-    PageIndex = 0
     Align = alClient
     TabOrder = 1
     TabStop = True
-    object Page1: TPage
-      object Chart1: TChart
-        Left = 0
-        Height = 666
-        Top = 0
-        Width = 918
-        AntialiasingMode = amOn
-        AxisList = <        
-          item
-            Minors = <>
-            Title.LabelFont.Orientation = 900
-          end        
-          item
-            Alignment = calBottom
-            Minors = <>
-          end>
-        BackColor = clWindow
-        Foot.Brush.Color = clBtnFace
-        Foot.Font.Color = clBlue
-        MarginsExternal.Left = 18
-        MarginsExternal.Top = 18
-        MarginsExternal.Right = 18
-        MarginsExternal.Bottom = 18
-        Title.Brush.Color = clBtnFace
-        Title.Font.Color = clBlue
-        Title.Text.Strings = (
-          'TAChart'
-        )
-        Align = alClient
-        ParentColor = False
-        object Chart1LineSeries1: TLineSeries
-          LinePen.Color = clRed
-          Source = RandomChartSource1
-        end
-      end
-    end
-    object Page2: TPage
-      object Chart2: TChart
-        Left = 0
-        Height = 582
-        Top = 0
-        Width = 918
-        AntialiasingMode = amOn
-        AxisList = <        
-          item
-            Minors = <>
-            Title.LabelFont.Orientation = 900
-          end        
-          item
-            Alignment = calBottom
-            Minors = <>
-          end>
-        BackColor = clWindow
-        Foot.Brush.Color = clBtnFace
-        Foot.Font.Color = clBlue
-        MarginsExternal.Left = 18
-        MarginsExternal.Top = 18
-        MarginsExternal.Right = 18
-        MarginsExternal.Bottom = 18
-        Title.Brush.Color = clBtnFace
-        Title.Font.Color = clBlue
-        Title.Text.Strings = (
-          'TAChart'
-        )
-        Align = alClient
-        ParentColor = False
-        object Chart2LineSeries1: TLineSeries
-          LinePen.Color = clBlue
-          Source = RandomChartSource2
-        end
-      end
-    end
   end
   object ToolbarBook: TNotebook
     Left = 0
     Height = 42
     Top = 0
     Width = 918
-    PageIndex = 2
+    PageIndex = 0
     Align = alTop
     Color = clBtnFace
     TabOrder = 2
@@ -186,27 +114,27 @@ object MainWnd: TMainWnd
         object ToolButton16: TToolButton
           Left = 3
           Top = 0
-          Action = ActionDiagramNew
+          Action = ActionPlotNew
         end
         object ToolButton18: TToolButton
           Left = 77
           Top = 0
-          Action = ActionDiagramRename
+          Action = ActionPlotRename
         end
         object ToolButton19: TToolButton
           Left = 149
           Top = 0
-          Action = ActionDiagramDelete
+          Action = ActionPlotDelete
         end
         object ToolButton20: TToolButton
           Left = 211
           Top = 0
-          Action = ActionDiagramSaveAsImage
+          Action = ActionPlotSaveAsImage
         end
         object ToolButton21: TToolButton
           Left = 352
           Top = 0
-          Action = ActionDiagramSaveAsProject
+          Action = ActionPlotSaveAsProject
         end
         object ToolButton17: TToolButton
           Left = 67
@@ -433,33 +361,33 @@ object MainWnd: TMainWnd
       ImageIndex = 12
       OnExecute = ActionEditPasteFormatExecute
     end
-    object ActionDiagramNew: TAction
-      Category = 'Diagram'
+    object ActionPlotNew: TAction
+      Category = 'Plot'
       Caption = 'New'
       ImageIndex = 13
-      OnExecute = ActionDiagramNewExecute
+      OnExecute = ActionPlotNewExecute
     end
-    object ActionDiagramRename: TAction
-      Category = 'Diagram'
+    object ActionPlotRename: TAction
+      Category = 'Plot'
       Caption = 'Rename'
-      OnExecute = ActionDiagramRenameExecute
+      OnExecute = ActionPlotRenameExecute
     end
-    object ActionDiagramDelete: TAction
-      Category = 'Diagram'
+    object ActionPlotDelete: TAction
+      Category = 'Plot'
       Caption = 'Delete'
-      OnExecute = ActionDiagramDeleteExecute
+      OnExecute = ActionPlotDeleteExecute
     end
-    object ActionDiagramSaveAsProject: TAction
-      Category = 'Diagram'
+    object ActionPlotSaveAsProject: TAction
+      Category = 'Plot'
       Caption = 'Save As Project...'
       ImageIndex = 14
-      OnExecute = ActionDiagramSaveAsProjectExecute
+      OnExecute = ActionPlotSaveAsProjectExecute
     end
-    object ActionDiagramSaveAsImage: TAction
-      Category = 'Diagram'
+    object ActionPlotSaveAsImage: TAction
+      Category = 'Plot'
       Caption = 'Save As Image...'
       ImageIndex = 15
-      OnExecute = ActionDiagramSaveAsImageExecute
+      OnExecute = ActionPlotSaveAsImageExecute
     end
   end
   object Images16: TImageList

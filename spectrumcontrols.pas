@@ -19,21 +19,24 @@ type
     FNotebook: TNotebook;
     FTabsPosition: TNotebookTabPosition;
     procedure InvalidateTabs;
-    procedure AddTab(const Title: String);
     procedure SetTabsPosition(Value: TNotebookTabPosition);
-    procedure CheckTab(ATab: TNotebookTab);
   protected
     procedure Paint; override;
   public
     constructor Create(ANotebook: TNotebook); reintroduce;
     destructor Destroy; override;
     property TabsPosition: TNotebookTabPosition read FTabsPosition write SetTabsPosition;
+    function AddTab(const Title: String; Index: Integer): TNotebookTab; overload;
+    procedure AddTab(const Title: String; Index: Integer; Feature: TObject); overload;
+    procedure ShowTab(Index: Integer);
   end;
 
   TNotebookTab = class(TCustomSpeedButton)
   private
     FOwner: TNotebookTabs;
     FChecked: Boolean;
+    FFeature: TObject;
+    FTabIndex: Integer;
     procedure SetChecked(Value: Boolean);
     procedure UpdateBorderSpacing;
   protected
@@ -42,6 +45,8 @@ type
     constructor Create(AOwner: TNotebookTabs); reintroduce;
     procedure Click; override;
     property Checked: Boolean read FChecked write SetChecked;
+    property Feature: TObject read FFeature;
+    property TabIndex: Integer read FTabIndex;
   end;
 
 implementation
@@ -73,9 +78,9 @@ begin
     S := FNotebook.Page[I].Name;
     if StartsWith(S, 'Page') then
       S := Copy(S, 5, MaxInt);
-    AddTab(S);
+    AddTab(S, I);
   end;
-  if FTabs.Count > 0 then CheckTab(FTabs[0]);
+  if FTabs.Count > 0 then ShowTab(0);
 
   AutoSize := True;
 end;
@@ -107,30 +112,40 @@ begin
   for Tab in FTabs do Tab.Invalidate;
 end;
 
-procedure TNotebookTabs.AddTab(const Title: String);
+function TNotebookTabs.AddTab(const Title: String; Index: Integer): TNotebookTab;
 var
-  Tab: TNotebookTab;
   X: Integer = 0;
+  Tab: TNotebookTab;
 begin
   for Tab in FTabs do
     if Tab.Left > Left then
       X := Tab.Left + Tab.Width;
 
-  Tab := TNotebookTab.Create(Self);
-  Tab.Caption := '   ' + Title + '   ';
-  Tab.Left := X + 1;
-  Tab.Parent := Self;
-  FTabs.Add(Tab);
+  Result := TNotebookTab.Create(Self);
+  Result.Caption := '   ' + Title + '   ';
+  Result.Left := X + 1;
+  Result.Parent := Self;
+  Result.FTabIndex := Index;
+  FTabs.Add(Result);
 end;
 
-procedure TNotebookTabs.CheckTab(ATab: TNotebookTab);
+procedure TNotebookTabs.AddTab(const Title: String; Index: Integer; Feature: TObject);
+var
+  Tab: TNotebookTab;
+begin
+  Tab := AddTab(Title, Index);
+  Tab.FFeature := Feature;
+  ShowTab(Index);
+end;
+
+procedure TNotebookTabs.ShowTab(Index: Integer);
 var
   I: Integer;
 begin
   for I := 0 to FTabs.Count-1 do
-    if ATab = FTabs[I] then
+    if FTabs[I].TabIndex = Index then
     begin
-      ATab.Checked := True;
+      FTabs[I].Checked := True;
       FNotebook.PageIndex := I;
     end
     else
@@ -183,7 +198,7 @@ end;
 
 procedure TNotebookTab.Click;
 begin
-  FOwner.CheckTab(Self);
+  FOwner.ShowTab(TabIndex);
 end;
 
 procedure TNotebookTab.PaintBackground(var PaintRect: TRect);

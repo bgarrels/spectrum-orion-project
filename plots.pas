@@ -11,9 +11,6 @@ type
   TPlot = class;
   TPlots = class;
 
-  TPlotEvent = procedure (Sender: TPlots; APlot: TPlot) of object;
-  TGraphEvent = procedure (Sender: TPlots; APlot: TPlot; AGraph: TGraph) of object;
-
   TPlotOperation = (poProjectSaved, poProjectLoaded, poProjectReseting, poProjectReset,
     poPlotAdded, poPlotChanged, poPlotDestroying, poPlotDestroyed,
     poGraphAdded, poGraphChanged, poGraphDeleted, poGraphChangedValues);
@@ -233,17 +230,6 @@ type
 
     FNotifyClients: TObjectList;
 
-    FOnGraphAdded: TGraphEvent;
-    FOnGraphDeleted: TGraphEvent;
-    FOnGraphChanged: TGraphEvent;
-    FOnGraphChangedValues: TGraphEvent;
-    FOnPlotAdded: TPlotEvent;
-    FOnPlotDeleted: TPlotEvent;
-    FOnPlotChanged: TPlotEvent;
-    FOnProjectSaved: TNotifyEvent;
-    FOnProjectLoaded: TNotifyEvent;
-    FOnProjectReset: TNotifyEvent;
-
     function CreatePlot(const ATitle: String = ''): TPlot;
     function GetCount: Integer;
     function GetItems(Index: Integer): TPlot;
@@ -289,17 +275,6 @@ type
 
     property Status: TPlotSetStatus read FStatus;
     property Modified: Boolean read FModified;
-
-    property OnGraphAdded: TGraphEvent read FOnGraphAdded write FOnGraphAdded;
-    property OnGraphDeleted: TGraphEvent read FOnGraphDeleted write FOnGraphDeleted;
-    property OnGraphChanged: TGraphEvent read FOnGraphChanged write FOnGraphChanged;
-    property OnGraphChangedValues: TGraphEvent read FOnGraphChangedValues write FOnGraphChangedValues;
-    property OnPlotAdded: TPlotEvent read FOnPlotAdded write FOnPlotAdded;
-    property OnPlotDeleted: TPlotEvent read FOnPlotDeleted write FOnPlotDeleted;
-    property OnPlotChanged: TPlotEvent read FOnPlotChanged write FOnPlotChanged;
-    property OnProjectSaved: TNotifyEvent read FOnProjectSaved write FOnProjectSaved;
-    property OnProjectLoaded: TNotifyEvent read FOnProjectLoaded write FOnProjectLoaded;
-    property OnProjectReset: TNotifyEvent read FOnProjectReset write FOnProjectReset;
   end;
 
 function IsProjectPacked(const FileName: String): Boolean;
@@ -1161,8 +1136,6 @@ begin
   if Assigned(FOwner) then
   begin
     FOwner.FModified := True;
-    if Assigned(FOwner.OnGraphAdded) then
-      FOwner.OnGraphAdded(FOwner, Self, AGraph);
     FOwner.Notify(poGraphAdded, Self, AGraph);
   end;
 end;
@@ -1174,8 +1147,6 @@ begin
     if Assigned(AGraph) then
       AGraph.DeleteLine;
     FOwner.FModified := True;
-    if Assigned(FOwner.OnGraphDeleted) then
-      FOwner.OnGraphDeleted(FOwner, Self, AGraph);
     FOwner.Notify(poGraphDeleted, Self, AGraph);
   end;
 end;
@@ -1185,8 +1156,6 @@ begin
   if Assigned(FOwner) then
   begin
     FOwner.FModified := True;
-    if Assigned(FOwner.OnGraphChanged) then
-      FOwner.OnGraphChanged(FOwner, Self, AGraph);
     FOwner.Notify(poGraphChanged, Self, AGraph);
   end;
 end;
@@ -1197,8 +1166,6 @@ begin
   begin
     AGraph.UpdateLine;
     FOwner.FModified := True;
-    if Assigned(FOwner.OnGraphChangedValues) then
-      FOwner.OnGraphChangedValues(FOwner, Self, AGraph);
     FOwner.Notify(poGraphChangedValues, Self, AGraph);
   end;
 end;
@@ -1717,13 +1684,12 @@ begin
   APlot.Free;
 end;
 
-{$region 'События'}
+{%region Events}
 procedure TPlots.DoPlotAdded(APlot: TPlot);
 begin
-  // Первая даиграмма добавлятся по умолчанию,
-  // это еще не значит, что проект изменен.
+  // First diagram is added by default and
+  // it does not mean that project was modified
   if Count > 1 then FModified := True;
-  if Assigned(FOnPlotAdded) then FOnPlotAdded(Self, APlot);
   Notify(poPlotAdded, APlot, nil);
 end;
 
@@ -1735,28 +1701,24 @@ end;
 procedure TPlots.DoPlotDeleted(APlot: TPlot);
 begin
   FModified := True;
-  if Assigned(FOnPlotDeleted) then FOnPlotDeleted(Self, APlot);
   Notify(poPlotDestroyed, APlot, nil);
 end;
 
 procedure TPlots.DoPlotChanged(APlot: TPlot);
 begin
   FModified := True;
-  if Assigned(FOnPlotChanged) then FOnPlotChanged(Self, APlot);
   Notify(poPlotChanged, APlot, nil);
 end;
 
 procedure TPlots.DoProjectSaved;
 begin
   FModified := False;
-  if Assigned(FOnProjectSaved) then FOnProjectSaved(Self);
   Notify(poProjectSaved, nil, nil);
 end;
 
 procedure TPlots.DoProjectLoaded;
 begin
   FModified := False;
-  if Assigned(FOnProjectLoaded) then FOnProjectLoaded(Self);
   Notify(poProjectLoaded, nil, nil);
 end;
 
@@ -1768,10 +1730,9 @@ end;
 procedure TPlots.DoProjectReset;
 begin
   FModified := False;
-  if Assigned(FOnProjectReset) then FOnProjectReset(Self);
   Notify(poProjectReset, nil, nil);
 end;
-{$endregion}
+{%endregion}
 
 function TPlots.GetCount: Integer;
 begin
@@ -2098,4 +2059,4 @@ end;
 {$endregion}
 
 {$endregion 'TPlots'}
-end.
+end.
