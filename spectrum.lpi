@@ -1,0 +1,168 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="9"/>
+    <General>
+      <SessionStorage Value="InProjectDir"/>
+      <MainUnit Value="0"/>
+      <AutoCreateForms Value="False"/>
+      <Title Value="spectrum"/>
+      <ResourceType Value="res"/>
+      <UseXPManifest Value="True"/>
+      <Icon Value="0"/>
+    </General>
+    <i18n>
+      <EnableI18N LFM="False"/>
+    </i18n>
+    <VersionInfo>
+      <StringTable ProductVersion=""/>
+    </VersionInfo>
+    <BuildModes Count="1">
+      <Item1 Name="Default" Default="True"/>
+    </BuildModes>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
+      <ExcludeFileFilter Value="*.(bak|ppu|o|so);*~;backup"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+        <LaunchingApplication PathPlusParams="/usr/bin/xterm -T 'Lazarus Run Output' -e $(LazarusDir)/tools/runwait.sh $(TargetCmdLine)"/>
+      </local>
+    </RunParams>
+    <RequiredPackages Count="3">
+      <Item1>
+        <PackageName Value="Orion"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="TAChartLazarusPkg"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="LCL"/>
+      </Item3>
+    </RequiredPackages>
+    <Units Count="13">
+      <Unit0>
+        <Filename Value="spectrum.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="spectrum"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="winmain.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="MainWnd"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="WinMain"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="dlgparamsrandom.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="RandomParamsDlg"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="DlgParamsRandom"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="dlgformulaeditor.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="FormulaEditorDlg"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="DlgFormulaEditor"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="spectrumtypes.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="SpectrumTypes"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="plotmath.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="PlotMath"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="plotreaders.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="PlotReaders"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="plotreadersaux.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="PlotReadersAux"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="spectrumstrings.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="SpectrumStrings"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="plots.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Plots"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="spectrumcontrols.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="SpectrumControls"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="frmrangepoints.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="RangePointsFrm"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+        <UnitName Value="FrmRangePoints"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="frmrange.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="RangeFrm"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+        <UnitName Value="FrmRange"/>
+      </Unit12>
+    </Units>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="11"/>
+    <Target>
+      <Filename Value="spectrum"/>
+    </Target>
+    <SearchPaths>
+      <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value="orion"/>
+      <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
+    </SearchPaths>
+    <Linking>
+      <Debugging>
+        <GenerateDebugInfo Value="False"/>
+      </Debugging>
+      <Options>
+        <Win32>
+          <GraphicApplication Value="True"/>
+        </Win32>
+      </Options>
+    </Linking>
+    <Other>
+      <CompilerMessages>
+        <MsgFileName Value=""/>
+      </CompilerMessages>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions Count="3">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+      <Item2>
+        <Name Value="ECodetoolError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EFOpenError"/>
+      </Item3>
+    </Exceptions>
+  </Debugging>
+</CONFIG>

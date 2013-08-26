@@ -1,0 +1,128 @@
+object RandomParamsDlg: TRandomParamsDlg
+  Left = 769
+  Height = 254
+  Top = 651
+  Width = 360
+  AutoSize = True
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsDialog
+  Caption = 'Create Random Sample Graph'
+  ClientHeight = 254
+  ClientWidth = 360
+  OnCreate = FormCreate
+  PopupMode = pmAuto
+  Position = poScreenCenter
+  LCLVersion = '1.0.10.0'
+  object ButtonPanel1: TButtonPanel
+    Left = 6
+    Height = 26
+    Top = 222
+    Width = 348
+    BorderSpacing.Left = 6
+    BorderSpacing.Top = 12
+    BorderSpacing.Right = 6
+    BorderSpacing.Bottom = 6
+    BorderSpacing.Around = 0
+    OKButton.Name = 'OKButton'
+    OKButton.DefaultCaption = True
+    HelpButton.Name = 'HelpButton'
+    HelpButton.DefaultCaption = True
+    CloseButton.Name = 'CloseButton'
+    CloseButton.DefaultCaption = True
+    CancelButton.Name = 'CancelButton'
+    CancelButton.DefaultCaption = True
+    TabOrder = 2
+    ShowButtons = [pbOK, pbCancel, pbHelp]
+    ShowBevel = False
+  end
+  object GroupBoxX: TGroupBox
+    Left = 6
+    Height = 148
+    Top = 3
+    Width = 348
+    Align = alClient
+    AutoSize = True
+    BorderSpacing.Left = 6
+    BorderSpacing.Top = 3
+    BorderSpacing.Right = 6
+    Caption = 'X'
+    ChildSizing.TopBottomSpacing = 6
+    ClientHeight = 130
+    ClientWidth = 344
+    TabOrder = 0
+    inline RangeX: TRangeFrm
+      Left = 6
+      Height = 23
+      Top = 6
+      Width = 332
+      Align = alTop
+      BorderSpacing.Left = 6
+      BorderSpacing.Right = 6
+      ClientHeight = 23
+      ClientWidth = 332
+      inherited labMin: TLabel
+        Height = 23
+      end
+      inherited fedMin: TOriFloatEdit
+        Height = 23
+      end
+      inherited labMax: TLabel
+        Height = 23
+      end
+      inherited fedMax: TOriFloatEdit
+        Height = 23
+      end
+    end
+    inline PointsX: TRangePointsFrm
+      Left = 128
+      Height = 89
+      Top = 35
+      Width = 210
+      Align = alRight
+      BorderSpacing.Around = 6
+      ClientHeight = 89
+      ClientWidth = 210
+      TabOrder = 1
+    end
+  end
+  object GroupBoxY: TGroupBox
+    Left = 6
+    Height = 53
+    Top = 157
+    Width = 348
+    Align = alBottom
+    AutoSize = True
+    BorderSpacing.Around = 6
+    Caption = 'Y'
+    ChildSizing.LeftRightSpacing = 6
+    ChildSizing.TopBottomSpacing = 6
+    ChildSizing.HorizontalSpacing = 6
+    ChildSizing.VerticalSpacing = 6
+    ClientHeight = 35
+    ClientWidth = 344
+    TabOrder = 1
+    inline RangeY: TRangeFrm
+      Left = 6
+      Height = 23
+      Top = 6
+      Width = 332
+      Align = alTop
+      BorderSpacing.Left = 6
+      BorderSpacing.Right = 6
+      ClientHeight = 23
+      ClientWidth = 332
+      inherited labMin: TLabel
+        Height = 23
+      end
+      inherited fedMin: TOriFloatEdit
+        Height = 23
+      end
+      inherited labMax: TLabel
+        Height = 23
+      end
+      inherited fedMax: TOriFloatEdit
+        Height = 23
+      end
+    end
+  end
+end

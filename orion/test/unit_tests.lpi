@@ -1,0 +1,694 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="9"/>
+    <PathDelim Value="\"/>
+    <General>
+      <MainUnit Value="0"/>
+      <AutoCreateForms Value="False"/>
+      <Title Value="unit_tests"/>
+      <ResourceType Value="res"/>
+      <UseXPManifest Value="True"/>
+      <ActiveWindowIndexAtStart Value="0"/>
+    </General>
+    <i18n>
+      <EnableI18N LFM="False"/>
+    </i18n>
+    <VersionInfo>
+      <StringTable ProductVersion=""/>
+    </VersionInfo>
+    <BuildModes Count="1" Active="Default">
+      <Item1 Name="Default" Default="True"/>
+    </BuildModes>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
+      <ExcludeFileFilter Value="*.(bak|ppu|o|so);*~;backup"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+        <LaunchingApplication PathPlusParams="\usr\bin\xterm -T 'Lazarus Run Output' -e $(LazarusDir)\tools\runwait.sh $(TargetCmdLine)"/>
+      </local>
+    </RunParams>
+    <RequiredPackages Count="5">
+      <Item1>
+        <PackageName Value="TAChartLazarusPkg"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="RunTimeTypeInfoControls"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="FPCUnitTestRunner"/>
+      </Item3>
+      <Item4>
+        <PackageName Value="LCL"/>
+      </Item4>
+      <Item5>
+        <PackageName Value="FCL"/>
+      </Item5>
+    </RequiredPackages>
+    <Units Count="58">
+      <Unit0>
+        <Filename Value="unit_tests.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="unit_tests"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="24" Y="8"/>
+        <UsageCount Value="62"/>
+        <Loaded Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="tests_oriutils_strings.pas"/>
+        <UnitName Value="Tests_OriUtils_Strings"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="10" Y="28"/>
+        <UsageCount Value="55"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="..\oriutils_strings.pas"/>
+        <UnitName Value="OriUtils_Strings"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="37" Y="18"/>
+        <UsageCount Value="53"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="..\orieditors.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="OriEditors"/>
+        <EditorIndex Value="0"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="35"/>
+        <CursorPos X="35" Y="60"/>
+        <UsageCount Value="26"/>
+        <Loaded Value="True"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="..\oricontainers.pas"/>
+        <UnitName Value="OriContainers"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="56"/>
+        <CursorPos X="58" Y="115"/>
+        <UsageCount Value="32"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="C:\lazarus\fpc\2.6.0\source\rtl\objpas\classes\classesh.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="6"/>
+        <CursorPos X="4" Y="33"/>
+        <UsageCount Value="19"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="C:\lazarus\fpc\2.6.0\source\rtl\inc\objpash.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="174"/>
+        <CursorPos X="23" Y="201"/>
+        <UsageCount Value="17"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="C:\lazarus\fpc\2.6.0\source\rtl\objpas\classes\lists.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="604"/>
+        <CursorPos X="1" Y="619"/>
+        <UsageCount Value="17"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="..\oritabs.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="OriTabs"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="492"/>
+        <CursorPos X="33" Y="508"/>
+        <UsageCount Value="61"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="C:\lazarus\fpc\2.6.0\source\rtl\win32\classes.pp"/>
+        <UnitName Value="Classes"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="204"/>
+        <UsageCount Value="17"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="C:\lazarus\lcl\controls.pp"/>
+        <UnitName Value="Controls"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="2112"/>
+        <CursorPos X="20" Y="2143"/>
+        <UsageCount Value="25"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="C:\lazarus\lcl\lmessages.pp"/>
+        <UnitName Value="LMessages"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="334"/>
+        <CursorPos X="11" Y="229"/>
+        <UsageCount Value="19"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="C:\lazarus\fpc\2.6.0\source\rtl\win\wininc\messages.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1131"/>
+        <CursorPos X="6" Y="1152"/>
+        <UsageCount Value="17"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="C:\lazarus\fpc\2.6.0\source\rtl\objpas\classes\classes.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="314"/>
+        <CursorPos X="3" Y="329"/>
+        <UsageCount Value="7"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="C:\lazarus\lcl\graphics.pp"/>
+        <UnitName Value="Graphics"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="67"/>
+        <CursorPos X="3" Y="99"/>
+        <UsageCount Value="12"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="C:\lazarus\lcl\include\canvas.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1250"/>
+        <CursorPos X="43" Y="1196"/>
+        <UsageCount Value="10"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="..\origraphics.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="OriGraphics"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="57" Y="49"/>
+        <UsageCount Value="47"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="C:\lazarus\lcl\lclintf.pas"/>
+        <UnitName Value="LCLIntf"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="55"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="9"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="winpropeditor.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="WndPropEditor"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="WinPropEditor"/>
+        <EditorIndex Value="7"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="10" Y="23"/>
+        <UsageCount Value="43"/>
+        <Loaded Value="True"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="tests_oricontrols.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Tests_OriControls"/>
+        <EditorIndex Value="6"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="51" Y="34"/>
+        <UsageCount Value="43"/>
+        <Loaded Value="True"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="C:\lazarus\lcl\interfaces\win32\interfaces.pp"/>
+        <UnitName Value="Interfaces"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="2"/>
+        <CursorPos X="5" Y="43"/>
+        <UsageCount Value="7"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="C:\lazarus\lcl\include\control.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="4059"/>
+        <CursorPos X="33" Y="4075"/>
+        <UsageCount Value="7"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="C:\lazarus\ideintf\propedits.pp"/>
+        <UnitName Value="PropEdits"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1518"/>
+        <CursorPos X="12" Y="1519"/>
+        <UsageCount Value="11"/>
+      </Unit22>
+      <Unit23>
+        <Filename Value="C:\lazarus\ideintf\objectinspector.pp"/>
+        <UnitName Value="ObjectInspector"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="5198"/>
+        <CursorPos X="8" Y="5222"/>
+        <UsageCount Value="10"/>
+      </Unit23>
+      <Unit24>
+        <Filename Value="C:\lazarus\ideintf\componenteditors.pas"/>
+        <UnitName Value="ComponentEditors"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="22"/>
+        <CursorPos X="34" Y="46"/>
+        <UsageCount Value="10"/>
+      </Unit24>
+      <Unit25>
+        <Filename Value="C:\lazarus\lcl\include\wincontrol.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="5960"/>
+        <CursorPos X="10" Y="5990"/>
+        <UsageCount Value="9"/>
+      </Unit25>
+      <Unit26>
+        <Filename Value="C:\lazarus\lcl\arrow.pp"/>
+        <UnitName Value="Arrow"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="63"/>
+        <CursorPos X="7" Y="113"/>
+        <UsageCount Value="9"/>
+      </Unit26>
+      <Unit27>
+        <Filename Value="C:\lazarus\lcl\widgetset\wsarrow.pp"/>
+        <UnitName Value="WSArrow"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="63"/>
+        <CursorPos X="22" Y="117"/>
+        <UsageCount Value="9"/>
+      </Unit27>
+      <Unit28>
+        <Filename Value="C:\lazarus\fpc\2.6.0\source\rtl\inc\objpas.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="273"/>
+        <CursorPos X="12" Y="276"/>
+        <UsageCount Value="8"/>
+      </Unit28>
+      <Unit29>
+        <Filename Value="C:\lazarus\fpc\2.6.0\source\rtl\objpas\types.pp"/>
+        <UnitName Value="types"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="74"/>
+        <CursorPos X="3" Y="83"/>
+        <UsageCount Value="11"/>
+      </Unit29>
+      <Unit30>
+        <Filename Value="tests_oridialogs.pas"/>
+        <UnitName Value="Tests_OriDialogs"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="10"/>
+        <UsageCount Value="23"/>
+      </Unit30>
+      <Unit31>
+        <Filename Value="..\oridialogs.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="oridialogs"/>
+        <UsageCount Value="30"/>
+      </Unit31>
+      <Unit32>
+        <Filename Value="C:\lazarus\components\lazutils\lazutf8.pas"/>
+        <UnitName Value="LazUTF8"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="13"/>
+        <CursorPos X="49" Y="54"/>
+        <UsageCount Value="11"/>
+      </Unit32>
+      <Unit33>
+        <Filename Value="..\oriutils_math.pas"/>
+        <UnitName Value="oriutils_math"/>
+        <UsageCount Value="20"/>
+      </Unit33>
+      <Unit34>
+        <Filename Value="..\orimath.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="OriMath"/>
+        <EditorIndex Value="4"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="121"/>
+        <CursorPos X="58" Y="156"/>
+        <UsageCount Value="29"/>
+        <Loaded Value="True"/>
+      </Unit34>
+      <Unit35>
+        <Filename Value="..\oristrings.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="OriStrings"/>
+        <EditorIndex Value="5"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="97"/>
+        <CursorPos X="1" Y="139"/>
+        <UsageCount Value="28"/>
+        <Loaded Value="True"/>
+      </Unit35>
+      <Unit36>
+        <Filename Value="..\oridebugconsole.lfm"/>
+        <IsPartOfProject Value="True"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="50" Y="25"/>
+        <UsageCount Value="28"/>
+        <DefaultSyntaxHighlighter Value="LFM"/>
+      </Unit36>
+      <Unit37>
+        <Filename Value="..\oridebugconsole.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="WndDebugConsole"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="OriDebugConsole"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="5"/>
+        <CursorPos X="3" Y="26"/>
+        <UsageCount Value="28"/>
+      </Unit37>
+      <Unit38>
+        <Filename Value="..\oriutils_gui.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="OriUtils_Gui"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="58" Y="36"/>
+        <UsageCount Value="28"/>
+      </Unit38>
+      <Unit39>
+        <Filename Value="..\oriutils_tchart.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="OriUtils_TChart"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="39" Y="8"/>
+        <UsageCount Value="28"/>
+      </Unit39>
+      <Unit40>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\win\sysutils.pp"/>
+        <UnitName Value="sysutils"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="9"/>
+      </Unit40>
+      <Unit41>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\objpas\math.pp"/>
+        <UnitName Value="math"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="766"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="9"/>
+      </Unit41>
+      <Unit42>
+        <Filename Value="tests_orimath.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Tests_OriMath"/>
+        <EditorIndex Value="3"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="64" Y="33"/>
+        <UsageCount Value="28"/>
+        <Loaded Value="True"/>
+      </Unit42>
+      <Unit43>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\inc\strings.pp"/>
+        <UnitName Value="strings"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="9"/>
+      </Unit43>
+      <Unit44>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\objpas\strutils.pp"/>
+        <UnitName Value="strutils"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="91"/>
+        <CursorPos X="20" Y="103"/>
+        <UsageCount Value="11"/>
+      </Unit44>
+      <Unit45>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\objpas\sysutils\sysinth.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="33"/>
+        <CursorPos X="19" Y="35"/>
+        <UsageCount Value="10"/>
+      </Unit45>
+      <Unit46>
+        <Filename Value="tests_oristrings.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Tests_OriStrings"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="48" Y="33"/>
+        <UsageCount Value="26"/>
+      </Unit46>
+      <Unit47>
+        <Filename Value="tests_oriutils_gui.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Tests_OriUtils_Gui"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="32" Y="24"/>
+        <UsageCount Value="26"/>
+      </Unit47>
+      <Unit48>
+        <Filename Value="..\designtime.pas"/>
+        <UnitName Value="DesignTime"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="12"/>
+      </Unit48>
+      <Unit49>
+        <Filename Value="C:\lazarus\lcl\stdctrls.pp"/>
+        <UnitName Value="StdCtrls"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="728"/>
+        <CursorPos X="43" Y="754"/>
+        <UsageCount Value="13"/>
+      </Unit49>
+      <Unit50>
+        <Filename Value="C:\lazarus\lcl\include\customedit.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="220"/>
+        <CursorPos X="12" Y="81"/>
+        <UsageCount Value="13"/>
+      </Unit50>
+      <Unit51>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\objpas\sysutils\sysstrh.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="220"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="12"/>
+      </Unit51>
+      <Unit52>
+        <Filename Value="C:\lazarus\lcl\spin.pp"/>
+        <UnitName Value="Spin"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="24"/>
+        <CursorPos X="20" Y="49"/>
+        <UsageCount Value="12"/>
+      </Unit52>
+      <Unit53>
+        <Filename Value="C:\lazarus\lcl\include\spinedit.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="42" Y="36"/>
+        <UsageCount Value="12"/>
+      </Unit53>
+      <Unit54>
+        <Filename Value="C:\lazarus\lcl\widgetset\wsspin.pp"/>
+        <UnitName Value="WSSpin"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="46"/>
+        <CursorPos X="3" Y="92"/>
+        <UsageCount Value="12"/>
+      </Unit54>
+      <Unit55>
+        <Filename Value="C:\lazarus\fpc\2.6.2\source\rtl\win\wininc\messages.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1087"/>
+        <CursorPos X="6" Y="1120"/>
+        <UsageCount Value="12"/>
+      </Unit55>
+      <Unit56>
+        <Filename Value="C:\lazarus\lcl\lclproc.pas"/>
+        <UnitName Value="LCLProc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="5"/>
+        <CursorPos X="10" Y="361"/>
+        <UsageCount Value="11"/>
+      </Unit56>
+      <Unit57>
+        <Filename Value="..\..\..\..\..\..\usr\share\lazarus\1.0.10\components\fpcunit\guitestrunner.pas"/>
+        <UnitName Value="GuiTestRunner"/>
+        <EditorIndex Value="2"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="74"/>
+        <CursorPos X="50" Y="100"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit57>
+    </Units>
+    <JumpHistory Count="29" HistoryIndex="28">
+      <Position1>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="111" Column="3" TopLine="86"/>
+      </Position1>
+      <Position2>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="161" Column="6" TopLine="137"/>
+      </Position2>
+      <Position3>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="163" Column="5" TopLine="137"/>
+      </Position3>
+      <Position4>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="182" Column="6" TopLine="141"/>
+      </Position4>
+      <Position5>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="183" Column="10" TopLine="142"/>
+      </Position5>
+      <Position6>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="232" Column="18" TopLine="208"/>
+      </Position6>
+      <Position7>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="408" Column="37" TopLine="385"/>
+      </Position7>
+      <Position8>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position8>
+      <Position9>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="32" Column="54" TopLine="1"/>
+      </Position9>
+      <Position10>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="437" Column="20" TopLine="407"/>
+      </Position10>
+      <Position11>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="67" Column="40" TopLine="52"/>
+      </Position11>
+      <Position12>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="54" Column="1" TopLine="19"/>
+      </Position12>
+      <Position13>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="436" Column="1" TopLine="416"/>
+      </Position13>
+      <Position14>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="24" Column="122" TopLine="19"/>
+      </Position14>
+      <Position15>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="467" Column="1" TopLine="447"/>
+      </Position15>
+      <Position16>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="53" Column="1" TopLine="29"/>
+      </Position16>
+      <Position17>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="446" Column="26" TopLine="414"/>
+      </Position17>
+      <Position18>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position18>
+      <Position19>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="301" Column="3" TopLine="272"/>
+      </Position19>
+      <Position20>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="470" Column="1" TopLine="418"/>
+      </Position20>
+      <Position21>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="74" Column="9" TopLine="34"/>
+      </Position21>
+      <Position22>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position22>
+      <Position23>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="440" Column="1" TopLine="358"/>
+      </Position23>
+      <Position24>
+        <Filename Value="..\orieditors.pas"/>
+        <Caret Line="80" Column="47" TopLine="40"/>
+      </Position24>
+      <Position25>
+        <Filename Value="unit_tests.lpr"/>
+        <Caret Line="18" Column="18" TopLine="1"/>
+      </Position25>
+      <Position26>
+        <Filename Value="unit_tests.lpr"/>
+        <Caret Line="6" Column="65" TopLine="1"/>
+      </Position26>
+      <Position27>
+        <Filename Value="unit_tests.lpr"/>
+        <Caret Line="18" Column="44" TopLine="1"/>
+      </Position27>
+      <Position28>
+        <Filename Value="..\..\..\..\..\..\usr\share\lazarus\1.0.10\components\fpcunit\guitestrunner.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position28>
+      <Position29>
+        <Filename Value="unit_tests.lpr"/>
+        <Caret Line="6" Column="65" TopLine="1"/>
+      </Position29>
+    </JumpHistory>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="11"/>
+    <PathDelim Value="\"/>
+    <Target>
+      <Filename Value="unit_tests"/>
+    </Target>
+    <SearchPaths>
+      <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value=".."/>
+      <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+    </SearchPaths>
+    <Linking>
+      <Debugging>
+        <GenerateDebugInfo Value="False"/>
+      </Debugging>
+    </Linking>
+    <Other>
+      <CompilerMessages>
+        <MsgFileName Value=""/>
+      </CompilerMessages>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions Count="4">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+      <Item2>
+        <Name Value="ECodetoolError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EFOpenError"/>
+      </Item3>
+      <Item4>
+        <Name Value="EResNotFound"/>
+      </Item4>
+    </Exceptions>
+  </Debugging>
+</CONFIG>

@@ -1,0 +1,57 @@
+object RangeFrm: TRangeFrm
+  Left = 0
+  Height = 30
+  Top = 0
+  Width = 320
+  AutoSize = True
+  ChildSizing.HorizontalSpacing = 6
+  ChildSizing.VerticalSpacing = 6
+  ClientHeight = 30
+  ClientWidth = 320
+  TabOrder = 0
+  DesignLeft = 947
+  DesignTop = 566
+  object labMin: TLabel
+    Left = 0
+    Height = 30
+    Top = 0
+    Width = 22
+    Align = alLeft
+    Caption = 'Min'
+    Layout = tlCenter
+    ParentColor = False
+  end
+  object fedMin: TOriFloatEdit
+    Left = 28
+    Height = 30
+    Top = 0
+    Width = 100
+    MinValue = 0
+    MaxValue = 0
+    Value = 0
+    Align = alLeft
+    TabOrder = 0
+  end
+  object labMax: TLabel
+    Left = 140
+    Height = 30
+    Top = 0
+    Width = 23
+    Align = alLeft
+    BorderSpacing.Left = 12
+    Caption = 'Max'
+    Layout = tlCenter
+    ParentColor = False
+  end
+  object fedMax: TOriFloatEdit
+    Left = 169
+    Height = 30
+    Top = 0
+    Width = 100
+    MinValue = 0
+    MaxValue = 0
+    Value = 0
+    Align = alLeft
+    TabOrder = 1
+  end
+end

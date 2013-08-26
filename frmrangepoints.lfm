@@ -1,0 +1,59 @@
+object RangePointsFrm: TRangePointsFrm
+  Left = 0
+  Height = 101
+  Top = 0
+  Width = 243
+  AutoSize = True
+  ChildSizing.HorizontalSpacing = 6
+  ChildSizing.VerticalSpacing = 6
+  ChildSizing.Layout = cclLeftToRightThenTopToBottom
+  ChildSizing.ControlsPerLine = 2
+  ClientHeight = 101
+  ClientWidth = 243
+  TabOrder = 0
+  DesignLeft = 963
+  DesignTop = 497
+  object rbStep: TRadioButton
+    Left = 6
+    Height = 23
+    Top = 0
+    Width = 98
+    Caption = 'with step'
+    OnChange = rbStepChange
+    TabOrder = 0
+  end
+  object fedStep: TOriFloatEdit
+    Left = 110
+    Height = 23
+    Top = 0
+    Width = 100
+    MinValue = 0
+    MaxValue = 0
+    Value = 0
+    OnChange = fedStepChange
+    TabOrder = 1
+  end
+  object rbPoints: TRadioButton
+    Left = 6
+    Height = 23
+    Top = 29
+    Width = 98
+    BorderSpacing.Left = 6
+    Caption = 'points number'
+    Checked = True
+    OnChange = rbPointsChange
+    TabOrder = 2
+    TabStop = True
+  end
+  object sePoints: TSpinEdit
+    Left = 110
+    Height = 23
+    Top = 29
+    Width = 100
+    MaxValue = 1000000
+    MinValue = 2
+    OnChange = sePointsChange
+    TabOrder = 3
+    Value = 2
+  end
+end

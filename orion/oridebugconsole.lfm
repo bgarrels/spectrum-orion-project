@@ -1,0 +1,54 @@
+object WndDebugConsole: TWndDebugConsole
+  Left = 640
+  Height = 445
+  Top = 389
+  Width = 672
+  Caption = 'Debug Console'
+  ClientHeight = 445
+  ClientWidth = 672
+  FormStyle = fsStayOnTop
+  OnClose = FormClose
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  ShowInTaskBar = stAlways
+  LCLVersion = '1.0.10.0'
+  Visible = True
+  object MemoLog: TMemo
+    Left = 3
+    Height = 414
+    Top = 28
+    Width = 666
+    Align = alClient
+    BorderSpacing.Around = 3
+    Font.Height = -15
+    Font.Name = 'Courier New'
+    ParentFont = False
+    ReadOnly = True
+    ScrollBars = ssAutoVertical
+    TabOrder = 0
+  end
+  object Toolbar: TToolBar
+    Left = 3
+    Height = 22
+    Top = 3
+    Width = 669
+    AutoSize = True
+    BorderSpacing.Left = 3
+    BorderSpacing.Top = 3
+    Caption = 'Toolbar'
+    EdgeBorders = []
+    Flat = False
+    Indent = 0
+    ParentShowHint = False
+    ShowCaptions = True
+    ShowHint = True
+    TabOrder = 1
+    Transparent = True
+    object ButtonClear: TToolButton
+      Left = 0
+      Top = 0
+      Caption = 'Clear'
+      OnClick = ButtonClearClick
+    end
+  end
+end

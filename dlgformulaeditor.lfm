@@ -1,0 +1,111 @@
+object FormulaEditorDlg: TFormulaEditorDlg
+  Left = 749
+  Height = 250
+  Top = 438
+  Width = 600
+  ActiveControl = CodeEditor
+  BorderIcons = [biSystemMenu]
+  Caption = 'Formula Editor'
+  ClientHeight = 250
+  ClientWidth = 600
+  OnCreate = FormCreate
+  OnResize = FormResize
+  PopupMode = pmAuto
+  Position = poScreenCenter
+  LCLVersion = '1.0.10.0'
+  object ButtonPanel1: TButtonPanel
+    Left = 6
+    Height = 26
+    Top = 218
+    Width = 588
+    BorderSpacing.Left = 6
+    BorderSpacing.Top = 12
+    BorderSpacing.Right = 6
+    BorderSpacing.Bottom = 6
+    BorderSpacing.Around = 0
+    OKButton.Name = 'OKButton'
+    OKButton.DefaultCaption = True
+    HelpButton.Name = 'HelpButton'
+    HelpButton.DefaultCaption = True
+    CloseButton.Name = 'CloseButton'
+    CloseButton.DefaultCaption = True
+    CancelButton.Name = 'CancelButton'
+    CancelButton.DefaultCaption = True
+    TabOrder = 0
+    ShowButtons = [pbOK, pbCancel, pbHelp]
+    ShowBevel = False
+  end
+  object GroupBox1: TGroupBox
+    Left = 6
+    Height = 76
+    Top = 130
+    Width = 588
+    Align = alBottom
+    AutoSize = True
+    BorderSpacing.Around = 6
+    Caption = 'Range'
+    ChildSizing.HorizontalSpacing = 6
+    ChildSizing.VerticalSpacing = 6
+    ClientHeight = 58
+    ClientWidth = 584
+    TabOrder = 1
+    inline RangeX: TRangeFrm
+      Left = 6
+      Height = 23
+      Width = 269
+      BorderSpacing.Left = 6
+      ClientHeight = 23
+      ClientWidth = 269
+      inherited labMin: TLabel
+        Height = 23
+      end
+      inherited fedMin: TOriFloatEdit
+        Height = 23
+      end
+      inherited labMax: TLabel
+        Height = 23
+      end
+      inherited fedMax: TOriFloatEdit
+        Height = 23
+      end
+    end
+    inline PointsX: TRangePointsFrm
+      Left = 368
+      Height = 52
+      Width = 210
+      Align = alRight
+      BorderSpacing.Left = 6
+      BorderSpacing.Right = 6
+      BorderSpacing.Bottom = 6
+      ClientHeight = 52
+      ClientWidth = 210
+      TabOrder = 1
+    end
+  end
+  object GroupBox2: TGroupBox
+    Left = 6
+    Height = 121
+    Top = 3
+    Width = 588
+    Align = alClient
+    BorderSpacing.Left = 6
+    BorderSpacing.Top = 3
+    BorderSpacing.Right = 6
+    Caption = 'Formula'
+    ClientHeight = 103
+    ClientWidth = 584
+    TabOrder = 2
+    object CodeEditor: TMemo
+      Left = 6
+      Height = 91
+      Top = 6
+      Width = 572
+      Align = alClient
+      BorderSpacing.Around = 6
+      Font.Height = -15
+      Font.Name = 'Courier New'
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+end
