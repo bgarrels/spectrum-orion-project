@@ -15,14 +15,14 @@ object RangeFrm: TRangeFrm
     Left = 0
     Height = 30
     Top = 0
-    Width = 22
+    Width = 26
     Align = alLeft
     Caption = 'Min'
     Layout = tlCenter
     ParentColor = False
   end
   object fedMin: TOriFloatEdit
-    Left = 28
+    Left = 32
     Height = 30
     Top = 0
     Width = 100
@@ -33,10 +33,10 @@ object RangeFrm: TRangeFrm
     TabOrder = 0
   end
   object labMax: TLabel
-    Left = 140
+    Left = 144
     Height = 30
     Top = 0
-    Width = 23
+    Width = 30
     Align = alLeft
     BorderSpacing.Left = 12
     Caption = 'Max'
@@ -44,7 +44,7 @@ object RangeFrm: TRangeFrm
     ParentColor = False
   end
   object fedMax: TOriFloatEdit
-    Left = 169
+    Left = 180
     Height = 30
     Top = 0
     Width = 100
@@ -54,4 +54,4 @@ object RangeFrm: TRangeFrm
     Align = alLeft
     TabOrder = 1
   end
-end
+end

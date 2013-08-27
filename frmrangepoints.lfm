@@ -15,16 +15,16 @@ object RangePointsFrm: TRangePointsFrm
   DesignTop = 497
   object rbStep: TRadioButton
     Left = 6
-    Height = 23
+    Height = 27
     Top = 0
-    Width = 98
+    Width = 124
     Caption = 'with step'
     OnChange = rbStepChange
     TabOrder = 0
   end
   object fedStep: TOriFloatEdit
-    Left = 110
-    Height = 23
+    Left = 136
+    Height = 27
     Top = 0
     Width = 100
     MinValue = 0
@@ -35,9 +35,9 @@ object RangePointsFrm: TRangePointsFrm
   end
   object rbPoints: TRadioButton
     Left = 6
-    Height = 23
-    Top = 29
-    Width = 98
+    Height = 27
+    Top = 33
+    Width = 124
     BorderSpacing.Left = 6
     Caption = 'points number'
     Checked = True
@@ -46,9 +46,9 @@ object RangePointsFrm: TRangePointsFrm
     TabStop = True
   end
   object sePoints: TSpinEdit
-    Left = 110
-    Height = 23
-    Top = 29
+    Left = 136
+    Height = 27
+    Top = 33
     Width = 100
     MaxValue = 1000000
     MinValue = 2
@@ -56,4 +56,4 @@ object RangePointsFrm: TRangePointsFrm
     TabOrder = 3
     Value = 2
   end
-end
+end

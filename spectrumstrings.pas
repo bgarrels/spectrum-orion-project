@@ -30,6 +30,12 @@ resourcestring
 
   Plot_DefTitle = 'Diagram';
 
+  ParamErr_ZeroRange = 'Range can not be zero (Min = Max).';
+  ParamErr_WrongFloat = '%s is not valid number.';
+  ParamErr_WrongStep = 'Wrong step value: %g.' + LineEnding + LineEnding +
+    'Step must be greater then zero but less then range between minimum and maximum (%g).';
+
+
 implementation
 
 end.

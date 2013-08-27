@@ -17,6 +17,17 @@ type
     procedure rbPointsChange(Sender: TObject);
     procedure rbStepChange(Sender: TObject);
     procedure sePointsChange(Sender: TObject);
+  private
+    procedure SetStep(const Value: Double);
+    procedure SetPoints(Value: Integer);
+    procedure SetUseStep(Value: Boolean);
+    function GetStep: Double;
+    function GetPoints: Integer;
+    function GetUseStep: Boolean;
+  public
+    property Step: Double read GetStep write SetStep;
+    property Points: Integer read  GetPoints write SetPoints;
+    property UseStep: Boolean read GetUseStep write SetUseStep;
   end;
 
 implementation
@@ -43,5 +54,36 @@ begin
   rbPoints.Checked := True;
 end;
 
-end.
+procedure TRangePointsFrm.SetStep(const Value: Double);
+begin
+  fedStep.Value := Value;
+end;
 
+procedure TRangePointsFrm.SetPoints(Value: Integer);
+begin
+  sePoints.Value := Value;
+end;
+
+procedure TRangePointsFrm.SetUseStep(Value: Boolean);
+begin
+  rbStep.Checked := Value;
+  rbPoints.Checked := not Value;
+end;
+
+function TRangePointsFrm.GetStep: Double;
+begin
+  Result := fedStep.Value;
+end;
+
+function TRangePointsFrm.GetPoints: Integer;
+begin
+  Result := sePoints.Value;
+end;
+
+function TRangePointsFrm.GetUseStep: Boolean;
+begin
+  Result := rbStep.Checked;
+end;
+
+end.
+

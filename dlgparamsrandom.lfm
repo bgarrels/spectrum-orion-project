@@ -1,7 +1,7 @@
 object RandomParamsDlg: TRandomParamsDlg
-  Left = 769
+  Left = 1088
   Height = 254
-  Top = 651
+  Top = 634
   Width = 360
   AutoSize = True
   BorderIcons = [biSystemMenu]
@@ -9,14 +9,16 @@ object RandomParamsDlg: TRandomParamsDlg
   Caption = 'Create Random Sample Graph'
   ClientHeight = 254
   ClientWidth = 360
+  OnClose = FormClose
+  OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   PopupMode = pmAuto
   Position = poScreenCenter
   LCLVersion = '1.0.10.0'
   object ButtonPanel1: TButtonPanel
     Left = 6
-    Height = 26
-    Top = 222
+    Height = 29
+    Top = 219
     Width = 348
     BorderSpacing.Left = 6
     BorderSpacing.Top = 12
@@ -37,7 +39,7 @@ object RandomParamsDlg: TRandomParamsDlg
   end
   object GroupBoxX: TGroupBox
     Left = 6
-    Height = 148
+    Height = 140
     Top = 3
     Width = 348
     Align = alClient
@@ -47,48 +49,48 @@ object RandomParamsDlg: TRandomParamsDlg
     BorderSpacing.Right = 6
     Caption = 'X'
     ChildSizing.TopBottomSpacing = 6
-    ClientHeight = 130
+    ClientHeight = 121
     ClientWidth = 344
     TabOrder = 0
     inline RangeX: TRangeFrm
       Left = 6
-      Height = 23
+      Height = 27
       Top = 6
       Width = 332
       Align = alTop
       BorderSpacing.Left = 6
       BorderSpacing.Right = 6
-      ClientHeight = 23
+      ClientHeight = 27
       ClientWidth = 332
       inherited labMin: TLabel
-        Height = 23
+        Height = 27
       end
       inherited fedMin: TOriFloatEdit
-        Height = 23
+        Height = 27
       end
       inherited labMax: TLabel
-        Height = 23
+        Height = 27
       end
       inherited fedMax: TOriFloatEdit
-        Height = 23
+        Height = 27
       end
     end
     inline PointsX: TRangePointsFrm
-      Left = 128
-      Height = 89
-      Top = 35
-      Width = 210
+      Left = 102
+      Height = 76
+      Top = 39
+      Width = 236
       Align = alRight
       BorderSpacing.Around = 6
-      ClientHeight = 89
-      ClientWidth = 210
+      ClientHeight = 76
+      ClientWidth = 236
       TabOrder = 1
     end
   end
   object GroupBoxY: TGroupBox
     Left = 6
-    Height = 53
-    Top = 157
+    Height = 58
+    Top = 149
     Width = 348
     Align = alBottom
     AutoSize = True
@@ -98,30 +100,30 @@ object RandomParamsDlg: TRandomParamsDlg
     ChildSizing.TopBottomSpacing = 6
     ChildSizing.HorizontalSpacing = 6
     ChildSizing.VerticalSpacing = 6
-    ClientHeight = 35
+    ClientHeight = 39
     ClientWidth = 344
     TabOrder = 1
     inline RangeY: TRangeFrm
       Left = 6
-      Height = 23
+      Height = 27
       Top = 6
       Width = 332
       Align = alTop
       BorderSpacing.Left = 6
       BorderSpacing.Right = 6
-      ClientHeight = 23
+      ClientHeight = 27
       ClientWidth = 332
       inherited labMin: TLabel
-        Height = 23
+        Height = 27
       end
       inherited fedMin: TOriFloatEdit
-        Height = 23
+        Height = 27
       end
       inherited labMax: TLabel
-        Height = 23
+        Height = 27
       end
       inherited fedMax: TOriFloatEdit
-        Height = 23
+        Height = 27
       end
     end
   end

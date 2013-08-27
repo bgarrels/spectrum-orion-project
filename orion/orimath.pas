@@ -4,6 +4,8 @@ unit OriMath;
 
 interface
 
+procedure Swap(var Value1: Double; var Value2: Double); inline;
+
 {%region Float Number Formatting}
 type
   TOriFloatFormatParams = record
@@ -23,6 +25,15 @@ implementation
 uses
   SysUtils, Math,
   OriStrings;
+
+procedure Swap(var Value1: Double; var Value2: Double); inline;
+var
+  Tmp: Double;
+begin
+  Tmp := Value1;
+  Value1 := Value2;
+  Value2 := Tmp;
+end;
 
 {%region Float Number Formatting}
 { The function formats a float number in a way like style General in Mathcad.
@@ -163,4 +174,4 @@ end;
 {%endregion}
 
 end.
-
+
