@@ -3,8 +3,8 @@ unit SpectrumTypes;
 interface
 
 uses
-  SysUtils, Math;
-//  PropSaver;
+  SysUtils, Math,
+  OriIniFile;
 
 type
   TValue = Double;
@@ -18,6 +18,11 @@ const
   VALUE_MAX = MaxDouble;
 
 type
+  TSimpleSearchKind = (skFindMax, skFindMin, skFindWHM, skFindDlt, skFindAvg, skIntegral);
+  TDecimalSeparator = (dseSystem, dsePoint, dseComma);
+  TLineDelimiter = (ldWindows, ldUnix, ldMac, ldSpecial);
+  TValueDelimiter = (vdTab, vdSpace, vdCustom);
+
   TGraphRec = record
     X, Y: TValueArray;
   end;
@@ -76,8 +81,8 @@ type
   PRangeParams = ^TRangeParams;
 
   procedure CalcStep(var AParams: TRangeParams; out ACount: Integer; out AStep: TValue);
-  //procedure Save(var AParams: TRangeParams; const Key: String; Ini: TPropSaver);
-  //procedure Load(var AParams: TRangeParams; const Key: String; Ini: TPropSaver);
+  procedure Save(var AParams: TRangeParams; const Key: String; Ini: TOriIniFile); overload;
+  procedure Load(var AParams: TRangeParams; const Key: String; Ini: TOriIniFile); overload;
 
 type
   TRandomSampleParams = packed record
@@ -130,29 +135,29 @@ begin
     end;
 end;
 
-//procedure Save(var AParams: TRangeParams; const Key: String; Ini: TPropSaver);
-//begin
-//  with AParams, Ini do
-//  begin
-//    WriteFloat(Key + '.Min', Min);
-//    WriteFloat(Key + '.Max', Max);
-//    WriteFloat(Key + '.Step', Step);
-//    WriteInteger(Key + '.Points', Points);
-//    WriteBool(Key + '.UseStep', UseStep);
-//  end
-//end;
-//
-//procedure Load(var AParams: TRangeParams; const Key: String; Ini: TPropSaver);
-//begin
-//  with AParams, Ini do
-//  begin
-//    Min := ReadFloat(Key + '.Min', 0);
-//    Max := ReadFloat(Key + '.Max', 100);
-//    Step := ReadFloat(Key + '.Step', 1);
-//    Points := ReadInteger(Key + '.Points', 101);
-//    UseStep := ReadBool(Key + '.UseStep', True);
-//  end;
-//end;
+procedure Save(var AParams: TRangeParams; const Key: String; Ini: TOriIniFile);
+begin
+  with AParams, Ini do
+  begin
+    WriteFloat(Key + '.Min', Min);
+    WriteFloat(Key + '.Max', Max);
+    WriteFloat(Key + '.Step', Step);
+    WriteInteger(Key + '.Points', Points);
+    WriteBool(Key + '.UseStep', UseStep);
+  end
+end;
+
+procedure Load(var AParams: TRangeParams; const Key: String; Ini: TOriIniFile);
+begin
+  with AParams, Ini do
+  begin
+    Min := ReadFloat(Key + '.Min', 0);
+    Max := ReadFloat(Key + '.Max', 100);
+    Step := ReadFloat(Key + '.Step', 1);
+    Points := ReadInteger(Key + '.Points', 101);
+    UseStep := ReadBool(Key + '.UseStep', True);
+  end;
+end;
 {%endregion}
 
-end.
+end.

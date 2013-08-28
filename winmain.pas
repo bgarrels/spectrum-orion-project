@@ -5,9 +5,7 @@ unit WinMain;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, TAGraph, TAChartImageList, TASources, TASeries,
-  Forms, Controls, Graphics, Dialogs, ActnList, ComCtrls, Menus, ExtCtrls,
-  Buttons, StdCtrls,
+  SysUtils, Controls, Forms, Dialogs, ActnList, ComCtrls, ExtCtrls, TAGraph,
   Plots, Diagram, SpectrumControls;
 
 type
@@ -46,8 +44,6 @@ type
     ToolbarBook: TNotebook;
     PageProject: TPage;
     PlotsBook: TNotebook;
-    RandomChartSource1: TRandomChartSource;
-    RandomChartSource2: TRandomChartSource;
     StatusBar: TStatusBar;
     ToolBar1: TToolBar;
     ToolBarProject: TToolBar;
@@ -116,9 +112,9 @@ var
 implementation
 
 uses
-  SpectrumStrings,
-
-  DlgParamsRandom, DlgFormulaEditor;
+  OriIniFile, OriUtils_Gui,
+  SpectrumTypes, SpectrumSettings,
+  PlotMath, DlgFormulaEditor;
 
 {$R *.lfm}
 
@@ -145,7 +141,15 @@ end;
 procedure TMainWnd.FormDestroy(Sender: TObject);
 var
   Diagram: TDiagram;
+  Ini: TOriIniFile;
 begin
+  Ini := TOriIniFile.Create;
+  try
+    SaveAllStates(Ini);
+  finally
+    Ini.Free;
+  end;
+
   for Diagram in FDiagrams do
     Diagram.Free;
   FDiagrams.Free;
@@ -228,12 +232,12 @@ end;
 
 {%region Add Actions}
 procedure TMainWnd.ActionAddRandomExecute(Sender: TObject);
+var
+  Params: TRandomSampleParams;
 begin
-  with TRandomParamsDlg.Create(Self) do
-  try
-    ShowModal;
-  finally
-    Free;
+  if AskRandomSampleParams(Params) then
+  begin
+    // TODO: PlotSet.AddPlot(PlotMath.GetSampleGraph(Params), 'Sample');
   end;
 end;
 

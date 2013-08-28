@@ -392,7 +392,7 @@ object MainWnd: TMainWnd
   end
   object Images16: TImageList
     left = 280
-    top = 264
+    top = 204
     Bitmap = {
       4C69100000001000000010000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -913,7 +913,7 @@ object MainWnd: TMainWnd
     Height = 24
     Width = 24
     left = 280
-    top = 328
+    top = 264
     Bitmap = {
       4C69100000001800000018000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -2069,25 +2069,5 @@ object MainWnd: TMainWnd
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000
     }
-  end
-  object RandomChartSource1: TRandomChartSource
-    PointsNumber = 100
-    RandSeed = 1064681928
-    XMax = 100
-    XMin = 0
-    YMax = 100
-    YMin = 0
-    left = 160
-    top = 392
-  end
-  object RandomChartSource2: TRandomChartSource
-    PointsNumber = 100
-    RandSeed = 1071518979
-    XMax = 100
-    XMin = 0
-    YMax = 100
-    YMin = 0
-    left = 160
-    top = 456
   end
 end

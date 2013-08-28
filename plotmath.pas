@@ -17,7 +17,7 @@ type
 //function SelectGraph(): TGraph; overload;
 
 //function AskTrimParams(var AParams: TTrimParams): Boolean;
-//function AskRandomSampleParams(var AParams: TRandomSampleParams): Boolean;
+function AskRandomSampleParams(var AParams: TRandomSampleParams): Boolean;
 //function AskOffsetParams(var AParams: TOffsetParams): Boolean;
 //function AskNormalizeParams(var AParams: TNormalizeParams): Boolean;
 //function AskScaleParams(var AParams: TScaleParams): Boolean;
@@ -28,6 +28,7 @@ type
 //function AskFormulaParams(AParams: TFormulaParams): Boolean;
 //function EditFormulaParams(AParams: TFormulaParams): Boolean;
 
+function GetSampleGraph(var AParams: TRandomSampleParams): TGraphRec;
 procedure FillSampleValues(var ValuesX: TValueArray; var ValuesY: TValueArray;
   Count: Integer); overload;
 procedure FillSampleValues(var ValuesX: TValueArray; var ValuesY: TValueArray;
@@ -89,8 +90,9 @@ function FormulaExpression(const Formula: String): String;
 implementation
 
 uses
-  SysUtils, {Controls,} Classes, Math,
-  OriUtils, OriStrings;
+  SysUtils, Controls, Classes, Math,
+  OriUtils, OriStrings,
+  DlgParamsRandom;
 //  WinGraphsSelect, WinParamsTrim, WinParamsRandomSample, WinParamsOffset,
 //  WinParamsNorm, WinParamsScale, WinParamsMisc, WinParamsAllan, WinParamsDespike,
 //  WinFormula;
@@ -101,12 +103,12 @@ function AskTrimParams(var AParams: TTrimParams): Boolean;
 begin
   Result := TwndParamsTrim.Create(@AParams).ShowModal = mrOk;
 end;
-
+}
 function AskRandomSampleParams(var AParams: TRandomSampleParams): Boolean;
 begin
-  Result := TwndParamsRandomSample.Create(@AParams).ShowModal = mrOK;
+  Result := TRandomParamsDlg.Create(AParams).ShowModal = mrOK;
 end;
-
+{
 function AskOffsetParams(var AParams: TOffsetParams): Boolean;
 begin
   Result := TwndParamsOffset.Create(@AParams).ShowModal = mrOK;
@@ -250,7 +252,11 @@ begin
   end;
 end;
 
-//------------------------------------------------------------------------------
+function GetSampleGraph(var AParams: TRandomSampleParams): TGraphRec;
+begin
+  FillSampleValues(Result.X, Result.Y, AParams);
+end;
+
 procedure FillSampleValues(var ValuesX: TValueArray; var ValuesY: TValueArray; Count: Integer);
 const
   H = 25.0;
@@ -1025,4 +1031,4 @@ end;
 //  Result.Y := Graph.ValuesY;
 //end;
 
-end.
+end.

@@ -36,7 +36,11 @@ implementation
 
 procedure TRangePointsFrm.rbStepChange(Sender: TObject);
 begin
-  if rbStep.Checked then fedStep.SetFocus;
+  try
+    if rbStep.Checked and fedStep.CanFocus then fedStep.SetFocus;
+  except
+    // On FormCreate CanFocus = True but SetFocus raises 'Can not focus'
+  end;
 end;
 
 procedure TRangePointsFrm.fedStepChange(Sender: TObject);
@@ -46,7 +50,11 @@ end;
 
 procedure TRangePointsFrm.rbPointsChange(Sender: TObject);
 begin
-  if rbPoints.Checked then sePoints.SetFocus;
+  try
+    if rbPoints.Checked and sePoints.CanFocus then sePoints.SetFocus;
+  except
+    // On FormCreate CanFocus = True but SetFocus raises 'Can not focus'
+  end;
 end;
 
 procedure TRangePointsFrm.sePointsChange(Sender: TObject);

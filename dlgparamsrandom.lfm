@@ -3,6 +3,7 @@ object RandomParamsDlg: TRandomParamsDlg
   Height = 254
   Top = 634
   Width = 360
+  ActiveControl = RangeX
   AutoSize = True
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog

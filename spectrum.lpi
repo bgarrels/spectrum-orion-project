@@ -132,9 +132,9 @@
         <UnitName Value="Diagram"/>
       </Unit13>
       <Unit14>
-        <Filename Value="orion/oriinifile.pas"/>
+        <Filename Value="spectrumsettings.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="OriIniFile"/>
+        <UnitName Value="SpectrumSettings"/>
       </Unit14>
     </Units>
   </ProjectOptions>

@@ -5,7 +5,7 @@ unit FrmRange;
 interface
 
 uses
-  Forms, StdCtrls, OriEditors;
+  Controls, Forms, StdCtrls, OriEditors;
 
 type
   TRangeFrm = class(TFrame)
@@ -18,9 +18,11 @@ type
     procedure SetMax(const Value: Double);
     function GetMin: Double;
     function GetMax: Double;
+    function GetActiveControl: TWinControl;
   public
     property Min: Double read GetMin write SetMin;
     property Max: Double read GetMax write SetMax;
+    property ActiveControl: TWinControl read GetActiveControl;
   end;
 
 implementation
@@ -45,6 +47,11 @@ end;
 function TRangeFrm.GetMax: Double;
 begin
   Result := fedMax.Value;
+end;
+
+function TRangeFrm.GetActiveControl: TWinControl;
+begin
+  Result := fedMin;
 end;
 
 end.

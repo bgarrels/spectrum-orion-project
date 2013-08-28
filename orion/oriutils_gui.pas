@@ -11,6 +11,7 @@ procedure SetDefaultColor(AControl: TWinControl; AColor: TColor = clNone);
 procedure ScaleDPI(AControl: TControl; FromDPI: Integer);
 
 {%region Message Dialogs}
+procedure MessageDlg(const S: String);
 procedure ErrorDlg(const S: String);
 procedure ErrorDlg(const S: String; Args: array of const);
 {%endregion}
@@ -90,9 +91,14 @@ end;
 
 
 {%region Message Dialogs}
+procedure MessageDlg(const S: String);
+begin
+  Dialogs.MessageDlg(Application.Title, S, mtInformation, [mbOK], '');
+end;
+
 procedure ErrorDlg(const S: String);
 begin
-  MessageDlg(Application.Title, S, mtError, [mbOK], '');
+  Dialogs.MessageDlg(Application.Title, S, mtError, [mbOK], '');
 end;
 
 procedure ErrorDlg(const S: String; Args: array of const);
