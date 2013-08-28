@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=6.0
+Name=Spectrum
+Comment=Plot your data in a few clicks
+Exec=/home/enter/projects/spectrum/spectrum
+Icon=/home/enter/projects/spectrum/spectrum.png
+Terminal=false
+Type=Application
+Categories=Application;
