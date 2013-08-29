@@ -236,9 +236,7 @@ var
   Params: TRandomSampleParams;
 begin
   if AskRandomSampleParams(Params) then
-  begin
-    // TODO: PlotSet.AddPlot(PlotMath.GetSampleGraph(Params), 'Sample');
-  end;
+    CurPlot.AddGraph(TGraph.Create(PlotMath.GetSampleGraph(Params), 'Sample'));
 end;
 
 procedure TMainWnd.ActionAddFormulaExecute(Sender: TObject);
@@ -255,17 +253,17 @@ end;
 {%region Plot Accessors}
 function TMainWnd.GetCurPlot: TPlot;
 begin
-
+  Result := CurDiagram.Plot;
 end;
 
 function TMainWnd.GetCurChart: TChart;
 begin
-
+  Result := CurDiagram.Chart;
 end;
 
 function TMainWnd.GetCurDiagram: TDiagram;
 begin
-
+  Result := TDiagram(FPlotTabs.ActiveTab.Feature);
 end;
 {%endregion}
 

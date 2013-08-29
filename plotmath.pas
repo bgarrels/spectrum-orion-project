@@ -17,7 +17,7 @@ type
 //function SelectGraph(): TGraph; overload;
 
 //function AskTrimParams(var AParams: TTrimParams): Boolean;
-function AskRandomSampleParams(var AParams: TRandomSampleParams): Boolean;
+function AskRandomSampleParams(out AParams: TRandomSampleParams): Boolean;
 //function AskOffsetParams(var AParams: TOffsetParams): Boolean;
 //function AskNormalizeParams(var AParams: TNormalizeParams): Boolean;
 //function AskScaleParams(var AParams: TScaleParams): Boolean;
@@ -29,18 +29,12 @@ function AskRandomSampleParams(var AParams: TRandomSampleParams): Boolean;
 //function EditFormulaParams(AParams: TFormulaParams): Boolean;
 
 function GetSampleGraph(var AParams: TRandomSampleParams): TGraphRec;
-procedure FillSampleValues(var ValuesX: TValueArray; var ValuesY: TValueArray;
-  Count: Integer); overload;
-procedure FillSampleValues(var ValuesX: TValueArray; var ValuesY: TValueArray;
-  var AParams: TRandomSampleParams); overload;
-
-function TrimValuesLeft(var ValuesX: TValueArray; var ValuesY: TValueArray;
-  const Value: TValue; Refine: Boolean): Boolean;
-function TrimValuesRight(var ValuesX: TValueArray; var ValuesY: TValueArray;
-  const Value: TValue; Refine: Boolean): Boolean;
+procedure FillSampleValues(out ValuesX: TValueArray; out ValuesY: TValueArray; Count: Integer); overload;
+procedure FillSampleValues(out ValuesX: TValueArray; out ValuesY: TValueArray; var AParams: TRandomSampleParams); overload;
+function TrimValuesLeft(var ValuesX: TValueArray; var ValuesY: TValueArray; const Value: TValue; Refine: Boolean): Boolean;
+function TrimValuesRight(var ValuesX: TValueArray; var ValuesY: TValueArray; const Value: TValue; Refine: Boolean): Boolean;
 procedure NormalizeValues(var Values: TValueArray; const Value: TValue; PerMax: Boolean);
-procedure ScaleValues(var Values: TValueArray;
-  CenterKind: TScaleCenterKind; const CenterValue, Value: TValue);
+procedure ScaleValues(var Values: TValueArray; CenterKind: TScaleCenterKind; const CenterValue, Value: TValue);
 procedure OffsetValues(var Values: TValueArray; Kind: TOffsetKind; const Value: TValue); overload;
 procedure OffsetValues(var Values: TValueArray; const Value: TValue); overload;
 procedure InverseValues(var Values, Values1: TValueArray; const Value: TValue);
@@ -104,7 +98,7 @@ begin
   Result := TwndParamsTrim.Create(@AParams).ShowModal = mrOk;
 end;
 }
-function AskRandomSampleParams(var AParams: TRandomSampleParams): Boolean;
+function AskRandomSampleParams(out AParams: TRandomSampleParams): Boolean;
 begin
   Result := TRandomParamsDlg.Create(AParams).ShowModal = mrOK;
 end;
@@ -257,7 +251,7 @@ begin
   FillSampleValues(Result.X, Result.Y, AParams);
 end;
 
-procedure FillSampleValues(var ValuesX: TValueArray; var ValuesY: TValueArray; Count: Integer);
+procedure FillSampleValues(out ValuesX: TValueArray; out ValuesY: TValueArray; Count: Integer);
 const
   H = 25.0;
 var
@@ -275,7 +269,7 @@ begin
   end;
 end;
 
-procedure FillSampleValues(var ValuesX: TValueArray; var ValuesY: TValueArray;
+procedure FillSampleValues(out ValuesX: TValueArray; out ValuesY: TValueArray;
   var AParams: TRandomSampleParams);
 var
   I, Count: Integer;

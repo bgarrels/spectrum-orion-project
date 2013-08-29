@@ -18,6 +18,7 @@ type
     FTabs: TNotebookTabList;
     FNotebook: TNotebook;
     FTabsPosition: TNotebookTabPosition;
+    function GetActiveTab: TNotebookTab;
     procedure InvalidateTabs;
     procedure SetTabsPosition(Value: TNotebookTabPosition);
   protected
@@ -26,6 +27,7 @@ type
     constructor Create(ANotebook: TNotebook); reintroduce;
     destructor Destroy; override;
     property TabsPosition: TNotebookTabPosition read FTabsPosition write SetTabsPosition;
+    property ActiveTab: TNotebookTab read GetActiveTab;
     function AddTab(const Title: String; Index: Integer): TNotebookTab; overload;
     procedure AddTab(const Title: String; Index: Integer; Feature: TObject); overload;
     procedure ShowTab(Index: Integer);
@@ -162,6 +164,14 @@ begin
   if TabsPosition = ntpBottom then Y := 0 else Y := Height-1;
   Canvas.Pen.Color := cl3DShadow;
   Canvas.Line(0, Y, Width, Y);
+end;
+
+function TNotebookTabs.GetActiveTab: TNotebookTab;
+begin
+  for Result in FTabs do
+    if Result.Checked then
+      Exit;
+  Result := nil;
 end;
 {%endregion}
 

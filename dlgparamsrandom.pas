@@ -22,7 +22,7 @@ type
   private
     FParams: PRandomSampleParams;
   public
-    constructor Create(var AParams: TRandomSampleParams); reintroduce;
+    constructor Create(out AParams: TRandomSampleParams); reintroduce;
   end;
 
 implementation
@@ -65,7 +65,7 @@ begin
   end;
 end;
 
-constructor TRandomParamsDlg.Create(var AParams: TRandomSampleParams);
+constructor TRandomParamsDlg.Create(out AParams: TRandomSampleParams);
 begin
   inherited Create(Application.MainForm);
 

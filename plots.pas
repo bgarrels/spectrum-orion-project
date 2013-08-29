@@ -30,28 +30,23 @@ type
     FValuesX: TValueArray;
     FValuesY: TValueArray;
 
-    // Заголовок генерируется автоматически. True для нового графика.
-    // При изменении заголовка через процедуру Rename этот флаг сбрасывается.
-    // При выставлении этого свойства в True ничего не произойдет до следующего
-    // обращения к объекту или процедуре, генерирующей заголовок (например,
-    // редактирование формулы). При обращении пользовательский заголовок
-    // пропадет и будет создан автоматиеский.
+    // Title is generated automatically. It is True for a new graph.
+    // Some operations can generate a graph's title (e.g. formula editing)
+    // if this flag is True. But when user renames graph the flag is reset.
     FAutoTitle: Boolean;
 
-    // Источник данных несет информационную нагрузку. Для оычного графика
-    // это путь к файлу, из которого брались данные. Либо это выражение или
-    // название функции, по которой построен график (например, Derivative(smth)).
-    // Реальный источник данных, если он какой-то особенный и его нужно будет
-    // повторно использовать, лучше хранить в объекте FParams.
+    // Data source of graph. It can be file path, expression or function name
+    // (e.g. Derivative(smth)). This value is just an information. It is
+    // better to store a true data source in FParams for following usage.
     FSource: String;
 
-    // Тип графика опредеяет, в частности, способ его сохранения и загрузки.
-    // Например, какого типа объект нужно создать для дополнительных параметров
-    // (FParams) при чтении графика из файла-проекта.
+    // Kind of graph particularly determines a way to store graph in project
+    // file. E.g. it controls what type of additional parameters (FParams)
+    // must be created while graph is read from project file.
     FKind: TGraphKind;
 
-    // Любые дополнительные свойства и параметры графика. Например, для графика
-    // выражения, задает параметры и функцию построения (TFormulaParams).
+    // Any additional graph params and properties. E.g. for expression graph
+    // stores a plotting function and parameters (TFormulaParams).
     FParams: TObject;
 
     //FSeries: TLineSeries;
@@ -67,10 +62,11 @@ type
     function GetValueCount: Integer;
 
   public
-    constructor Create(AOwner: TPlot);
+    constructor Create(AOwner: TPlot); overload;
+    constructor Create(AValues: TGraphRec; const ATitle: String); overload;
     destructor Destroy; override;
 
-    function Rename: Boolean; // request new name for this graph
+    function Rename: Boolean; // requests a new name for graph
     function EditFormula: Boolean;
 
     //procedure SaveXML(Node: IXMLNode);
@@ -100,8 +96,8 @@ type
     property Title: String read FTitle write SetTitle;
     property AutoTitle: Boolean read FAutoTitle write FAutoTitle;
     property ValueCount: Integer read GetValueCount write SetValueCount;
-    property ValuesX: TValueArray index 0 read FValuesX;
-    property ValuesY: TValueArray index 1 read FValuesY;
+    property ValuesX: TValueArray read FValuesX;
+    property ValuesY: TValueArray read FValuesY;
     property ValueX[Indx: Integer]: TValue read GetValueX write SetValueX;
     property ValueY[Indx: Integer]: TValue read GetValueY write SetValueY;
     property Source: String read FSource;
@@ -160,6 +156,7 @@ type
 
     function AddGraph: TGraph; overload;                                         // add empty graph
     procedure AddGraph(AGraph: TGraph; AIndex: Integer = -1); overload;          // add ready graph from history
+    procedure AddGraph(AGraph: TGraphRec; const ATitle: String); overload;
 
     // Основная процедура создания графиков по имеющимся данным
     // FileNames - список файлов, если графики создаются из файлов. Может не задаваться.
@@ -342,6 +339,14 @@ begin
   FOwner := AOwner;
   FAutoTitle := True;
   CreateLine;
+end;
+
+constructor TGraph.Create(AValues: TGraphRec; const ATitle: String);
+begin
+  FTitle := ATitle;
+  FAutoTitle := True;
+  FValuesX := AValues.X;
+  FValuesY := AValues.Y;
 end;
 
 destructor TGraph.Destroy;
@@ -1039,21 +1044,25 @@ begin
   DoGraphAdded(Result);
 end;
 
-// добавление готового графика используется историей команд
-// для Redo команды "Добавление графика"
 procedure TPlot.AddGraph(AGraph: TGraph; AIndex: Integer = -1);
 begin
   if AIndex > -1
     then FItems.Insert(AIndex, AGraph)
     else FItems.Add(AGraph);
-  //if Assigned(AGraph.Series) and
-  //  (Chart.SeriesList.IndexOf(AGraph.Series) = -1) then
-  //begin
-  //  Chart.AddSeries(AGraph.Series);
-  //  if AIndex > -1 then
-  //    Chart.SeriesList.Move(Chart.SeriesList.Count-1, AIndex);
-  //end;
+  AGraph.FOwner := Self;
+  ////if Assigned(AGraph.Series) and
+  ////  (Chart.SeriesList.IndexOf(AGraph.Series) = -1) then
+  ////begin
+  ////  Chart.AddSeries(AGraph.Series);
+  ////  if AIndex > -1 then
+  ////    Chart.SeriesList.Move(Chart.SeriesList.Count-1, AIndex);
+  ////end;
   DoGraphAdded(AGraph);
+end;
+
+procedure TPlot.AddGraph(AGraph: TGraphRec; const ATitle: String);
+begin
+
 end;
 
 function TPlot.AddSampleGraph(ATitle: String): TGraph;
@@ -2011,7 +2020,7 @@ begin
 end;
 {$endregion}
 
-{$region 'Уведомления'}
+{%region Notifications}
 procedure TPlots.RegisterNotifyClient(AObject: TObject);
 begin
   if FNotifyClients = nil then
@@ -2056,7 +2065,7 @@ begin
       if FNotifyClients[I].GetInterface(IPlotNotification, Intf) then
         Intf.Notify(AOperation, APlot, AGraph);
 end;
-{$endregion}
+{%endregion}
 
-{$endregion 'TPlots'}
+{%endregion TPlots}
 end.
