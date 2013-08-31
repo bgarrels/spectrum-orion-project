@@ -9,7 +9,8 @@ uses
   Interfaces, // this includes the LCL widgetset
   Forms, tachartlazaruspkg, WinMain, DlgParamsRandom, DlgFormulaEditor,
   spectrumtypes, plotmath, plotreaders, plotreadersaux, SpectrumStrings, Plots,
-  SpectrumControls, FrmRangePoints, FrmRange, diagram, spectrumsettings;
+  SpectrumControls, FrmRangePoints, FrmRange, diagram, spectrumsettings,
+  spectrumundo;
 
 {$R *.res}
 

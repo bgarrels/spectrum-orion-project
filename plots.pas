@@ -13,7 +13,8 @@ type
 
   TPlotOperation = (poProjectSaved, poProjectLoaded, poProjectReseting, poProjectReset,
     poPlotAdded, poPlotChanged, poPlotDestroying, poPlotDestroyed,
-    poGraphAdded, poGraphChanged, poGraphDeleted, poGraphChangedValues);
+    poGraphAdded, poGraphChanged, poGraphDeleted, poGraphChangedValues,
+    poGraphDestroying);
 
   IPlotNotification = interface
   ['{57D01E74-C0FF-4AFC-B211-FF5610FDA085}']
@@ -107,6 +108,8 @@ type
 
     procedure SetValuesXY(const Xs, Ys: TValueArray);
 
+    procedure Notify(AOperation: TPlotOperation);
+
     //property Series: TLineSeries read FSeries write FSeries;
   end;
 
@@ -128,7 +131,7 @@ type
 
     //function CreateGraph(Node: IXMLNode): TGraph; overload;
     //function CreateGraph(Params: TGraphAppendParams): TGraph; overload;
-    function CreateGraph(ATitle: String = ''): TGraph; overload;
+    //function CreateGraph(ATitle: String = ''): TGraph; overload;
 
     //function CreateNote(Node: IXMLNode): TAnnotationTool;
 
@@ -137,9 +140,6 @@ type
     function GetItems(Index: Integer): TGraph;
 
     procedure CreateUndoGroup(var Graphs: TGraphArray; const Title: String);
-
-    procedure CreateChart;
-    procedure DeleteChart;
 
   protected
     procedure DoGraphAdded(AGraph: TGraph);
@@ -154,9 +154,9 @@ type
     destructor Destroy; override;
     procedure Clear;
 
-    function AddGraph: TGraph; overload;                                         // add empty graph
-    procedure AddGraph(AGraph: TGraph; AIndex: Integer = -1); overload;          // add ready graph from history
-    procedure AddGraph(AGraph: TGraphRec; const ATitle: String); overload;
+    //function AddGraph: TGraph; overload;                                         // add empty graph
+    procedure AddGraph(AGraph: TGraph; AIndex: Integer = -1; AUndoable: Boolean = True); overload;
+    //procedure AddGraph(AGraph: TGraphRec; const ATitle: String); overload;
 
     // Основная процедура создания графиков по имеющимся данным
     // FileNames - список файлов, если графики создаются из файлов. Может не задаваться.
@@ -168,10 +168,10 @@ type
     //function AddGraph(Params: TGraphAppendParams; FileNames: TStrings = nil): TGraph; overload;
     //function AddGraph(Params: TGraphAppendParams; const FileName: String): TGraph; overload;
     //
-    function AddSampleGraph(ATitle: String): TGraph; overload;
-    function AddSampleGraph(ATitle: String; AParams: TRandomSampleParams): TGraph; overload;
-    procedure ExtractGraph(AGraph: TGraph);
-    procedure DeleteGraph(AGraph: TGraph); overload;
+    //function AddSampleGraph(ATitle: String): TGraph; overload;
+    //function AddSampleGraph(ATitle: String; AParams: TRandomSampleParams): TGraph; overload;
+    //procedure ExtractGraph(AGraph: TGraph);
+    procedure DeleteGraph(AGraph: TGraph; AUndoable: Boolean = True); overload;
     //procedure DeleteGraph(ASeries: TChartSeries); overload;
     //
     //procedure SaveXML(Node: IXMLNode);
@@ -206,6 +206,8 @@ type
     property FactorY: Integer read FFactorY write FFactorY;
 
     procedure ApplyChartSettings;
+
+    procedure Notify(AOperation: TPlotOperation; AGraph: TGraph);
 
     //property Chart: TChart read FChart write FChart;
     //property Selector: TMultiSelectorTool read FSelector write FSelector;
@@ -291,15 +293,16 @@ implementation
 
 uses
   SysUtils,
+  OriUndo,
 //  Controls, Dialogs, Variants, Graphics, Zlib,
 //  OriUndo, OriUtils, OriDialogs, TeeStoreXML,
 //  Common, UndoRedo, PlotMath, WinOpenArchive;
-  PlotMath, SpectrumStrings;
+  PlotMath, SpectrumStrings, SpectrumUndo;
 
 var
   UntitledIndex: Integer = 1;
 
-{%region 'Helpers'}
+{%region Helpers}
 function IsProjectPacked(const FileName: String): Boolean;
 begin
   Result := SameText(ExtractFileExt(FileName), '.' + CDefProjectExt + 'z');
@@ -333,7 +336,7 @@ begin
 end;
 {%endregion}
 
-{%region 'TGraph'}
+{%region TGraph}
 constructor TGraph.Create(AOwner: TPlot);
 begin
   FOwner := AOwner;
@@ -351,10 +354,16 @@ end;
 
 destructor TGraph.Destroy;
 begin
-  DeleteLine;
+  //DeleteLine;
   //FreeAndNil(FSeries);
   FreeAndNil(FParams);
+  Notify(poGraphDestroying);
   inherited;         
+end;
+
+procedure TGraph.Notify(AOperation: TPlotOperation);
+begin
+  if Assigned(Owner) then Owner.Notify(AOperation, Self);
 end;
 
 procedure TGraph.CreateLine;
@@ -839,46 +848,48 @@ begin
     Inc(UntitledIndex);
   end
   else FTitle := ATitle;
-
-  CreateChart;
 end;
 
 destructor TPlot.Destroy;
 begin
   Clear;
-  DeleteChart;
   FreeAndNil(FItems);
   inherited;
 end;
 
-procedure TPlot.CreateChart;
+procedure TPlot.Notify(AOperation: TPlotOperation; AGraph: TGraph);
 begin
-  //FChart := TChart.Create(nil);
-  //FChart.Visible := False;
-  //FChart.Align := alClient;
-  //FChart.BevelInner := bvNone;
-  //FChart.BevelOuter := bvNone;
-  //FChart.View3D := False;
-  //FChart.Legend.LegendStyle := lsSeries;
-  //FChart.BackWall.Color := clWhite;
-  //FChart.BackWall.Transparent := False;
-  //FChart.Zoom.Pen.Color := clGray;
-  //FChart.Zoom.Pen.SmallDots := True;
-  //FChart.Zoom.Pen.SmallSpace := 2;
-  //FChart.BottomAxis.AxisValuesFormat := '#,##0.###############';
-  //FChart.LeftAxis.AxisValuesFormat := '#,##0.###############';
-  //
-  //FSelector := TMultiSelectorTool.Create(FChart);
-  //FSelector.AllowMultiSelect := True;
-  //FSelector.AllowRightSelect := True;
-  //FChart.Tools.Add(FSelector);
-  //
-  //FHintValuesTool := TMarksTipTool.Create(FChart);
-  //FHintValuesTool.Style := smsXY;
-  //FChart.Tools.Add(FHintValuesTool);
-  //
-  //ApplyChartSettings;
+  if Assigned(Owner) then Owner.Notify(AOperation, Self, AGraph);
 end;
+
+//procedure TPlot.CreateChart;
+//begin
+//  //FChart := TChart.Create(nil);
+//  //FChart.Visible := False;
+//  //FChart.Align := alClient;
+//  //FChart.BevelInner := bvNone;
+//  //FChart.BevelOuter := bvNone;
+//  //FChart.View3D := False;
+//  //FChart.Legend.LegendStyle := lsSeries;
+//  //FChart.BackWall.Color := clWhite;
+//  //FChart.BackWall.Transparent := False;
+//  //FChart.Zoom.Pen.Color := clGray;
+//  //FChart.Zoom.Pen.SmallDots := True;
+//  //FChart.Zoom.Pen.SmallSpace := 2;
+//  //FChart.BottomAxis.AxisValuesFormat := '#,##0.###############';
+//  //FChart.LeftAxis.AxisValuesFormat := '#,##0.###############';
+//  //
+//  //FSelector := TMultiSelectorTool.Create(FChart);
+//  //FSelector.AllowMultiSelect := True;
+//  //FSelector.AllowRightSelect := True;
+//  //FChart.Tools.Add(FSelector);
+//  //
+//  //FHintValuesTool := TMarksTipTool.Create(FChart);
+//  //FHintValuesTool.Style := smsXY;
+//  //FChart.Tools.Add(FHintValuesTool);
+//  //
+//  //ApplyChartSettings;
+//end;
 
 procedure TPlot.ApplyChartSettings;
 //var
@@ -906,24 +917,18 @@ begin
   //    end;
 end;
 
-procedure TPlot.DeleteChart;
-begin
-  //FreeAndNil(FChart);
-end;
-
 procedure TPlot.Clear;
 var
-  i: Integer;
+  I: Integer;
 begin
   if FItems.Count > 0 then
   begin
-    for i := 0 to FItems.Count-1 do
-      TGraph(FItems[i]).Free;
+    for I := 0 to FItems.Count-1 do
+      TGraph(FItems[I]).Free;
     FItems.Clear;
-    FOwner.Notify(poGraphDeleted, Self, nil);
     DoGraphDeleted(nil);
   end;
-  //History.Clear;
+  // TODO Remove from history all commands referencing graphs of this plot
 end;
 
 //function TPlot.AddGraph(Params: TGraphAppendParams; const FileName: String): TGraph;
@@ -1038,46 +1043,41 @@ begin
   end;
 end;
  *)
-function TPlot.AddGraph: TGraph;
-begin
-  Result := CreateGraph;
-  DoGraphAdded(Result);
-end;
+//function TPlot.AddGraph: TGraph;
+//begin
+//  Result := CreateGraph;
+//  DoGraphAdded(Result);
+//end;
 
-procedure TPlot.AddGraph(AGraph: TGraph; AIndex: Integer = -1);
+procedure TPlot.AddGraph(AGraph: TGraph; AIndex: Integer = -1; AUndoable: Boolean = True);
 begin
   if AIndex > -1
     then FItems.Insert(AIndex, AGraph)
     else FItems.Add(AGraph);
   AGraph.FOwner := Self;
-  ////if Assigned(AGraph.Series) and
-  ////  (Chart.SeriesList.IndexOf(AGraph.Series) = -1) then
-  ////begin
-  ////  Chart.AddSeries(AGraph.Series);
-  ////  if AIndex > -1 then
-  ////    Chart.SeriesList.Move(Chart.SeriesList.Count-1, AIndex);
-  ////end;
+  if AUndoable then
+    History.Append(TGraphAppendCommand.Create(AGraph));
   DoGraphAdded(AGraph);
 end;
 
-procedure TPlot.AddGraph(AGraph: TGraphRec; const ATitle: String);
-begin
-
-end;
-
-function TPlot.AddSampleGraph(ATitle: String): TGraph;
-begin
-  Result := CreateGraph(ATitle);
-  Result.FillSampleValues(100);
-  DoGraphAdded(Result);
-end;
-
-function TPlot.AddSampleGraph(ATitle: String; AParams: TRandomSampleParams): TGraph;
-begin
-  Result := CreateGraph(ATitle);
-  Result.FillSampleValues(AParams);
-  DoGraphAdded(Result);
-end;
+//procedure TPlot.AddGraph(AGraph: TGraphRec; const ATitle: String);
+//begin
+//
+//end;
+//
+//function TPlot.AddSampleGraph(ATitle: String): TGraph;
+//begin
+//  Result := CreateGraph(ATitle);
+//  Result.FillSampleValues(100);
+//  DoGraphAdded(Result);
+//end;
+//
+//function TPlot.AddSampleGraph(ATitle: String; AParams: TRandomSampleParams): TGraph;
+//begin
+//  Result := CreateGraph(ATitle);
+//  Result.FillSampleValues(AParams);
+//  DoGraphAdded(Result);
+//end;
 
 //function TPlot.CreateGraph(Params: TGraphAppendParams): TGraph;
 //begin
@@ -1105,39 +1105,29 @@ end;
 //  end;
 //end;
 
-function TPlot.CreateGraph(ATitle: String = ''): TGraph;
-begin
-  Result := TGraph.Create(Self);
-  Result.FTitle := ATitle;
-  Result.FSource := ATitle;
-  FItems.Add(Result);
-  //History.Append(TGraphAppendCommand.Create(Result));
-end;
-
-procedure TPlot.ExtractGraph(AGraph: TGraph);
-begin
-  FItems.Extract(AGraph);
-  DoGraphDeleted(AGraph);
-end;
-
-procedure TPlot.DeleteGraph(AGraph: TGraph);
-begin
-  //History.Append(TGraphDeleteCommand.Create(AGraph, FItems.IndexOf(AGraph)));
-  FItems.Extract(AGraph);
-  DoGraphDeleted(AGraph);
-  // AGraph.Free; Удалять объект нельзя, т.к. он может пригодиться для Undo.
-end;
-
-//procedure TPlot.DeleteGraph(ASeries: TChartSeries);
-//var I: Integer;
+//function TPlot.CreateGraph(ATitle: String = ''): TGraph;
 //begin
-//  for I := 0 to FItems.Count-1 do
-//    if TGraph(FItems[I]).Series = ASeries then
-//    begin
-//      DeleteGraph(TGraph(FItems[I]));
-//      Break;
-//    end;
+//  Result := TGraph.Create(Self);
+//  Result.FTitle := ATitle;
+//  Result.FSource := ATitle;
+//  FItems.Add(Result);
+//  History.Append(TGraphAppendCommand.Create(Result));
 //end;
+
+//procedure TPlot.ExtractGraph(AGraph: TGraph);
+//begin
+//  FItems.Extract(AGraph);
+//  DoGraphDeleted(AGraph);
+//end;
+
+procedure TPlot.DeleteGraph(AGraph: TGraph; AUndoable: Boolean = True);
+begin
+  if AUndoable then
+    History.Append(TGraphDeleteCommand.Create(AGraph, FItems.IndexOf(AGraph)));
+  FItems.Extract(AGraph);
+  DoGraphDeleted(AGraph);
+  // Do not destroy graph, because of it is required to undo the deletion
+end;
 
 {%region Events}
 procedure TPlot.DoGraphAdded(AGraph: TGraph);
@@ -1153,8 +1143,6 @@ procedure TPlot.DoGraphDeleted(AGraph: TGraph);
 begin
   if Assigned(FOwner) then
   begin
-    if Assigned(AGraph) then
-      AGraph.DeleteLine;
     FOwner.FModified := True;
     FOwner.Notify(poGraphDeleted, Self, AGraph);
   end;
@@ -1173,7 +1161,6 @@ procedure TPlot.DoGraphChangedValues(AGraph: TGraph);
 begin
   if Assigned(FOwner) then
   begin
-    AGraph.UpdateLine;
     FOwner.FModified := True;
     FOwner.Notify(poGraphChangedValues, Self, AGraph);
   end;
@@ -1478,7 +1465,7 @@ begin
     for I := 0 to Length(Graphs)-1 do
     begin
       PlotMath.Differentiate(Graphs[I].ValuesX, Graphs[I].ValuesY, DiffY);
-      Graph := CreateGraph(Format('Derivative(%s)', [Graphs[I].Title]));
+     // Graph := CreateGraph(Format('Derivative(%s)', [Graphs[I].Title]));
       Graph.SetValuesXY(Graphs[I].ValuesX, DiffY);
       DoGraphAdded(Graph);
     end;
@@ -1501,7 +1488,7 @@ begin
       PlotMath.Differentiate2(Graphs[I].ValuesX, Graphs[I].ValuesY, DiffY);
       if Length(DiffY) > 1 then
       begin
-        Graph := CreateGraph(Format('Derivative2(%s)', [Graphs[I].Title]));
+      //  Graph := CreateGraph(Format('Derivative2(%s)', [Graphs[I].Title]));
         Graph.SetValuesXY(
           Copy(Graphs[I].ValuesX, 1, Length(Graphs[I].ValuesX)-2), DiffY);
         DoGraphAdded(Graph);
@@ -1524,7 +1511,7 @@ begin
     for I := 0 to Length(Graphs)-1 do
     begin
       PlotMath.Regularity(Graphs[I].ValuesX, X, Y);
-      Graph := CreateGraph(Format('Regularity(%s)', [Graphs[I].Title]));
+    //  Graph := CreateGraph(Format('Regularity(%s)', [Graphs[I].Title]));
       Graph.SetValuesXY(X, Y);
       DoGraphAdded(Graph);
     end;
@@ -1608,8 +1595,8 @@ begin
     for I := 0 to Length(Graphs)-1 do
     begin
       PlotMath.Variance(Graphs[I].ValuesX, Graphs[I].ValuesY, AllanX, AllanY);
-      Graph := Plot.CreateGraph(Format('%s(%s)',
-        [VarianceNames[Param.Kind], Graphs[I].Title]));
+      //Graph := Plot.CreateGraph(Format('%s(%s)',
+        //[VarianceNames[Param.Kind], Graphs[I].Title]));
       Graph.SetValuesXY(AllanX, AllanY);
       Plot.DoGraphAdded(Graph);
     end;

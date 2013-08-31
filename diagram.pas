@@ -23,8 +23,11 @@ type
     FLines: TGraphLines;
     procedure Notify(AOperation: TPlotOperation; APlot: TPlot; AGraph: TGraph);
     procedure ProcessGraphAdded(AGraph: TGraph);
+    procedure ProcessGraphDeleted(AGraph: TGraph);
+    procedure ProcessGraphDestroying(AGraph: TGraph);
     procedure CreateLine(AGraph: TGraph);
     procedure UpdateLine(AGraph: TGraph);
+    function GetLine(AGraph: TGraph): TLineSeries;
   public
     constructor Create(APlot: TPlot; AParent: TCustomControl);
     destructor Destroy; override;
@@ -33,6 +36,9 @@ type
   end;
 
 implementation
+
+uses
+  OriUtils_TChart;
 
 constructor TDiagram.Create(APlot: TPlot; AParent: TCustomControl);
 begin
@@ -59,10 +65,13 @@ begin
   inherited;
 end;
 
+{%region Plot Notifications}
 procedure TDiagram.Notify(AOperation: TPlotOperation; APlot: TPlot; AGraph: TGraph);
 begin
   case AOperation of
     poGraphAdded: if APlot = FPlot then ProcessGraphAdded(AGraph);
+    poGraphDeleted: if APlot = FPlot then ProcessGraphDeleted(AGraph);
+    poGraphDestroying: if APlot = FPlot then ProcessGraphDestroying(AGraph);
   end;
 end;
 
@@ -72,15 +81,54 @@ begin
   UpdateLine(AGraph);
 end;
 
+procedure TDiagram.ProcessGraphDeleted(AGraph: TGraph);
+var
+  Line: TLineSeries;
+begin
+  Line := GetLine(AGraph);
+  if Assigned(Line) then
+    FChart.DeleteSeries(Line);
+  // Do not destroy line, only remove it from chart
+  // Graph deletion can be undone, so line is still needed
+end;
+
+procedure TDiagram.ProcessGraphDestroying(AGraph: TGraph);
+var
+  Line: TLineSeries;
+begin
+  Line := GetLine(AGraph);
+  if Assigned(Line) then
+    FChart.DeleteSeries(Line);
+  FLines.Remove(AGraph);
+  Line.Free;
+end;
+{%endregion}
+
+function TDiagram.GetLine(AGraph: TGraph): TLineSeries;
+var
+  Index: Integer;
+begin
+  Index := FLines.IndexOf(AGraph);
+  if Index >= 0
+    then Result := FLines.Data[Index]
+    else Result := nil;
+end;
+
 procedure TDiagram.CreateLine(AGraph: TGraph);
 var
-  Series: TLineSeries;
+  Line: TLineSeries;
 begin
-  Series := TLineSeries.Create(FChart);
-  Series.Tag := Integer(AGraph);
-  Series.Title := AGraph.Title;
-  FChart.AddSeries(Series);
-  FLines.Add(AGraph, Series);
+  Line := GetLine(AGraph);
+  if not Assigned(Line) then
+  begin
+    Line := TLineSeries.Create(FChart);
+    Line.Tag := Integer(AGraph);
+    Line.Title := AGraph.Title;
+    FLines.Add(AGraph, Line);
+    FChart.AddSeries(Line);
+  end
+  else if not FChart.HasSeries(Line) then
+    FChart.AddSeries(Line);
 end;
 
 procedure TDiagram.UpdateLine(AGraph: TGraph);

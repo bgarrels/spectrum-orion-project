@@ -6,6 +6,7 @@ interface
 
 uses
   SysUtils, Controls, Forms, Dialogs, ActnList, ComCtrls, ExtCtrls, TAGraph,
+  OriUndo,
   Plots, Diagram, SpectrumControls;
 
 type
@@ -97,6 +98,9 @@ type
     procedure Notify(AOperation: TPlotOperation; APlot: TPlot; AGraph: TGraph);
     procedure ProcessPlotAdded(APlot: TPlot);
 
+    procedure UndoChanged(Sender: TObject; CmdUndo, CmdRedo: TOriUndoCommand);
+    procedure UndoUndone(Sender: TObject; Cmd: TOriUndoCommand);
+
     function GetCurPlot: TPlot;
     function GetCurChart: TChart;
     function GetCurDiagram: TDiagram;
@@ -113,7 +117,7 @@ implementation
 
 uses
   OriIniFile, OriUtils_Gui,
-  SpectrumTypes, SpectrumSettings,
+  SpectrumTypes, SpectrumSettings, SpectrumStrings,
   PlotMath, DlgFormulaEditor;
 
 {$R *.lfm}
@@ -136,6 +140,10 @@ begin
   PlotSet := TPlots.Create;
   PlotSet.RegisterNotifyClient(Self);
   PlotSet.AddPlot('');
+
+  History.OnChanged := @UndoChanged;
+  History.OnUndone := @UndoUndone;
+  UndoChanged(History, nil, nil);
 end;
 
 procedure TMainWnd.FormDestroy(Sender: TObject);
@@ -221,12 +229,12 @@ end;
 
 procedure TMainWnd.ActionEditRedoExecute(Sender: TObject);
 begin
-  //
+  History.Redo;
 end;
 
 procedure TMainWnd.ActionEditUndoExecute(Sender: TObject);
 begin
-  //
+  History.Undo;
 end;
 {%endregion Edit Actions}
 
@@ -286,6 +294,28 @@ begin
   FDiagrams.Add(Diagram);
 end;
 {%endregion Plot Events}
+
+{%region Undo Commands}
+procedure TMainWnd.UndoChanged(Sender: TObject; CmdUndo, CmdRedo: TOriUndoCommand);
+begin
+  ActionEditUndo.Enabled := CmdUndo <> nil;
+  if CmdUndo <> nil
+    then ActionEditUndo.Caption := SpectrumStrings.Action_Undo + ' ' + CmdUndo.Title
+    else ActionEditUndo.Caption := SpectrumStrings.Action_Undo;
+  ActionEditUndo.Hint := ActionEditUndo.Caption;
+
+  ActionEditRedo.Enabled := CmdRedo <> nil;
+  if CmdRedo <> nil
+    then ActionEditRedo.Caption := SpectrumStrings.Action_Redo + ' ' + CmdRedo.Title
+    else ActionEditRedo.Caption := SpectrumStrings.Action_Redo;
+  ActionEditRedo.Hint := ActionEditRedo.Caption;
+end;
+
+procedure TMainWnd.UndoUndone(Sender: TObject; Cmd: TOriUndoCommand);
+begin
+
+end;
+{%endregion}
 
 {%endregion TMainWnd}
 end.

@@ -7,6 +7,12 @@ interface
 uses
   Classes, SysUtils, Graphics, TAGraph, TASeries;
 
+type
+  TChartHelper = class helper for TChart
+  public
+    function HasSeries(ASeries: TBasicChartSeries): Boolean;
+  end;
+
 procedure ChooseSeriesColor(Series: TLineSeries);
 function GetLineSeriesColor(Chart: TChart): TColor;
 
@@ -18,6 +24,21 @@ uses
 const
   SeriesColors: array[0..12] of TColor = (clRed, clGreen, clBlue, clMaroon, clNavy, clOlive,
     clPurple, clTeal, clGray, clLime, clFuchsia, clAqua, clBlack);
+
+{%region TChartHelper}
+function TChartHelper.HasSeries(ASeries: TBasicChartSeries): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := 0 to Self.Series.Count-1 do
+    if Self.Series[I] = ASeries then
+    begin
+      Result := True;
+      exit;
+    end;
+end;
+{%endregion}
 
 procedure ChooseSeriesColor(Series: TLineSeries);
 begin
@@ -51,4 +72,4 @@ begin
 end;
 
 end.
-
+
