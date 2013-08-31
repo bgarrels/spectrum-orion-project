@@ -5,20 +5,30 @@ unit WinMain;
 interface
 
 uses
-  SysUtils, Controls, Forms, Dialogs, ActnList, ComCtrls, ExtCtrls, TAGraph,
-  OriUndo,
-  Plots, Diagram, SpectrumControls;
+  SysUtils, Controls, Forms, Dialogs, ActnList, ComCtrls, ExtCtrls, Menus,
+  TAGraph, OriUndo, Plots, Diagram, SpectrumControls, Classes;
 
 type
   { TMainWnd }
 
   TMainWnd = class(TForm, IPlotNotification)
+    ActionEditDeleteAll: TAction;
+    ActionEditDelete: TAction;
+    ActionEditInvertSelection: TAction;
+    ActionEditSelectAll: TAction;
+    ActionEditSelectGraphs: TAction;
+    ActionDiagramPrinterSetup: TAction;
+    ActionDiagramPrintWithPreview: TAction;
+    ActionDiagramPrint: TAction;
+    ActionAddTable: TAction;
+    ActionAddFolder: TAction;
+    ActionAddFile: TAction;
   {%region published}
-    ActionPlotSaveAsImage: TAction;
-    ActionPlotSaveAsProject: TAction;
-    ActionPlotDelete: TAction;
-    ActionPlotRename: TAction;
-    ActionPlotNew: TAction;
+    ActionDiagramSaveAsImage: TAction;
+    ActionDiagramSaveAsProject: TAction;
+    ActionDiagramDelete: TAction;
+    ActionDiagramRename: TAction;
+    ActionDiagramNew: TAction;
     ActionEditPasteFormat: TAction;
     ActionEditCopyFormat: TAction;
     ActionEditPasteTable: TAction;
@@ -36,9 +46,21 @@ type
     ActionList: TActionList;
     Images24: TImageList;
     Images16: TImageList;
+    MenuItem1: TMenuItem;
+    MenuItem2: TMenuItem;
+    MenuItem3: TMenuItem;
+    MenuItem4: TMenuItem;
+    MenuItem5: TMenuItem;
+    MenuItem6: TMenuItem;
     PageAdd: TPage;
     PageEdit: TPage;
     PageDiagram: TPage;
+    MenuRecentProjects: TPopupMenu;
+    MenuProjectSave: TPopupMenu;
+    MenuRecentFiles: TPopupMenu;
+    MenuPlotPrint: TPopupMenu;
+    MenuEditSelect: TPopupMenu;
+    MenuEditDelete: TPopupMenu;
     ToolBarAdd: TToolBar;
     ToolBarAdd1: TToolBar;
     ToolBarEdit: TToolBar;
@@ -64,31 +86,56 @@ type
     ToolButton21: TToolButton;
     ToolButton22: TToolButton;
     ToolButton23: TToolButton;
+    ToolButton24: TToolButton;
+    ToolButton25: TToolButton;
+    ToolButton26: TToolButton;
+    ToolButton27: TToolButton;
+    ToolButton28: TToolButton;
+    ToolButton29: TToolButton;
     ToolButton3: TToolButton;
+    ToolButton30: TToolButton;
+    ToolButton31: TToolButton;
+    ToolButton32: TToolButton;
     ToolButton4: TToolButton;
     ToolButton5: TToolButton;
     ToolButton6: TToolButton;
     ToolButton7: TToolButton;
     ToolButton8: TToolButton;
     ToolButton9: TToolButton;
+    procedure ActionAddFileExecute(Sender: TObject);
+    procedure ActionAddFolderExecute(Sender: TObject);
     procedure ActionAddFormulaExecute(Sender: TObject);
     procedure ActionAddRandomExecute(Sender: TObject);
-    procedure ActionPlotDeleteExecute(Sender: TObject);
-    procedure ActionPlotNewExecute(Sender: TObject);
-    procedure ActionPlotRenameExecute(Sender: TObject);
-    procedure ActionPlotSaveAsImageExecute(Sender: TObject);
-    procedure ActionPlotSaveAsProjectExecute(Sender: TObject);
+    procedure ActionAddTableExecute(Sender: TObject);
+    procedure ActionDiagramDeleteExecute(Sender: TObject);
+    procedure ActionDiagramNewExecute(Sender: TObject);
+    procedure ActionDiagramPrinterSetupExecute(Sender: TObject);
+    procedure ActionDiagramPrintExecute(Sender: TObject);
+    procedure ActionDiagramPrintWithPreviewExecute(Sender: TObject);
+    procedure ActionDiagramRenameExecute(Sender: TObject);
+    procedure ActionDiagramSaveAsImageExecute(Sender: TObject);
+    procedure ActionDiagramSaveAsProjectExecute(Sender: TObject);
     procedure ActionEditCopyExecute(Sender: TObject);
     procedure ActionEditCopyFormatExecute(Sender: TObject);
     procedure ActionEditCutExecute(Sender: TObject);
+    procedure ActionEditDeleteAllExecute(Sender: TObject);
+    procedure ActionEditDeleteExecute(Sender: TObject);
+    procedure ActionEditInvertSelectionExecute(Sender: TObject);
     procedure ActionEditPasteExecute(Sender: TObject);
     procedure ActionEditPasteFormatExecute(Sender: TObject);
     procedure ActionEditPasteTableExecute(Sender: TObject);
     procedure ActionEditRedoExecute(Sender: TObject);
+    procedure ActionEditSelectAllExecute(Sender: TObject);
+    procedure ActionEditSelectGraphsExecute(Sender: TObject);
     procedure ActionEditUndoExecute(Sender: TObject);
+    procedure ActionProjectNewExecute(Sender: TObject);
+    procedure ActionProjectOpenExecute(Sender: TObject);
+    procedure ActionProjectSaveAsExecute(Sender: TObject);
+    procedure ActionProjectSaveExecute(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure PlotsBookChangeBounds(Sender: TObject);
   {%endregion}
   private
     FToolbarTabs: TNotebookTabs;
@@ -167,30 +214,51 @@ end;
 procedure TMainWnd.FormShow(Sender: TObject);
 begin
 end;
+
+procedure TMainWnd.PlotsBookChangeBounds(Sender: TObject);
+begin
+
+end;
+
 {%endregion}
 
 {%region Plot Actions}
-procedure TMainWnd.ActionPlotDeleteExecute(Sender: TObject);
+procedure TMainWnd.ActionDiagramDeleteExecute(Sender: TObject);
 begin
   //
 end;
 
-procedure TMainWnd.ActionPlotNewExecute(Sender: TObject);
+procedure TMainWnd.ActionDiagramNewExecute(Sender: TObject);
 begin
   PlotSet.AddPlot('');
 end;
 
-procedure TMainWnd.ActionPlotRenameExecute(Sender: TObject);
+procedure TMainWnd.ActionDiagramPrinterSetupExecute(Sender: TObject);
 begin
   //
 end;
 
-procedure TMainWnd.ActionPlotSaveAsImageExecute(Sender: TObject);
+procedure TMainWnd.ActionDiagramPrintExecute(Sender: TObject);
 begin
   //
 end;
 
-procedure TMainWnd.ActionPlotSaveAsProjectExecute(Sender: TObject);
+procedure TMainWnd.ActionDiagramPrintWithPreviewExecute(Sender: TObject);
+begin
+  //
+end;
+
+procedure TMainWnd.ActionDiagramRenameExecute(Sender: TObject);
+begin
+  //
+end;
+
+procedure TMainWnd.ActionDiagramSaveAsImageExecute(Sender: TObject);
+begin
+  //
+end;
+
+procedure TMainWnd.ActionDiagramSaveAsProjectExecute(Sender: TObject);
 begin
   //
 end;
@@ -208,6 +276,21 @@ begin
 end;
 
 procedure TMainWnd.ActionEditCutExecute(Sender: TObject);
+begin
+  //
+end;
+
+procedure TMainWnd.ActionEditDeleteAllExecute(Sender: TObject);
+begin
+  //
+end;
+
+procedure TMainWnd.ActionEditDeleteExecute(Sender: TObject);
+begin
+  //
+end;
+
+procedure TMainWnd.ActionEditInvertSelectionExecute(Sender: TObject);
 begin
   //
 end;
@@ -232,11 +315,43 @@ begin
   History.Redo;
 end;
 
+procedure TMainWnd.ActionEditSelectAllExecute(Sender: TObject);
+begin
+  //
+end;
+
+procedure TMainWnd.ActionEditSelectGraphsExecute(Sender: TObject);
+begin
+  //
+end;
+
 procedure TMainWnd.ActionEditUndoExecute(Sender: TObject);
 begin
   History.Undo;
 end;
 {%endregion Edit Actions}
+
+{%region Project Actions}
+procedure TMainWnd.ActionProjectOpenExecute(Sender: TObject);
+begin
+  //
+end;
+
+procedure TMainWnd.ActionProjectNewExecute(Sender: TObject);
+begin
+  //
+end;
+
+procedure TMainWnd.ActionProjectSaveAsExecute(Sender: TObject);
+begin
+  //
+end;
+
+procedure TMainWnd.ActionProjectSaveExecute(Sender: TObject);
+begin
+  //
+end;
+{%endregion Project Actions}
 
 {%region Add Actions}
 procedure TMainWnd.ActionAddRandomExecute(Sender: TObject);
@@ -245,6 +360,11 @@ var
 begin
   if AskRandomSampleParams(Params) then
     CurPlot.AddGraph(TGraph.Create(PlotMath.GetSampleGraph(Params), 'Sample'));
+end;
+
+procedure TMainWnd.ActionAddTableExecute(Sender: TObject);
+begin
+  //
 end;
 
 procedure TMainWnd.ActionAddFormulaExecute(Sender: TObject);
@@ -256,6 +376,17 @@ begin
     Free;
   end;
 end;
+
+procedure TMainWnd.ActionAddFileExecute(Sender: TObject);
+begin
+  //
+end;
+
+procedure TMainWnd.ActionAddFolderExecute(Sender: TObject);
+begin
+  //
+end;
+
 {%endregion Add Actions}
 
 {%region Plot Accessors}
@@ -300,13 +431,13 @@ procedure TMainWnd.UndoChanged(Sender: TObject; CmdUndo, CmdRedo: TOriUndoComman
 begin
   ActionEditUndo.Enabled := CmdUndo <> nil;
   if CmdUndo <> nil
-    then ActionEditUndo.Caption := SpectrumStrings.Action_Undo + ' ' + CmdUndo.Title
+    then ActionEditUndo.Caption := SpectrumStrings.Action_Undo + ': ' + CmdUndo.Title
     else ActionEditUndo.Caption := SpectrumStrings.Action_Undo;
   ActionEditUndo.Hint := ActionEditUndo.Caption;
 
   ActionEditRedo.Enabled := CmdRedo <> nil;
   if CmdRedo <> nil
-    then ActionEditRedo.Caption := SpectrumStrings.Action_Redo + ' ' + CmdRedo.Title
+    then ActionEditRedo.Caption := SpectrumStrings.Action_Redo + ': ' + CmdRedo.Title
     else ActionEditRedo.Caption := SpectrumStrings.Action_Redo;
   ActionEditRedo.Hint := ActionEditRedo.Caption;
 end;
