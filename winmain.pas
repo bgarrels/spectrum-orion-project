@@ -6,10 +6,16 @@ interface
 
 uses
   Controls, Forms, ActnList, ComCtrls, ExtCtrls, Menus, TAGraph,
-  OriUndo,
+  OriUndo, BGRAImageList,
   Plots, Diagram, SpectrumControls;
 
 type
+  {$ifdef LINUX}
+  TImageList = class(TBGRAImageList) end;
+  {$endif}
+
+  { TMainWnd }
+
   TMainWnd = class(TForm, IPlotNotification)
   {%region published}
     ActionEditDeleteAll: TAction;
@@ -51,6 +57,9 @@ type
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
     MenuItem6: TMenuItem;
+    MenuItem7: TMenuItem;
+    MenuItem8: TMenuItem;
+    MenuItem9: TMenuItem;
     PageAdd: TPage;
     PageEdit: TPage;
     PageDiagram: TPage;

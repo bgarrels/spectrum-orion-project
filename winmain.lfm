@@ -26,7 +26,7 @@ object MainWnd: TMainWnd
     Height = 42
     Top = 0
     Width = 918
-    PageIndex = 1
+    PageIndex = 2
     Align = alTop
     Color = clBtnFace
     TabOrder = 1
@@ -520,7 +520,7 @@ object MainWnd: TMainWnd
     end
     object ActionEditSelectAll: TAction
       Category = 'Edit'
-      Caption = 'Select All...'
+      Caption = 'Select All'
       Hint = 'Select all graphs'
       OnExecute = ActionEditSelectAllExecute
       ShortCut = 16449
@@ -3201,9 +3201,19 @@ object MainWnd: TMainWnd
   object MenuEditSelect: TPopupMenu
     left = 120
     top = 330
+    object MenuItem9: TMenuItem
+      Action = ActionEditInvertSelection
+    end
+    object MenuItem8: TMenuItem
+      Action = ActionEditSelectAll
+    end
   end
   object MenuEditDelete: TPopupMenu
+    Images = Images16
     left = 120
     top = 396
+    object MenuItem7: TMenuItem
+      Action = ActionEditDeleteAll
+    end
   end
 end
