@@ -12,9 +12,10 @@ type
   TPlots = class;
 
   TPlotOperation = (poProjectSaved, poProjectLoaded, poProjectReseting, poProjectReset,
-    poPlotAdded, poPlotChanged, poPlotDestroying, poPlotDestroyed,
+    poPlotAdded, poPlotChanged, poPlotDestroying, poPlotDestroyed, poModified,
     poGraphAdded, poGraphChanged, poGraphDeleted, poGraphChangedValues,
     poGraphDestroying);
+  TPlotOperations = set of TPlotOperation;
 
   IPlotNotification = interface
   ['{57D01E74-C0FF-4AFC-B211-FF5610FDA085}']
@@ -177,7 +178,6 @@ type
     //procedure SaveXML(Node: IXMLNode);
     //procedure LoadXML(Node: IXMLNode);
 
-    function Rename: Boolean; // request new name for this plot
     procedure Trim(var Graphs: TGraphArray; var Param: TTrimParams);
     procedure Offset(var Graphs: TGraphArray; var Param: TOffsetParams);
     procedure Flip(var Graphs: TGraphArray; var Param: TMiscParams);
@@ -207,7 +207,7 @@ type
 
     procedure ApplyChartSettings;
 
-    procedure Notify(AOperation: TPlotOperation; AGraph: TGraph);
+    procedure Notify(AOperation: TPlotOperation; AGraph: TGraph = nil);
 
     //property Chart: TChart read FChart write FChart;
     //property Selector: TMultiSelectorTool read FSelector write FSelector;
@@ -232,19 +232,20 @@ type
     function CreatePlot(const ATitle: String = ''): TPlot;
     function GetCount: Integer;
     function GetItems(Index: Integer): TPlot;
+    procedure SetModified(Value: Boolean);
     //procedure SaveXML(APlot: TPlot); overload;
     //procedure SaveXML(Node: IXMLNode; APlot: TPlot); overload;
     //procedure LoadXML(const AFileName: String; APacked: Boolean); overload;
     //procedure LoadXML(Node: IXMLNode); overload;
   protected
-    procedure DoPlotAdded(APlot: TPlot);
-    procedure DoPlotDeleting(APlot: TPlot);
-    procedure DoPlotDeleted(APlot: TPlot);
-    procedure DoPlotChanged(APlot: TPlot);
-    procedure DoProjectSaved;
-    procedure DoProjectLoaded;
-    procedure DoProjectReseting;
-    procedure DoProjectReset;
+    //procedure DoPlotAdded(APlot: TPlot);
+    //procedure DoPlotDeleting(APlot: TPlot);
+    //procedure DoPlotDeleted(APlot: TPlot);
+    //procedure DoPlotChanged(APlot: TPlot);
+    //procedure DoProjectSaved;
+    //procedure DoProjectLoaded;
+    //procedure DoProjectReseting;
+    //procedure DoProjectReset;
   public
     constructor Create;
     destructor Destroy; override;
@@ -262,7 +263,7 @@ type
     procedure RegisterNotifyClient(AObject: TObject);
     procedure UnRegisterNotifyClient(AObject: TObject);
     function GetNotifyClient(AClass: TClass): TObject;
-    procedure Notify(AOperation: TPlotOperation; APlot: TPlot; AGraph: TGraph);
+    procedure Notify(AOperation: TPlotOperation; APlot: TPlot = nil; AGraph: TGraph = nil);
 
     function CanReset: Boolean;
     function Reset(Silent: Boolean = False; Mode: Integer = 2): Boolean;
@@ -273,7 +274,7 @@ type
     property FileName: String read FFileName;
 
     property Status: TPlotSetStatus read FStatus;
-    property Modified: Boolean read FModified;
+    property Modified: Boolean read FModified write SetModified;
   end;
 
 function IsProjectPacked(const FileName: String): Boolean;
@@ -301,6 +302,14 @@ uses
 
 var
   UntitledIndex: Integer = 1;
+
+const
+  // Set of operations making a plot modified. FModified flag is set.
+  ModifyingOperations: TPlotOperations = [poPlotChanged, poPlotDestroyed, poPlotAdded,
+    poGraphChangedValues];
+
+  // Set of operations making a plot unmodified. FModified flag is reset.
+  SavingOperations: TPlotOperations = [poProjectSaved, poProjectLoaded, poProjectReset];
 
 {%region Helpers}
 function IsProjectPacked(const FileName: String): Boolean;
@@ -1168,25 +1177,13 @@ end;
 {%endregion}
 
 {%region Title}
-function TPlot.Rename: Boolean;
-var
-  TmpTitle: String;
-begin
-  //TmpTitle := FTitle;
-  //Result := InputStringDlgDK(TmpTitle, 'EnterText_PlotTitle');
-  //if Result then
-  //begin
-  //  History.Append(TTitleEditCommand.Create(Self));
-  //  SetTitle(TmpTitle); // call Owner.OnPlotChanged
-  //end;
-end;
-
 procedure TPlot.SetTitle(Value: String);
 begin
   if Value <> FTitle then
   begin
     FTitle := Value;
-    if Assigned(FOwner) then FOwner.DoPlotChanged(Self);
+    //  History.Append(TTitleEditCommand.Create(Self));
+    Notify(poPlotChanged);
   end;
 end;
 {%endregion}
@@ -1624,28 +1621,39 @@ begin
   inherited;
 end;
 
+procedure TPlots.SetModified(Value: Boolean);
+begin
+  if FModified <> Value then
+  begin
+    FModified := Value;
+    Notify(poModified);
+  end;
+end;
+
 procedure TPlots.Clear;
 var
-  i: Integer;
+  I: Integer;
 begin
   if FItems.Count > 0 then
   begin
-    for i := FItems.Count-1 downto 0 do
+    for I := FItems.Count-1 downto 0 do
     begin
-      Notify(poPlotDestroyed, TPlot(FItems[i]), nil);
-      TPlot(FItems[i]).Clear;
+      Notify(poPlotDestroyed, FItems[I], nil);
+      FItems[I].Clear;
     end;
-    for i := FItems.Count-1 downto 0 do
-      TPlot(FItems[i]).Free;
+    for I := FItems.Count-1 downto 0 do FItems[I].Free;
     FItems.Clear;
-    DoPlotDeleted(nil);
+    Notify(poPlotDestroyed);
   end;
 end;
 
 function TPlots.AddPlot(const ATitle: String = ''): TPlot;
 begin
   Result := CreatePlot(ATitle);
-  DoPlotAdded(Result);
+  Notify(poPlotAdded, Result);
+  // First diagram is added by default and
+  // it does not mean that project was modified
+  if Count = 1 then Modified := False;
 end;
 
 //function TPlots.AddPlot(Node: IXMLNode): TPlot;
@@ -1674,17 +1682,16 @@ end;
 
 procedure TPlots.DeletePlot(APlot: TPlot);
 begin
-  DoPlotDeleting(APlot);
+  Notify(poPlotDestroying, APlot);
   FItems.Extract(APlot);
-  DoPlotDeleted(APlot);
+  Notify(poPlotDestroyed, APlot);
   APlot.Free;
 end;
 
 {%region Events}
+{
 procedure TPlots.DoPlotAdded(APlot: TPlot);
 begin
-  // First diagram is added by default and
-  // it does not mean that project was modified
   if Count > 1 then FModified := True;
   Notify(poPlotAdded, APlot, nil);
 end;
@@ -1705,8 +1712,8 @@ begin
   FModified := True;
   Notify(poPlotChanged, APlot, nil);
 end;
-
-procedure TPlots.DoProjectSaved;
+ }
+{procedure TPlots.DoProjectSaved;
 begin
   FModified := False;
   Notify(poProjectSaved, nil, nil);
@@ -1727,9 +1734,10 @@ procedure TPlots.DoProjectReset;
 begin
   FModified := False;
   Notify(poProjectReset, nil, nil);
-end;
+end;}
 {%endregion}
 
+{%region Enumerate Plots}
 function TPlots.GetCount: Integer;
 begin
   Result := FItems.Count;
@@ -1744,8 +1752,9 @@ function TPlots.IndexOf(APlot: TPlot): Integer;
 begin
   Result := FItems.IndexOf(APlot);
 end;
+{%endregion}
 
-{$region 'Сохранение/Загрузка'}
+{%region Load/Save}
 function TPlots.Load: Boolean;
 begin
   //with TOpenDialog.Create(nil) do
@@ -1956,6 +1965,7 @@ end;    }
 //    if WideSameText(child.NodeName, 'Plot') then AddPlot(child);
 //  end;
 //end;
+{%endregion}
 
 function TPlots.Reset(Silent: Boolean; Mode: Integer): Boolean;
 begin
@@ -1978,14 +1988,14 @@ begin
         Clear;
     end;}
 
-  DoProjectReseting;
+  Notify(poProjectReseting);
   Clear;
   //History.Clear;
   FFileName := '';
   FUntitled := True;
   FPacked := False;
   UntitledIndex := 1;
-  DoProjectReset;
+  Notify(poProjectReset);
   Result := True;
 end;
 
@@ -2005,7 +2015,6 @@ begin
   //  end;
   //end;
 end;
-{$endregion}
 
 {%region Notifications}
 procedure TPlots.RegisterNotifyClient(AObject: TObject);
@@ -2047,6 +2056,11 @@ var
   I: Integer;
   Intf: IPlotNotification;
 begin
+  if AOperation in ModifyingOperations then
+    Modified := True
+  else if AOperation in SavingOperations then
+    Modified := False;
+
   if Assigned(FNotifyClients) then
     for I := FNotifyClients.Count-1 downto 0 do
       if FNotifyClients[I].GetInterface(IPlotNotification, Intf) then

@@ -5,13 +5,13 @@ unit WinMain;
 interface
 
 uses
-  SysUtils, Controls, Forms, Dialogs, ActnList, ComCtrls, ExtCtrls, Menus,
-  TAGraph, OriUndo, Plots, Diagram, SpectrumControls, Classes;
+  Controls, Forms, ActnList, ComCtrls, ExtCtrls, Menus, TAGraph,
+  OriUndo,
+  Plots, Diagram, SpectrumControls;
 
 type
-  { TMainWnd }
-
   TMainWnd = class(TForm, IPlotNotification)
+  {%region published}
     ActionEditDeleteAll: TAction;
     ActionEditDelete: TAction;
     ActionEditInvertSelection: TAction;
@@ -23,7 +23,6 @@ type
     ActionAddTable: TAction;
     ActionAddFolder: TAction;
     ActionAddFile: TAction;
-  {%region published}
     ActionDiagramSaveAsImage: TAction;
     ActionDiagramSaveAsProject: TAction;
     ActionDiagramDelete: TAction;
@@ -67,7 +66,6 @@ type
     ToolbarBook: TNotebook;
     PageProject: TPage;
     PlotsBook: TNotebook;
-    StatusBar: TStatusBar;
     ToolBar1: TToolBar;
     ToolBarProject: TToolBar;
     ToolButton1: TToolButton;
@@ -78,13 +76,11 @@ type
     ToolButton14: TToolButton;
     ToolButton15: TToolButton;
     ToolButton16: TToolButton;
-    ToolButton17: TToolButton;
     ToolButton18: TToolButton;
     ToolButton19: TToolButton;
     ToolButton2: TToolButton;
     ToolButton20: TToolButton;
     ToolButton21: TToolButton;
-    ToolButton22: TToolButton;
     ToolButton23: TToolButton;
     ToolButton24: TToolButton;
     ToolButton25: TToolButton;
@@ -141,9 +137,12 @@ type
     FToolbarTabs: TNotebookTabs;
     FPlotTabs: TNotebookTabs;
     FDiagrams: TDiagramList;
+    FStatusBar: TSpectrumStatusBar;
 
     procedure Notify(AOperation: TPlotOperation; APlot: TPlot; AGraph: TGraph);
+    procedure ProcessProjectModified;
     procedure ProcessPlotAdded(APlot: TPlot);
+    procedure ProcessPlotChanged(APlot: TPlot);
 
     procedure UndoChanged(Sender: TObject; CmdUndo, CmdRedo: TOriUndoCommand);
     procedure UndoUndone(Sender: TObject; Cmd: TOriUndoCommand);
@@ -151,6 +150,7 @@ type
     function GetCurPlot: TPlot;
     function GetCurChart: TChart;
     function GetCurDiagram: TDiagram;
+    function GetDiagram(APlot: TPlot): TDiagram;
   public
     property CurPlot: TPlot read GetCurPlot;
     property CurChart: TChart read GetCurChart;
@@ -163,7 +163,7 @@ var
 implementation
 
 uses
-  OriIniFile, OriUtils_Gui,
+  OriIniFile,
   SpectrumTypes, SpectrumSettings, SpectrumStrings,
   PlotMath, DlgFormulaEditor;
 
@@ -182,11 +182,14 @@ begin
   FPlotTabs.Align := alBottom;
   FPlotTabs.Parent := Self;
 
+  FStatusBar := TSpectrumStatusBar.Create(Self);
+  FStatusBar.Top := FPlotTabs.Top + FPlotTabs.Height;
+
   // initialize plot set
   FDiagrams := TDiagramList.Create;
   PlotSet := TPlots.Create;
   PlotSet.RegisterNotifyClient(Self);
-  PlotSet.AddPlot('');
+  PlotSet.AddPlot;
 
   History.OnChanged := @UndoChanged;
   History.OnUndone := @UndoUndone;
@@ -250,7 +253,7 @@ end;
 
 procedure TMainWnd.ActionDiagramRenameExecute(Sender: TObject);
 begin
-  //
+  CurDiagram.Rename;
 end;
 
 procedure TMainWnd.ActionDiagramSaveAsImageExecute(Sender: TObject);
@@ -404,14 +407,28 @@ function TMainWnd.GetCurDiagram: TDiagram;
 begin
   Result := TDiagram(FPlotTabs.ActiveTab.Feature);
 end;
+
+function TMainWnd.GetDiagram(APlot: TPlot): TDiagram;
+begin
+  for Result in FDiagrams do
+    if Result.Plot = APlot then exit;
+  Result := nil;
+end;
 {%endregion}
 
 {%region Plot Events}
 procedure TMainWnd.Notify(AOperation: TPlotOperation; APlot: TPlot; AGraph: TGraph);
 begin
   case AOperation of
+    poModified: ProcessProjectModified;
     poPlotAdded: ProcessPlotAdded(APlot);
+    poPlotChanged: ProcessPlotChanged(APlot);
   end;
+end;
+
+procedure TMainWnd.ProcessProjectModified;
+begin
+  FStatusBar.ShowModified(PlotSet.Modified);
 end;
 
 procedure TMainWnd.ProcessPlotAdded(APlot: TPlot);
@@ -423,6 +440,11 @@ begin
   Diagram := TDiagram.Create(APlot, PlotsBook.Page[Index]);
   FPlotTabs.AddTab(APlot.Title, Index, Diagram);
   FDiagrams.Add(Diagram);
+end;
+
+procedure TMainWnd.ProcessPlotChanged(APlot: TPlot);
+begin
+  FPlotTabs.RenameTab(APlot.Title, GetDiagram(APlot));
 end;
 {%endregion Plot Events}
 

@@ -33,12 +33,15 @@ type
     destructor Destroy; override;
     property Plot: TPlot read FPlot;
     property Chart: TChart read FChart;
+    procedure Rename;
   end;
 
 implementation
 
 uses
-  OriUtils_TChart;
+  Dialogs,
+  OriUtils_TChart,
+  SpectrumStrings;
 
 constructor TDiagram.Create(APlot: TPlot; AParent: TCustomControl);
 begin
@@ -147,6 +150,14 @@ begin
   finally
     Series.EndUpdate;
   end;
+end;
+
+procedure TDiagram.Rename;
+var
+  Title: String;
+begin
+  Title := InputBox(Dlg_DiagramTitleCaption, Dlg_DiagramTitlePrompt, FPlot.Title);
+  if Title <> FPlot.Title then FPlot.Title := Title;
 end;
 
 end.

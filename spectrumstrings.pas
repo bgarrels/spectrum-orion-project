@@ -12,6 +12,9 @@ resourcestring
   Action_Undo = 'Undo';
   Action_Redo = 'Redo';
 
+  Dlg_DiagramTitleCaption = 'Diagram Title';
+  Dlg_DiagramTitlePrompt = 'Enter new diagram title:';
+
   Err_FileNotFound = 'File "%s" not found.';
   Err_FileTryNext = 'Try to open remaining files?';
   Err_IllegalChar = 'Illegal symbol in input data (the data may be binary).';
@@ -40,6 +43,8 @@ resourcestring
   ParamErr_WrongFloat = '%s is not valid number.';
   ParamErr_WrongStep = 'Wrong step value: %g.' + NL2 +
     'Step must be greater than zero but less than range between minimum and maximum (%g).';
+
+  Status_Modified = 'Modified';
 
   Undo_AddGraph = 'Append Graph';
   Undo_DeleteGraph = 'Delete Graph';

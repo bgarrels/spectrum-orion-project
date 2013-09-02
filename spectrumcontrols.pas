@@ -5,7 +5,7 @@ unit SpectrumControls;
 interface
 
 uses
-  Classes, Buttons, ExtCtrls, FGL;
+  Classes, Controls, ComCtrls, ExtCtrls, Buttons, FGL;
 
 type
   TNotebookTab = class;
@@ -30,6 +30,7 @@ type
     property ActiveTab: TNotebookTab read GetActiveTab;
     function AddTab(const Title: String; Index: Integer): TNotebookTab; overload;
     procedure AddTab(const Title: String; Index: Integer; Feature: TObject); overload;
+    procedure RenameTab(const Title: String; Feature: TObject);
     procedure ShowTab(Index: Integer);
   end;
 
@@ -41,6 +42,8 @@ type
     FTabIndex: Integer;
     procedure SetChecked(Value: Boolean);
     procedure UpdateBorderSpacing;
+    procedure SetTitle(const Value: String);
+    function GetTitle: String;
   protected
     procedure PaintBackground(var PaintRect: TRect); override;
   public
@@ -49,13 +52,29 @@ type
     property Checked: Boolean read FChecked write SetChecked;
     property Feature: TObject read FFeature;
     property TabIndex: Integer read FTabIndex;
+    property Title: String read GetTitle write SetTitle;
+  end;
+
+  TSpectrumStatusBar = class(TStatusBar)
+  private
+    FPanelGraphSource: TStatusPanel;
+    FPanelGraphsCount: TStatusPanel;
+    FPanelPointsCount: TStatusPanel;
+    FPanelModified: TStatusPanel;
+    FPanelFactorX: TStatusPanel;
+    FPanelFactorY: TStatusPanel;
+    procedure AdjustPanels;
+  public
+    constructor Create(AOwner: TWinControl); reintroduce;
+    procedure ShowModified(Value: Boolean);
   end;
 
 implementation
 
 uses
-  Graphics, Controls,
-  OriStrings;
+  SysUtils, Graphics,
+  OriStrings,
+  SpectrumStrings;
 
 const
   SourceDPI = 96;
@@ -124,7 +143,7 @@ begin
       X := Tab.Left + Tab.Width;
 
   Result := TNotebookTab.Create(Self);
-  Result.Caption := '   ' + Title + '   ';
+  Result.Title := Title;
   Result.Left := X + 1;
   Result.Parent := Self;
   Result.FTabIndex := Index;
@@ -153,6 +172,18 @@ begin
     else
       FTabs[I].Checked := False;
   Invalidate;
+end;
+
+procedure TNotebookTabs.RenameTab(const Title: String; Feature: TObject);
+var
+  Tab: TNotebookTab;
+begin
+  for Tab in FTabs do
+    if Tab.Feature = Feature then
+    begin
+      Tab.Title := Title;
+      exit;
+    end;
 end;
 
 procedure TNotebookTabs.Paint;
@@ -192,7 +223,7 @@ procedure TNotebookTab.UpdateBorderSpacing;
 var
   MarginY: Integer;
 begin
-  MarginY := ScaleY(3, SourceDPI);
+  MarginY := ScaleY(6, SourceDPI);
   if FOwner.TabsPosition = ntpBottom then
   begin
     BorderSpacing.Top := 0;
@@ -203,7 +234,7 @@ begin
     BorderSpacing.Top := MarginY;
     BorderSpacing.Bottom := 0;
   end;
-  BorderSpacing.Left := ScaleX(3, SourceDPI);
+  BorderSpacing.Left := ScaleX(6, SourceDPI);
 end;
 
 procedure TNotebookTab.Click;
@@ -251,6 +282,57 @@ begin
     FChecked := Value;
     Invalidate;
   end;
+end;
+
+procedure TNotebookTab.SetTitle(const Value: String);
+begin
+  inherited Caption := '   ' + Value + '   ';
+  InvalidatePreferredSize;
+  AdjustSize;
+end;
+
+function TNotebookTab.GetTitle: String;
+begin
+  Result := Trim(inherited Caption);
+end;
+{%endregion}
+
+{%region TSpectrumStatusBar}
+constructor TSpectrumStatusBar.Create(AOwner: TWinControl);
+begin
+  inherited Create(AOwner);
+
+  Parent := AOwner;
+  SimplePanel := False;
+
+  FPanelGraphsCount := Panels.Add;
+  FPanelModified := Panels.Add;
+  FPanelPointsCount := Panels.Add;
+  FPanelFactorX := Panels.Add;
+  FPanelFactorY := Panels.Add;
+  FPanelGraphSource := Panels.Add;
+
+  FPanelGraphsCount.Alignment := taCenter;
+  FPanelPointsCount.Alignment := taCenter;
+  FPanelModified.Alignment := taCenter;
+  FPanelFactorX.Alignment := taCenter;
+  FPanelFactorY.Alignment := taCenter;
+end;
+
+procedure TSpectrumStatusBar.ShowModified(Value: Boolean);
+begin
+  if Value
+    then FPanelModified.Text := Status_Modified
+    else FPanelModified.Text := '';
+  AdjustPanels;
+end;
+
+procedure TSpectrumStatusBar.AdjustPanels;
+var
+  I: Integer;
+begin
+  for I := 0 to Panels.Count-1 do
+    Panels[I].Width := Canvas.TextWidth(Panels[I].Text) + ScaleX(12, SourceDPI);
 end;
 {%endregion}
 
