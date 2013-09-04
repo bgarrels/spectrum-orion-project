@@ -26,7 +26,7 @@ object MainWnd: TMainWnd
     Height = 42
     Top = 0
     Width = 918
-    PageIndex = 2
+    PageIndex = 0
     Align = alTop
     Color = clBtnFace
     TabOrder = 1
@@ -332,6 +332,7 @@ object MainWnd: TMainWnd
     object ActionProjectOpen: TAction
       Category = 'Project'
       Caption = 'Open...'
+      Enabled = False
       Hint = 'Load project from file'
       ImageIndex = 2
       OnExecute = ActionProjectOpenExecute
@@ -340,6 +341,7 @@ object MainWnd: TMainWnd
     object ActionProjectNew: TAction
       Category = 'Project'
       Caption = 'New'
+      Enabled = False
       Hint = 'New project'
       ImageIndex = 1
       OnExecute = ActionProjectNewExecute
@@ -348,6 +350,7 @@ object MainWnd: TMainWnd
     object ActionProjectSave: TAction
       Category = 'Project'
       Caption = 'Save'
+      Enabled = False
       Hint = 'Save project'
       ImageIndex = 3
       OnExecute = ActionProjectSaveExecute
@@ -356,6 +359,7 @@ object MainWnd: TMainWnd
     object ActionProjectSaveAs: TAction
       Category = 'Project'
       Caption = 'Save As...'
+      Enabled = False
       Hint = 'Save project with different file name'
       OnExecute = ActionProjectSaveAsExecute
     end
@@ -386,6 +390,7 @@ object MainWnd: TMainWnd
     object ActionEditCopy: TAction
       Category = 'Edit'
       Caption = 'Copy'
+      Enabled = False
       Hint = 'Copy selected objects to clipboard'
       ImageIndex = 5
       OnExecute = ActionEditCopyExecute
@@ -394,6 +399,7 @@ object MainWnd: TMainWnd
     object ActionEditCut: TAction
       Category = 'Edit'
       Caption = 'Cut'
+      Enabled = False
       Hint = 'Cut selected objects to clipboard'
       ImageIndex = 6
       OnExecute = ActionEditCutExecute
@@ -402,6 +408,7 @@ object MainWnd: TMainWnd
     object ActionEditPaste: TAction
       Category = 'Edit'
       Caption = 'Paste'
+      Enabled = False
       Hint = 'Paste from clipboard'
       ImageIndex = 7
       OnExecute = ActionEditPasteExecute
@@ -410,6 +417,7 @@ object MainWnd: TMainWnd
     object ActionEditPasteTable: TAction
       Category = 'Edit'
       Caption = 'Paste Table...'
+      Enabled = False
       Hint = 'Paste clipboard data as multicolumn file'
       ImageIndex = 8
       OnExecute = ActionEditPasteTableExecute
@@ -418,6 +426,7 @@ object MainWnd: TMainWnd
     object ActionEditCopyFormat: TAction
       Category = 'Edit'
       Caption = 'Copy Format'
+      Enabled = False
       Hint = 'Copy format of selected object'
       ImageIndex = 11
       OnExecute = ActionEditCopyFormatExecute
@@ -426,6 +435,7 @@ object MainWnd: TMainWnd
     object ActionEditPasteFormat: TAction
       Category = 'Edit'
       Caption = 'Paste Format'
+      Enabled = False
       Hint = 'Paste format to selected object'
       ImageIndex = 12
       OnExecute = ActionEditPasteFormatExecute
@@ -448,6 +458,7 @@ object MainWnd: TMainWnd
     object ActionDiagramDelete: TAction
       Category = 'Diagram'
       Caption = 'Delete'
+      Enabled = False
       Hint = 'Remove current diagram'
       ImageIndex = 24
       OnExecute = ActionDiagramDeleteExecute
@@ -455,6 +466,7 @@ object MainWnd: TMainWnd
     object ActionDiagramSaveAsProject: TAction
       Category = 'Diagram'
       Caption = 'Save As Project...'
+      Enabled = False
       Hint = 'Save copy of current diagram as separate project file'
       ImageIndex = 14
       OnExecute = ActionDiagramSaveAsProjectExecute
@@ -462,6 +474,7 @@ object MainWnd: TMainWnd
     object ActionDiagramSaveAsImage: TAction
       Category = 'Diagram'
       Caption = 'Save As Image...'
+      Enabled = False
       Hint = 'Save copy of current diagram as image file'
       ImageIndex = 15
       OnExecute = ActionDiagramSaveAsImageExecute
@@ -469,6 +482,7 @@ object MainWnd: TMainWnd
     object ActionAddFile: TAction
       Category = 'Add'
       Caption = 'From File...'
+      Enabled = False
       Hint = 'Create new graph from file'
       ImageIndex = 16
       OnExecute = ActionAddFileExecute
@@ -477,6 +491,7 @@ object MainWnd: TMainWnd
     object ActionAddFolder: TAction
       Category = 'Add'
       Caption = 'From Folder...'
+      Enabled = False
       Hint = 'Create graphs from files in specified folder'
       ImageIndex = 17
       OnExecute = ActionAddFolderExecute
@@ -485,6 +500,7 @@ object MainWnd: TMainWnd
     object ActionAddTable: TAction
       Category = 'Add'
       Caption = 'From Table...'
+      Enabled = False
       Hint = 'Create new graphs from multicolumn file'
       ImageIndex = 18
       OnExecute = ActionAddTableExecute
@@ -493,6 +509,7 @@ object MainWnd: TMainWnd
     object ActionDiagramPrint: TAction
       Category = 'Diagram'
       Caption = 'Print'
+      Enabled = False
       Hint = 'Print current diagram'
       ImageIndex = 19
       OnExecute = ActionDiagramPrintExecute
@@ -501,6 +518,7 @@ object MainWnd: TMainWnd
     object ActionDiagramPrintWithPreview: TAction
       Category = 'Diagram'
       Caption = 'Print With Preview...'
+      Enabled = False
       Hint = 'Preview and print current diagram'
       OnExecute = ActionDiagramPrintWithPreviewExecute
       ShortCut = 24656
@@ -508,12 +526,14 @@ object MainWnd: TMainWnd
     object ActionDiagramPrinterSetup: TAction
       Category = 'Diagram'
       Caption = 'Printer Setup...'
+      Enabled = False
       Hint = 'Printer setup'
       OnExecute = ActionDiagramPrinterSetupExecute
     end
     object ActionEditSelectGraphs: TAction
       Category = 'Edit'
       Caption = 'Select...'
+      Enabled = False
       ImageIndex = 20
       OnExecute = ActionEditSelectGraphsExecute
       ShortCut = 32851
@@ -521,6 +541,7 @@ object MainWnd: TMainWnd
     object ActionEditSelectAll: TAction
       Category = 'Edit'
       Caption = 'Select All'
+      Enabled = False
       Hint = 'Select all graphs'
       OnExecute = ActionEditSelectAllExecute
       ShortCut = 16449
@@ -528,6 +549,7 @@ object MainWnd: TMainWnd
     object ActionEditInvertSelection: TAction
       Category = 'Edit'
       Caption = 'Invert Selection'
+      Enabled = False
       Hint = 'Invert selection'
       OnExecute = ActionEditInvertSelectionExecute
       ShortCut = 32833
@@ -535,6 +557,7 @@ object MainWnd: TMainWnd
     object ActionEditDelete: TAction
       Category = 'Edit'
       Caption = 'Delete'
+      Enabled = False
       Hint = 'Delete selected objects'
       ImageIndex = 22
       OnExecute = ActionEditDeleteExecute
@@ -543,6 +566,7 @@ object MainWnd: TMainWnd
     object ActionEditDeleteAll: TAction
       Category = 'Edit'
       Caption = 'Clear Diagram'
+      Enabled = False
       Hint = 'Delete all graphs from current diagram'
       ImageIndex = 21
       OnExecute = ActionEditDeleteAllExecute
@@ -3214,6 +3238,42 @@ object MainWnd: TMainWnd
     top = 396
     object MenuItem7: TMenuItem
       Action = ActionEditDeleteAll
+      Bitmap.Data = {
+        36040000424D3604000000000000360000002800000010000000100000000100
+        2000000000000004000064000000640000000000000000000000000000000000
+        00031A1A74170000001100000014000000100000000800000002000000000000
+        000000000002171769150000000F00000014000000120000000B000000012B2B
+        C25B2B2BC1E514145C2F0000001F0000001B0000001000000007000000020000
+        000217176B14212196DC1C1C83710000001F0000001A000000103737C94B3333
+        CAFA2C2CC7FF2929B9C905051827000000230000001A0000000E000000060000
+        0006202091B0202093FF212194FF1B1B7A730000001C000000104141CD413B3B
+        CCF13232CAFF2B2BC5FF2626ADA10000002300000020000000170000000F1F1F
+        8D73212194FF202091FF202090FB1A1A7668000000150000000A000000004343
+        CA343C3CCCE83232CAFF2B2BC4FF22229D6F000000210000001F1A1A73482222
+        9BFA212195FF202090F718186D57000000150000000B00000005000000000000
+        00004444C9263D3DCBE03030C9FF2B2BC2F71B1B7B450F0F43322424A3E42323
+        9FFF212196EF1717684F000000140000000B0000000400000001000000000000
+        0000000000004444C81D3C3CCBD22E2EC9FF2A2ABFE22626AEBF2626ADFF2323
+        A1E814145C47000000180000000D000000050000000100000000000000000000
+        000000000000000000013A3AAB173838C8C62C2CC8FF2A2ABFFF2727AFE01111
+        504400000023000000180000000D000000040000000100000000000000000000
+        00000000000100000003272769124040C8BE3535CAFF2B2BC6FF2828B6D70F0F
+        4233000000220000001C000000130000000A0000000300000001000000000000
+        000100000003393981175353CFC74A4AD0FF3D3DCAE32F2FC0BE2B2BC2FF2727
+        B3D913135837000000200000001C000000130000000A00000004000000000000
+        00034D4DA01F6161D3D45A5AD4FF5050D0FB2E2E894D1A1A5E292C2CC7E92A2A
+        BEFF2828B2DD13135638000000230000001E0000001300000009000000015D5D
+        BD206868D6DC6666D7FF5E5ED5FF4949B27F0000001B0000000F3030BC462B2B
+        C5FF2929BBFF2727B0E615156142000000230000001B0000000F6464D1266A6A
+        D7E46A6AD8FF6767D7FF5C5CCABA0000001C0000001200000008000000023030
+        C78C2B2BC3FF2929BAFF2828B2E617176A460000001C000000106464D7616868
+        D8FF6868D8FF6565D5E12F2F6827000000120000000A00000003000000003737
+        CB052C2CC7D22A2AC0FF2929BBFF2525A991000000140000000C000000006262
+        D4676464D7FA5656BC3A0000000A000000080000000400000001000000000000
+        00003131C4262C2CC6F62929BC970000000B0000000A00000006000000000000
+        00005B5BCF260000000200000003000000020000000100000000000000000000
+        0000000000002E2EC63900000002000000030000000300000002
+      }
     end
   end
 end

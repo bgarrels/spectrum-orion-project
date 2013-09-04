@@ -14,6 +14,8 @@ resourcestring
 
   Dlg_DiagramTitleCaption = 'Diagram Title';
   Dlg_DiagramTitlePrompt = 'Enter new diagram title:';
+  Dlg_GraphTitleCaption = 'Graph Title';
+  Dlg_GraphTitlePrompt = 'Enter new graph title:';
 
   Err_FileNotFound = 'File "%s" not found.';
   Err_FileTryNext = 'Try to open remaining files?';
@@ -45,6 +47,7 @@ resourcestring
     'Step must be greater than zero but less than range between minimum and maximum (%g).';
 
   Status_Modified = 'Modified';
+  Status_Graphs = 'Graphs';
 
   Undo_AddGraph = 'Append Graph';
   Undo_DeleteGraph = 'Delete Graph';

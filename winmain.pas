@@ -152,9 +152,13 @@ type
     procedure ProcessProjectModified;
     procedure ProcessPlotAdded(APlot: TPlot);
     procedure ProcessPlotChanged(APlot: TPlot);
+    procedure ProcessGraphAdded(APlot: TPlot);
+    procedure ProcessGraphDeleted(APlot: TPlot);
 
     procedure UndoChanged(Sender: TObject; CmdUndo, CmdRedo: TOriUndoCommand);
     procedure UndoUndone(Sender: TObject; Cmd: TOriUndoCommand);
+
+    procedure PlotsTabActivated(Sender: TObject);
 
     function GetCurPlot: TPlot;
     function GetCurChart: TChart;
@@ -172,7 +176,7 @@ var
 implementation
 
 uses
-  OriIniFile,
+  OriIniFile, OriDebugConsole,
   SpectrumTypes, SpectrumSettings, SpectrumStrings,
   PlotMath, DlgFormulaEditor;
 
@@ -190,6 +194,7 @@ begin
   FPlotTabs.TabsPosition := ntpBottom;
   FPlotTabs.Align := alBottom;
   FPlotTabs.Parent := Self;
+  FPlotTabs.OnTabActivated := @PlotsTabActivated;
 
   FStatusBar := TSpectrumStatusBar.Create(Self);
   FStatusBar.Top := FPlotTabs.Top + FPlotTabs.Height;
@@ -232,6 +237,13 @@ begin
 
 end;
 
+{%endregion}
+
+{%region Controls Events}
+procedure TMainWnd.PlotsTabActivated(Sender: TObject);
+begin
+  FStatusBar.ShowGraphCount(CurDiagram.CountTotal, CurDiagram.CountVisible);
+end;
 {%endregion}
 
 {%region Plot Actions}
@@ -432,6 +444,8 @@ begin
     poModified: ProcessProjectModified;
     poPlotAdded: ProcessPlotAdded(APlot);
     poPlotChanged: ProcessPlotChanged(APlot);
+    poGraphAdded: ProcessGraphAdded(APlot);
+    poGraphDeleted: ProcessGraphDeleted(APlot);
   end;
 end;
 
@@ -454,6 +468,24 @@ end;
 procedure TMainWnd.ProcessPlotChanged(APlot: TPlot);
 begin
   FPlotTabs.RenameTab(APlot.Title, GetDiagram(APlot));
+end;
+
+procedure TMainWnd.ProcessGraphAdded(APlot: TPlot);
+var
+  Diagram: TDiagram;
+begin
+  Diagram := CurDiagram;
+  if APlot = Diagram.Plot then
+    FStatusBar.ShowGraphCount(Diagram.CountTotal, Diagram.CountVisible);
+end;
+
+procedure TMainWnd.ProcessGraphDeleted(APlot: TPlot);
+var
+  Diagram: TDiagram;
+begin
+  Diagram := CurDiagram;
+  if APlot = Diagram.Plot then
+    FStatusBar.ShowGraphCount(Diagram.CountTotal, Diagram.CountVisible);
 end;
 {%endregion Plot Events}
 

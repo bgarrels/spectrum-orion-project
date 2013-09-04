@@ -15,31 +15,41 @@ type
 
   // An intermediate between TPlot and TChart.
   // It is Controller in MVC-terms, while TPlot is Model and TChart is View.
-  //
   TDiagram = class(TInterfacedObject, IPlotNotification)
   private
     FPlot: TPlot;
     FChart: TChart;
     FLines: TGraphLines;
+
+    procedure CreateChart(AParent: TCustomControl);
+
     procedure Notify(AOperation: TPlotOperation; APlot: TPlot; AGraph: TGraph);
     procedure ProcessGraphAdded(AGraph: TGraph);
     procedure ProcessGraphDeleted(AGraph: TGraph);
     procedure ProcessGraphDestroying(AGraph: TGraph);
+    procedure ProcessGraphChanged(AGraph: TGraph);
+
     procedure CreateLine(AGraph: TGraph);
     procedure UpdateLine(AGraph: TGraph);
+
     function GetLine(AGraph: TGraph): TLineSeries;
+    function GetCountTotal: Integer;
+    function GetCountVisible: Integer;
   public
     constructor Create(APlot: TPlot; AParent: TCustomControl);
     destructor Destroy; override;
+    procedure Rename; overload;
+    procedure Rename(AGraph: TGraph); overload;
     property Plot: TPlot read FPlot;
     property Chart: TChart read FChart;
-    procedure Rename;
+    property CountTotal: Integer read GetCountTotal;
+    property CountVisible: Integer read GetCountVisible;
   end;
 
 implementation
 
 uses
-  Dialogs,
+  Dialogs, Graphics,
   OriUtils_TChart,
   SpectrumStrings;
 
@@ -48,9 +58,9 @@ begin
   _AddRef; // Else, TInterfacedObject will destroyed by releasing of last interface
 
   FPlot := APlot;
-  FChart := TChart.Create(AParent);
-  FChart.Align := alClient;
-  FChart.Parent := AParent;
+
+  CreateChart(AParent);
+
   FLines := TGraphLines.Create;
 
   if Assigned(FPlot.Owner) then
@@ -68,11 +78,33 @@ begin
   inherited;
 end;
 
+procedure TDiagram.CreateChart(AParent: TCustomControl);
+var
+  M: Integer;
+begin
+  FChart := TChart.Create(AParent);
+  FChart.Align := alClient;
+  FChart.Parent := AParent;
+  FChart.BackColor := clWindow;
+
+  FChart.Margins.Left := 0;
+  FChart.Margins.Right := 0;
+  FChart.Margins.Top := 0;
+  FChart.Margins.Bottom := 0;
+
+  M := FChart.Canvas.TextHeight('I');
+  FChart.MarginsExternal.Left := M;
+  FChart.MarginsExternal.Right := M;
+  FChart.MarginsExternal.Top := M;
+  FChart.MarginsExternal.Bottom := M;
+end;
+
 {%region Plot Notifications}
 procedure TDiagram.Notify(AOperation: TPlotOperation; APlot: TPlot; AGraph: TGraph);
 begin
   case AOperation of
     poGraphAdded: if APlot = FPlot then ProcessGraphAdded(AGraph);
+    poGraphChanged: if APlot = FPlot then ProcessGraphChanged(AGraph);
     poGraphDeleted: if APlot = FPlot then ProcessGraphDeleted(AGraph);
     poGraphDestroying: if APlot = FPlot then ProcessGraphDestroying(AGraph);
   end;
@@ -105,8 +137,18 @@ begin
   FLines.Remove(AGraph);
   Line.Free;
 end;
+
+procedure TDiagram.ProcessGraphChanged(AGraph: TGraph);
+var
+  Line: TLineSeries;
+begin
+  Line := GetLine(AGraph);
+  if Assigned(Line) then
+    Line.Title := AGraph.Title;
+end;
 {%endregion}
 
+{%region Working With Line}
 function TDiagram.GetLine(AGraph: TGraph): TLineSeries;
 var
   Index: Integer;
@@ -151,14 +193,41 @@ begin
     Series.EndUpdate;
   end;
 end;
+{%endregion}
 
+{%region Commands}
 procedure TDiagram.Rename;
 var
   Title: String;
 begin
   Title := InputBox(Dlg_DiagramTitleCaption, Dlg_DiagramTitlePrompt, FPlot.Title);
-  if Title <> FPlot.Title then FPlot.Title := Title;
+  if Title <> FPlot.Title then FPlot.SetTitle(Title);
 end;
+
+procedure TDiagram.Rename(AGraph: TGraph);
+var
+  Title: String;
+begin
+  Title := InputBox(Dlg_GraphTitleCaption, Dlg_GraphTitlePrompt, AGraph.Title);
+  if Title <> AGraph.Title then AGraph.Title := Title;
+end;
+{%endregion}
+
+{%region Properties}
+function TDiagram.GetCountTotal: Integer;
+begin
+  Result := FPlot.Count;
+end;
+
+function TDiagram.GetCountVisible: Integer;
+var
+  I: Integer;
+begin
+  Result := 0;
+  for I := 0 to FPlot.Count-1 do
+    if FLines[FPlot[I]].Active then Inc(Result);
+end;
+{%endregion}
 
 end.
 

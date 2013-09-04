@@ -18,6 +18,7 @@ type
     FTabs: TNotebookTabList;
     FNotebook: TNotebook;
     FTabsPosition: TNotebookTabPosition;
+    FOnTabActivated: TNotifyEvent;
     function GetActiveTab: TNotebookTab;
     procedure InvalidateTabs;
     procedure SetTabsPosition(Value: TNotebookTabPosition);
@@ -32,6 +33,7 @@ type
     procedure AddTab(const Title: String; Index: Integer; Feature: TObject); overload;
     procedure RenameTab(const Title: String; Feature: TObject);
     procedure ShowTab(Index: Integer);
+    property OnTabActivated: TNotifyEvent read FOnTabActivated write FOnTabActivated;
   end;
 
   TNotebookTab = class(TCustomSpeedButton)
@@ -63,10 +65,11 @@ type
     FPanelModified: TStatusPanel;
     FPanelFactorX: TStatusPanel;
     FPanelFactorY: TStatusPanel;
-    procedure AdjustPanels;
+    procedure SetPanel(APanel: TStatusPanel; const AText: String);
   public
     constructor Create(AOwner: TWinControl); reintroduce;
     procedure ShowModified(Value: Boolean);
+    procedure ShowGraphCount(TotalCount, VisibleCount: Integer);
   end;
 
 implementation
@@ -168,6 +171,7 @@ begin
     begin
       FTabs[I].Checked := True;
       FNotebook.PageIndex := I;
+      if Assigned(FOnTabActivated) then FOnTabActivated(Self);
     end
     else
       FTabs[I].Checked := False;
@@ -322,17 +326,21 @@ end;
 procedure TSpectrumStatusBar.ShowModified(Value: Boolean);
 begin
   if Value
-    then FPanelModified.Text := Status_Modified
-    else FPanelModified.Text := '';
-  AdjustPanels;
+    then SetPanel(FPanelModified, Status_Modified)
+    else SetPanel(FPanelModified, '');
 end;
 
-procedure TSpectrumStatusBar.AdjustPanels;
-var
-  I: Integer;
+procedure TSpectrumStatusBar.ShowGraphCount(TotalCount, VisibleCount: Integer);
 begin
-  for I := 0 to Panels.Count-1 do
-    Panels[I].Width := Canvas.TextWidth(Panels[I].Text) + ScaleX(12, SourceDPI);
+  if TotalCount <> VisibleCount
+    then SetPanel(FPanelGraphsCount, Format('%s: %d (%d)', [Status_Graphs, VisibleCount, TotalCount]))
+    else SetPanel(FPanelGraphsCount, Format('%s: %d', [Status_Graphs, TotalCount]));
+end;
+
+procedure TSpectrumStatusBar.SetPanel(APanel: TStatusPanel; const AText: String);
+begin
+  APanel.Text := AText;
+  APanel.Width := Canvas.TextWidth('   ' + AText + '   ');
 end;
 {%endregion}
 

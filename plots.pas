@@ -68,23 +68,14 @@ type
     constructor Create(AValues: TGraphRec; const ATitle: String); overload;
     destructor Destroy; override;
 
-    function Rename: Boolean; // requests a new name for graph
     function EditFormula: Boolean;
 
     //procedure SaveXML(Node: IXMLNode);
     //procedure LoadXML(Node: IXMLNode);
     //procedure Load(Params: TGraphAppendParams);
-    procedure UpdateValues;
-    procedure FillValues;
-    procedure FillSampleValues(ACount: Integer); overload;
-    procedure FillSampleValues(var Param: TRandomSampleParams); overload;
 
-    procedure CreateLine;
-    procedure DeleteLine;
-    procedure UpdateLine;
-
-    procedure GetMinMaxX(out MinValue, MaxValue: TValue);
-    procedure GetMinMaxY(out MinValue, MaxValue: TValue);
+    //procedure GetMinMaxX(out MinValue, MaxValue: TValue);
+    //procedure GetMinMaxY(out MinValue, MaxValue: TValue);
 
     procedure Trim(var Param: TTrimParams);
     procedure Offset(var Param: TOffsetParams);
@@ -136,20 +127,13 @@ type
 
     //function CreateNote(Node: IXMLNode): TAnnotationTool;
 
-    procedure SetTitle(Value: String);
     function GetCount: Integer;
     function GetItems(Index: Integer): TGraph;
 
     procedure CreateUndoGroup(var Graphs: TGraphArray; const Title: String);
 
-  protected
-    procedure DoGraphAdded(AGraph: TGraph);
-    procedure DoGraphChanged(AGraph: TGraph);
-    procedure DoGraphDeleted(AGraph: TGraph);
-    procedure DoGraphChangedValues(AGraph: TGraph);
-
   public
-    BackupIndex: Integer;  // номер выделенного графика, для переключения м-у диаграммами
+//    BackupIndex: Integer;  // номер выделенного графика, для переключения м-у диаграммами
 
     constructor Create(AOwner: TPlots; const ATitle: String = '');
     destructor Destroy; override;
@@ -177,6 +161,8 @@ type
     //
     //procedure SaveXML(Node: IXMLNode);
     //procedure LoadXML(Node: IXMLNode);
+
+    procedure SetTitle(Value: String; AUndoable: Boolean = True);
 
     procedure Trim(var Graphs: TGraphArray; var Param: TTrimParams);
     procedure Offset(var Graphs: TGraphArray; var Param: TOffsetParams);
@@ -305,8 +291,8 @@ var
 
 const
   // Set of operations making a plot modified. FModified flag is set.
-  ModifyingOperations: TPlotOperations = [poPlotChanged, poPlotDestroyed, poPlotAdded,
-    poGraphChangedValues];
+  ModifyingOperations: TPlotOperations = [poPlotChanged, poPlotDestroyed,
+    poGraphAdded, poGraphChanged, poGraphChangedValues, poGraphDeleted];
 
   // Set of operations making a plot unmodified. FModified flag is reset.
   SavingOperations: TPlotOperations = [poProjectSaved, poProjectLoaded, poProjectReset];
@@ -350,7 +336,6 @@ constructor TGraph.Create(AOwner: TPlot);
 begin
   FOwner := AOwner;
   FAutoTitle := True;
-  CreateLine;
 end;
 
 constructor TGraph.Create(AValues: TGraphRec; const ATitle: String);
@@ -363,8 +348,6 @@ end;
 
 destructor TGraph.Destroy;
 begin
-  //DeleteLine;
-  //FreeAndNil(FSeries);
   FreeAndNil(FParams);
   Notify(poGraphDestroying);
   inherited;         
@@ -375,52 +358,14 @@ begin
   if Assigned(Owner) then Owner.Notify(AOperation, Self);
 end;
 
-procedure TGraph.CreateLine;
-begin
-  //if FSeries = nil then
-  //begin
-  //  FSeriesIndex := -1;
-  //  FSeries := TLineSeries.Create(Owner.Chart);
-  //  FSeries.Tag := Integer(Self);
-  //  FSeries.Title := FTitle;
-  //  FSeries.XValues.Order := loNone;
-  //  FSeries.YValues.Order := loNone;
-  //end;
-  //Owner.Chart.AddSeries(FSeries);
-  //if FSeriesIndex > -1 then // Move т.к. почему-то SeriesList.Insert дает AV
-  //  Owner.Chart.SeriesList.Move(Owner.Chart.SeriesList.Count-1, FSeriesIndex);
-end;
-
-procedure TGraph.DeleteLine;
-begin
-  // FSeriesIndex нужен чтобы при undo удаления графика
-  // вернуть ряд в то положение, где он стоял до удаления
-  //FSeriesIndex := Owner.Chart.SeriesList.IndexOf(FSeries);
-  //Owner.Selector.SeriesList.Extract(FSeries);
-  //Owner.Chart.RemoveSeries(FSeries);
-end;
-
-procedure TGraph.UpdateLine;
-var i: Integer;
-begin
-  //FSeries.BeginUpdate;
-  //try
-  //  FSeries.Clear;
-  //  for i := 0 to ValueCount-1 do
-  //    FSeries.AddXY(ValueX[i], ValueY[i]);
-  //finally
-  //  FSeries.EndUpdate;
-  //end;
-end;
-
+{%region Working With Values}
 procedure TGraph.SetValuesXY(const Xs, Ys: TValueArray);
 begin
-  if Length(Xs) <> Length(Ys) then raise
-    ESpectrumError.Create(Err_XYLengthsDiffer);
+  if Length(Xs) <> Length(Ys) then
+    raise ESpectrumError.Create(Err_XYLengthsDiffer);
   FValuesX := Copy(ValuesX);
   FValuesY := Copy(ValuesY);
-  UpdateLine;
-  if Assigned(FOwner) then FOwner.DoGraphChangedValues(Self);
+  Notify(poGraphChangedValues);
 end;
 
 function TGraph.GetValueX(Index: Integer): TValue;
@@ -444,55 +389,41 @@ begin
   SetLength(FValuesY, Value);
 end;
 
-function TGraph.GetIndex: Integer;
-begin
-  Result := FOwner.FItems.IndexOf(Self);
-end;
-
-// процедура для внутреннего использования, поэтому Undo не надо
+// For internal usage only, no undo is needed
 procedure TGraph.SetValueX(Index: Integer; const Value: TValue);
 begin
   if (Index > -1) and (Index < Length(FValuesX)) then
   begin
     FValuesX[Index] := Value;
-    UpdateLine;
-    if Assigned(FOwner) then FOwner.DoGraphChangedValues(Self);
+    Notify(poGraphChangedValues);
   end;
 end;
 
-// процедура для внутреннего использования, поэтому Undo не надо
+// For internal usage only, no undo is needed
 procedure TGraph.SetValueY(Index: Integer; const Value: TValue);
 begin
   if (Index > -1) and (Index < Length(FValuesY)) then
   begin
     FValuesY[Index] := Value;
-    UpdateLine;
-    if Assigned(FOwner) then FOwner.DoGraphChangedValues(Self);
+    Notify(poGraphChangedValues);
   end;
+end;
+{%endregion}
+
+function TGraph.GetIndex: Integer;
+begin
+  Result := FOwner.FItems.IndexOf(Self);
 end;
 
 {%region Title}
-function TGraph.Rename: Boolean;
-var
-  TmpTitle: String;
-begin
-  TmpTitle := FTitle;
-  //Result := InputStringDlgDK(TmpTitle, 'EnterText_GraphTitle');
-  //if Result then
-  //begin
-  //  History.Append(TTitleEditCommand.Create(Self));
-  //  SetTitle(TmpTitle); // here call Owner.OnGraphChanged
-  //  FAutoTitle := False;
-  //end;
-end;
-
 procedure TGraph.SetTitle(const Value: String);
 begin
   if Value <> FTitle then
   begin
     FTitle := Value;
-    //FSeries.Title := Value;
-    if Assigned(FOwner) then FOwner.DoGraphChanged(Self);
+    FAutoTitle := False;
+    //  History.Append(TTitleEditCommand.Create(Self));
+    Notify(poGraphChanged);
   end;
 end;
 {%endregion}
@@ -698,49 +629,31 @@ begin
   end;
 end; }
 
-procedure TGraph.UpdateValues;
-begin
-  //case FKind of
-  //  gkExpression:
-  //  begin
-  //    FSource := FormulaExpression(TFormulaParams(FParams).Formula);
-  //    if FAutoTitle then SetTitle(FSource); // fire OnGraphChanged
-  //  end;
-  //end;
-  //FillValues;
-  //UpdateLine;
-  //if Assigned(FOwner) then FOwner.DoGraphChangedValues(Self);
-end;
+//procedure TGraph.UpdateValues;
+//begin
+//  //case FKind of
+//  //  gkExpression:
+//  //  begin
+//  //    FSource := FormulaExpression(TFormulaParams(FParams).Formula);
+//  //    if FAutoTitle then SetTitle(FSource); // fire OnGraphChanged
+//  //  end;
+//  //end;
+//  //FillValues;
+//  //UpdateLine;
+//  //if Assigned(FOwner) then FOwner.DoGraphChangedValues(Self);
+//end;
 
-procedure TGraph.FillValues;
-begin
-  //case FKind of
-  //  gkExpression:
-  //    PlotMath.PlotFormula(TFormulaParams(FParams), FValuesX, FValuesY);
-  //end;
-end;
-
-procedure TGraph.FillSampleValues(ACount: Integer);
-begin
-  PlotMath.FillSampleValues(FValuesX, FValuesY, ACount);
-end;
-
-procedure TGraph.FillSampleValues(var Param: TRandomSampleParams);
-begin
-  PlotMath.FillSampleValues(FValuesX, FValuesY, Param);
-end;
-
-procedure TGraph.GetMinMaxX(out MinValue, MaxValue: TValue);
-begin
-  PlotMath.GetMinMax(FValuesX, MinValue, MaxValue);
-end;
-
-procedure TGraph.GetMinMaxY(out MinValue, MaxValue: TValue);
-begin
-  PlotMath.GetMinMax(FValuesY, MinValue, MaxValue);
-end;
+//procedure TGraph.FillValues;
+//begin
+//  //case FKind of
+//  //  gkExpression:
+//  //    PlotMath.PlotFormula(TFormulaParams(FParams), FValuesX, FValuesY);
+//  //end;
+//end;
 
 {%region Editing}
+// TODO remove from TGraph to PlotMath
+
 procedure TGraph.Trim(var Param: TTrimParams);
 var
   Result: Boolean;
@@ -778,7 +691,7 @@ begin
     end;
     adirY: OffsetValues(FValuesY, Param.Kind, Param.Value);
   end;
-  if Assigned(FOwner) then FOwner.DoGraphChangedValues(Self);
+  Notify(poGraphChangedValues);
 end;
 
 procedure TGraph.Normalize(var Param: TNormalizeParams);
@@ -787,7 +700,7 @@ begin
     adirX: NormalizeValues(FValuesX, Param.Value, Param.PerMaximum);
     adirY: NormalizeValues(FValuesY, Param.Value, Param.PerMaximum);
   end;
-  if Assigned(FOwner) then FOwner.DoGraphChangedValues(Self);
+  Notify(poGraphChangedValues);
 end;
 
 procedure TGraph.SwapXY;
@@ -801,7 +714,7 @@ begin
     FValuesX[I] := FValuesY[I];
     FValuesY[I] := Tmp;
   end;
-  if Assigned(FOwner) then FOwner.DoGraphChangedValues(Self);
+  Notify(poGraphChangedValues);
 end;
 
 procedure TGraph.FlipX;
@@ -817,7 +730,7 @@ begin
     FValuesY[I] := FValuesY[C-I];
     FValuesY[C-I] := Tmp;
   end;
-  if Assigned(FOwner) then FOwner.DoGraphChangedValues(Self);
+  Notify(poGraphChangedValues);
 end;
 
 procedure TGraph.FlipY;
@@ -825,19 +738,19 @@ var
   I: Integer;
   MinValue, MaxValue: TValue;
 begin
-  for I := 0 to Length(FValuesY)-1 do
-    FValuesY[I] := -1 * FValuesY[I]; // перевернуть
-  GetMinMaxY(MinValue, MaxValue);
-  for I := 0 to Length(FValuesY)-1 do // на дельту min-max вверх
-    FValuesY[I] := FValuesY[I] - MinValue - MaxValue;
-  if Assigned(FOwner) then FOwner.DoGraphChangedValues(Self);
+  //for I := 0 to Length(FValuesY)-1 do
+  //  FValuesY[I] := -1 * FValuesY[I]; // перевернуть
+  //GetMinMaxY(MinValue, MaxValue);
+  //for I := 0 to Length(FValuesY)-1 do // на дельту min-max вверх
+  //  FValuesY[I] := FValuesY[I] - MinValue - MaxValue;
+  //Notify(poGraphChangedValues);
 end;
 
 procedure TGraph.Sort;
 begin
   // TODO: Undo
   PlotMath.Sort(FValuesX, FValuesY);
-  if Assigned(FOwner) then FOwner.DoGraphChangedValues(Self);
+  Notify(poGraphChangedValues);
 end;
 {%endregion Editing}
 
@@ -935,7 +848,7 @@ begin
     for I := 0 to FItems.Count-1 do
       TGraph(FItems[I]).Free;
     FItems.Clear;
-    DoGraphDeleted(nil);
+    Notify(poGraphDeleted);
   end;
   // TODO Remove from history all commands referencing graphs of this plot
 end;
@@ -1066,27 +979,8 @@ begin
   AGraph.FOwner := Self;
   if AUndoable then
     History.Append(TGraphAppendCommand.Create(AGraph));
-  DoGraphAdded(AGraph);
+  Notify(poGraphAdded, AGraph);
 end;
-
-//procedure TPlot.AddGraph(AGraph: TGraphRec; const ATitle: String);
-//begin
-//
-//end;
-//
-//function TPlot.AddSampleGraph(ATitle: String): TGraph;
-//begin
-//  Result := CreateGraph(ATitle);
-//  Result.FillSampleValues(100);
-//  DoGraphAdded(Result);
-//end;
-//
-//function TPlot.AddSampleGraph(ATitle: String; AParams: TRandomSampleParams): TGraph;
-//begin
-//  Result := CreateGraph(ATitle);
-//  Result.FillSampleValues(AParams);
-//  DoGraphAdded(Result);
-//end;
 
 //function TPlot.CreateGraph(Params: TGraphAppendParams): TGraph;
 //begin
@@ -1134,61 +1028,21 @@ begin
   if AUndoable then
     History.Append(TGraphDeleteCommand.Create(AGraph, FItems.IndexOf(AGraph)));
   FItems.Extract(AGraph);
-  DoGraphDeleted(AGraph);
+  Notify(poGraphDeleted, AGraph);
   // Do not destroy graph, because of it is required to undo the deletion
 end;
 
-{%region Events}
-procedure TPlot.DoGraphAdded(AGraph: TGraph);
+{%region Undoable Properties Accessors}
+procedure TPlot.SetTitle(Value: String; AUndoable: Boolean = True);
 begin
-  if Assigned(FOwner) then
-  begin
-    FOwner.FModified := True;
-    FOwner.Notify(poGraphAdded, Self, AGraph);
-  end;
-end;
-
-procedure TPlot.DoGraphDeleted(AGraph: TGraph);
-begin
-  if Assigned(FOwner) then
-  begin
-    FOwner.FModified := True;
-    FOwner.Notify(poGraphDeleted, Self, AGraph);
-  end;
-end;
-
-procedure TPlot.DoGraphChanged(AGraph: TGraph);
-begin
-  if Assigned(FOwner) then
-  begin
-    FOwner.FModified := True;
-    FOwner.Notify(poGraphChanged, Self, AGraph);
-  end;
-end;
-
-procedure TPlot.DoGraphChangedValues(AGraph: TGraph);
-begin
-  if Assigned(FOwner) then
-  begin
-    FOwner.FModified := True;
-    FOwner.Notify(poGraphChangedValues, Self, AGraph);
-  end;
+  if AUndoable then
+    History.Append(TTitleEditCommand.Create(Self));
+  FTitle := Value;
+  Notify(poPlotChanged);
 end;
 {%endregion}
 
-{%region Title}
-procedure TPlot.SetTitle(Value: String);
-begin
-  if Value <> FTitle then
-  begin
-    FTitle := Value;
-    //  History.Append(TTitleEditCommand.Create(Self));
-    Notify(poPlotChanged);
-  end;
-end;
-{%endregion}
-
-{$region 'Индексация элементов'}
+{%region Items Access}
 function TPlot.IsEmpty: Boolean;
 begin
   Result := FItems.Count = 0;
@@ -1203,9 +1057,10 @@ function TPlot.GetItems(Index: Integer): TGraph;
 begin
   Result := TGraph(FItems[Index]);
 end;
-{$endregion}
+{%endregion}
 
-{$region 'Операции редактирования'}
+{$region Editing}
+// TODO remove from TPlot to PlotMath
 procedure TPlot.CreateUndoGroup(var Graphs: TGraphArray; const Title: String);
 var I: Integer;
 begin
@@ -1254,7 +1109,7 @@ begin
       end;
       adirY: FlipValues(Graphs[I].FValuesY, Param.Value);
     end;
-    DoGraphChangedValues(Graphs[I]);
+    Notify(poGraphChangedValues, Graphs[I]);
   end;
 end;
 
@@ -1276,7 +1131,7 @@ begin
         adirX: ScaleValues(Graphs[I].FValuesX, CenterKind, CenterValue, Value);
         adirY: ScaleValues(Graphs[I].FValuesY, CenterKind, CenterValue, Value);
       end;
-    DoGraphChangedValues(Graphs[I]);
+    Notify(poGraphChangedValues, Graphs[I]);
   end;
 end;
 
@@ -1301,7 +1156,7 @@ begin
       end;
       adirY: InverseValues(Graphs[I].FValuesY, Graphs[I].FValuesX, Param.Value);
     end;
-    DoGraphChangedValues(Graphs[I]);
+    Notify(poGraphChangedValues, Graphs[I]);
   end;
 end;
 
@@ -1338,12 +1193,12 @@ begin
       drPercent: DespikePer(Graphs[I].FValuesY, Params.Min, Params.Max);
       drAbsolute: DespikeAbs(Graphs[I].FValuesY, Params.Min, Params.Max);
     end;
-    DoGraphChangedValues(Graphs[I]);
+    Notify(poGraphChangedValues, Graphs[I]);
   end;
 end;
 {$endregion}
 
-{$region 'Сохранение/Загрузка'}
+{$region Load/Save}
 {procedure TPlot.SaveXML(Node: IXMLNode);
 var
   i: Integer;
@@ -1435,7 +1290,7 @@ begin
 end;  }
 {$endregion}
 
-{$region 'Chart tools work'}
+{$region Chart tools work}
 {function TPlot.CreateNote(Node: IXMLNode): TAnnotationTool;
 begin
   try
@@ -1449,25 +1304,26 @@ begin
 end;}
 {$endregion}
 
-{$region 'Calc and Draw procs'}
+{%region Calc and Draw procs}
+// TODO remove from TPlot to PlotMath
 procedure TPlot.Differentiate(var Graphs: TGraphArray);
 var
   I: Integer;
   DiffY: TValueArray;
   Graph: TGraph;
 begin
-  //if Length(Graphs) > 1 then
-  //  History.BeginGroup(Constant('Undo_AddGraph'));
+  if Length(Graphs) > 1 then
+    History.BeginGroup(Undo_AddGraph);
   try
     for I := 0 to Length(Graphs)-1 do
     begin
       PlotMath.Differentiate(Graphs[I].ValuesX, Graphs[I].ValuesY, DiffY);
      // Graph := CreateGraph(Format('Derivative(%s)', [Graphs[I].Title]));
       Graph.SetValuesXY(Graphs[I].ValuesX, DiffY);
-      DoGraphAdded(Graph);
+      Notify(poGraphAdded, Graph);
     end;
   finally
-//    if History.Groupped then History.EndGroup;
+    if History.Groupped then History.EndGroup;
   end;
 end;
 
@@ -1477,8 +1333,8 @@ var
   DiffY: TValueArray;
   Graph: TGraph;
 begin
-  //if Length(Graphs) > 1 then
-  //  History.BeginGroup(Constant('Undo_AddGraph'));
+  if Length(Graphs) > 1 then
+    History.BeginGroup(Undo_AddGraph);
   try
     for I := 0 to Length(Graphs)-1 do
     begin
@@ -1486,13 +1342,12 @@ begin
       if Length(DiffY) > 1 then
       begin
       //  Graph := CreateGraph(Format('Derivative2(%s)', [Graphs[I].Title]));
-        Graph.SetValuesXY(
-          Copy(Graphs[I].ValuesX, 1, Length(Graphs[I].ValuesX)-2), DiffY);
-        DoGraphAdded(Graph);
+        Graph.SetValuesXY(Copy(Graphs[I].ValuesX, 1, Length(Graphs[I].ValuesX)-2), DiffY);
+        Notify(poGraphAdded, Graph);
       end;
     end;
   finally
-//    if History.Groupped then History.EndGroup;
+    if History.Groupped then History.EndGroup;
   end;
 end;
 
@@ -1502,18 +1357,18 @@ var
   X, Y: TValueArray;
   Graph: TGraph;
 begin
-  //if Length(Graphs) > 1 then
-  //  History.BeginGroup(Constant('Undo_AddGraph'));
+  if Length(Graphs) > 1 then
+    History.BeginGroup(Undo_AddGraph);
   try
     for I := 0 to Length(Graphs)-1 do
     begin
       PlotMath.Regularity(Graphs[I].ValuesX, X, Y);
     //  Graph := CreateGraph(Format('Regularity(%s)', [Graphs[I].Title]));
       Graph.SetValuesXY(X, Y);
-      DoGraphAdded(Graph);
+      Notify(poGraphAdded, Graph);
     end;
   finally
-//    if History.Groupped then History.EndGroup;
+    if History.Groupped then History.EndGroup;
   end;
 end;
 
@@ -1586,8 +1441,8 @@ var
   AllanX, AllanY: TValueArray;
 begin
   Plot := Owner.AddPlot;
-  //if Length(Graphs) > 1 then
-  //  History.BeginGroup(Constant('Undo_AddGraph'));
+  if Length(Graphs) > 1 then
+    History.BeginGroup(Undo_AddGraph);
   try
     for I := 0 to Length(Graphs)-1 do
     begin
@@ -1595,16 +1450,17 @@ begin
       //Graph := Plot.CreateGraph(Format('%s(%s)',
         //[VarianceNames[Param.Kind], Graphs[I].Title]));
       Graph.SetValuesXY(AllanX, AllanY);
-      Plot.DoGraphAdded(Graph);
+      Notify(poGraphAdded, Graph);
     end;
   finally
-//    if History.Groupped then History.EndGroup;
+    if History.Groupped then History.EndGroup;
   end;
 end;
 {%endregion}
+
 {%endregion TPlot}
 
-//------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
 
 {%region TPlots}
 constructor TPlots.Create;
@@ -1651,9 +1507,6 @@ function TPlots.AddPlot(const ATitle: String = ''): TPlot;
 begin
   Result := CreatePlot(ATitle);
   Notify(poPlotAdded, Result);
-  // First diagram is added by default and
-  // it does not mean that project was modified
-  if Count = 1 then Modified := False;
 end;
 
 //function TPlots.AddPlot(Node: IXMLNode): TPlot;

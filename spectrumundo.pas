@@ -16,9 +16,8 @@ type
     destructor Destroy; override;
   end;
 
-  {TTitleEditCommand = class(TOriUndoCommand)
+  TTitleEditCommand = class(TSpectrumUndoCommand)
   private
-    FSource: TObject;
     FAutoTitle: Boolean;
     FBackup: String;
   protected
@@ -26,9 +25,11 @@ type
   public
     constructor Create(AGraph: TGraph); overload;
     constructor Create(APlot: TPlot); overload;
-  end;}
+  end;
 
   TGraphAppendCommand = class(TSpectrumUndoCommand)
+  private
+    FModified: Boolean;
   public
     constructor Create(AGraph: TGraph);
     procedure Undo; override;
@@ -38,6 +39,7 @@ type
   TGraphDeleteCommand = class(TSpectrumUndoCommand)
   private
     FIndex: Integer;
+    FModified: Boolean;
   public
     constructor Create(AGraph: TGraph; AIndex: Integer);
     procedure Undo; override;
@@ -93,29 +95,28 @@ begin
 end;
 {%endregion}
 
-(*
-{$region 'TTitleEditCommand'}
+{%region TTitleEditCommand}
 constructor TTitleEditCommand.Create(AGraph: TGraph);
 begin
   FSource := AGraph;
   FBackup := AGraph.Title;
   FAutoTitle := AGraph.AutoTitle;
-  FTitle := Constant('Undo_TitleGraph');
+  FTitle := Undo_TitleGraph;
 end;
 
 constructor TTitleEditCommand.Create(APlot: TPlot);
 begin
   FSource := APlot;
   FBackup := APlot.Title;
-  FTitle := Constant('Undo_TitlePlot');
+  FTitle := Undo_TitlePlot;
 end;
 
 procedure TTitleEditCommand.Swap;
 var
-  Tmp: TOriString;
+  Tmp: String;
   TmpF: Boolean;
 begin
-  if FSource is TGraph then
+  {if FSource is TGraph then
   begin
     Tmp := TGraph(FSource).Title;
     TmpF := TGraph(FSource).AutoTitle;
@@ -124,26 +125,28 @@ begin
     FBackup := Tmp;
     FAutoTitle := TmpF;
   end
-  else if FSource is TPlot then
+  else} if FSource is TPlot then
   begin
     Tmp := TPlot(FSource).Title;
-    TPlot(FSource).Title := FBackup;
+    TPlot(FSource).SetTitle(FBackup, False);
     FBackup := Tmp;
   end;
 end;
-{$endregion 'TTitleEditCommand'}   *)
+{%endregion TTitleEditCommand}
 
 {%region TGraphAppendCommand}
 constructor TGraphAppendCommand.Create(AGraph: TGraph);
 begin
   FSource := AGraph;
   FOwnSource := False;
+  FModified := AGraph.Owner.Owner.Modified;
   FTitle := SpectrumStrings.Undo_AddGraph;
 end;
 
 procedure TGraphAppendCommand.Undo;
 begin
   TGraph(FSource).Owner.DeleteGraph(TGraph(FSource), False);
+  TGraph(FSource).Owner.Owner.Modified := FModified;
   FOwnSource := True;
 end;
 
@@ -160,12 +163,14 @@ begin
   FSource := AGraph;
   FIndex := AIndex;
   FOwnSource := True;
+  FModified := AGraph.Owner.Owner.Modified;
   FTitle := SpectrumStrings.Undo_DeleteGraph;
 end;
 
 procedure TGraphDeleteCommand.Undo;
 begin
   TGraph(FSource).Owner.AddGraph(TGraph(FSource), FIndex, False);
+  TGraph(FSource).Owner.Owner.Modified := FModified;
   FOwnSource := False;
 end;
 
