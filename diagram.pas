@@ -169,6 +169,7 @@ begin
     Line := TLineSeries.Create(FChart);
     Line.Tag := Integer(AGraph);
     Line.Title := AGraph.Title;
+    Line.SeriesColor := GetLineSeriesColor(FChart);
     FLines.Add(AGraph, Line);
     FChart.AddSeries(Line);
   end
@@ -209,7 +210,7 @@ var
   Title: String;
 begin
   Title := InputBox(Dlg_GraphTitleCaption, Dlg_GraphTitlePrompt, AGraph.Title);
-  if Title <> AGraph.Title then AGraph.Title := Title;
+  if Title <> AGraph.Title then AGraph.SetTitle(Title);
 end;
 {%endregion}
 

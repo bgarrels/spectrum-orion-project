@@ -16,15 +16,23 @@ type
     destructor Destroy; override;
   end;
 
-  TTitleEditCommand = class(TSpectrumUndoCommand)
+  TPlotTitleEditCommand = class(TSpectrumUndoCommand)
   private
-    FAutoTitle: Boolean;
     FBackup: String;
   protected
     procedure Swap; override;
   public
-    constructor Create(AGraph: TGraph); overload;
     constructor Create(APlot: TPlot); overload;
+  end;
+
+  TGraphTitleEditCommand = class(TSpectrumUndoCommand)
+  private
+    FBackup: String;
+    FAutoTitle: Boolean;
+  protected
+    procedure Swap; override;
+  public
+    constructor Create(AGraph: TGraph); overload;
   end;
 
   TGraphAppendCommand = class(TSpectrumUndoCommand)
@@ -95,8 +103,26 @@ begin
 end;
 {%endregion}
 
-{%region TTitleEditCommand}
-constructor TTitleEditCommand.Create(AGraph: TGraph);
+{%region TPlotTitleEditCommand}
+constructor TPlotTitleEditCommand.Create(APlot: TPlot);
+begin
+  FSource := APlot;
+  FBackup := APlot.Title;
+  FTitle := Undo_TitlePlot;
+end;
+
+procedure TPlotTitleEditCommand.Swap;
+var
+  PlotTitle: String;
+begin
+  PlotTitle := TPlot(FSource).Title;
+  TPlot(FSource).SetTitle(FBackup, False);
+  FBackup := PlotTitle;
+end;
+{%endregion TPlotTitleEditCommand}
+
+{%region TGraphTitleEditCommand}
+constructor TGraphTitleEditCommand.Create(AGraph: TGraph);
 begin
   FSource := AGraph;
   FBackup := AGraph.Title;
@@ -104,35 +130,19 @@ begin
   FTitle := Undo_TitleGraph;
 end;
 
-constructor TTitleEditCommand.Create(APlot: TPlot);
-begin
-  FSource := APlot;
-  FBackup := APlot.Title;
-  FTitle := Undo_TitlePlot;
-end;
-
-procedure TTitleEditCommand.Swap;
+procedure TGraphTitleEditCommand.Swap;
 var
-  Tmp: String;
-  TmpF: Boolean;
+  GraphTitle: String;
+  GraphAutoTitle: Boolean;
 begin
-  {if FSource is TGraph then
-  begin
-    Tmp := TGraph(FSource).Title;
-    TmpF := TGraph(FSource).AutoTitle;
-    TGraph(FSource).Title := FBackup;
-    TGraph(FSource).AutoTitle := FAutoTitle;
-    FBackup := Tmp;
-    FAutoTitle := TmpF;
-  end
-  else} if FSource is TPlot then
-  begin
-    Tmp := TPlot(FSource).Title;
-    TPlot(FSource).SetTitle(FBackup, False);
-    FBackup := Tmp;
-  end;
+  GraphTitle := TGraph(FSource).Title;
+  GraphAutoTitle := TGraph(FSource).AutoTitle;
+  TGraph(FSource).SetTitle(FBackup, False);
+  TGraph(FSource).AutoTitle := FAutoTitle;
+  FBackup := GraphTitle;
+  FAutoTitle := GraphAutoTitle;
 end;
-{%endregion TTitleEditCommand}
+{%endregion TGraphTitleEditCommand}
 
 {%region TGraphAppendCommand}
 constructor TGraphAppendCommand.Create(AGraph: TGraph);

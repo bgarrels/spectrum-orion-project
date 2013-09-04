@@ -15,15 +15,12 @@ type
 
 procedure ChooseSeriesColor(Series: TLineSeries);
 function GetLineSeriesColor(Chart: TChart): TColor;
+function GetRandomLineSeriesColor(Chart: TChart): TColor;
 
 implementation
 
 uses
   OriGraphics;
-
-const
-  SeriesColors: array[0..12] of TColor = (clRed, clGreen, clBlue, clMaroon, clNavy, clOlive,
-    clPurple, clTeal, clGray, clLime, clFuchsia, clAqua, clBlack);
 
 {%region TChartHelper}
 function TChartHelper.HasSeries(ASeries: TBasicChartSeries): Boolean;
@@ -40,6 +37,18 @@ begin
 end;
 {%endregion}
 
+{%region Series Colors}
+const
+  SeriesColors: array[0..50] of TColor = (clRed, clGreen, clBlue, clBlack,
+    clMaroon, clNavy, clOlive, clPurple, clTeal, clGray, clLime, clFuchsia,
+    clAqua, clMediumVioletRed, clDarkRed, clBrown, clDarkGreen, clDarkCyan,
+    clMidnightBlue, clDarkSlateGray, clDarkSlateBlue, clDarkOrange, clFireBrick,
+    clDarkKhaki, clSienna, clPaleVioletRed, clSeaGreen, clCadetBlue, clRoyalBlue,
+    clSlateBlue, clSlateGray, clDeepPink, clCrimson, clSaddleBrown, clDarkOliveGreen,
+    clLightSeaGreen, clSteelBlue, clOrangeRed, clIndigo, clDimGray, clIndianRed,
+    clDarkGoldenrod, clDarkSeaGreen, clTurquoise, clDodgerBlue, clDarkViolet,
+    clDarkSalmon, clRosyBrown, clMediumSpringGreen, clMediumAquamarine, clViolet);
+
 procedure ChooseSeriesColor(Series: TLineSeries);
 begin
   if Assigned(Series.Owner) and (Series.Owner is TChart)
@@ -47,29 +56,53 @@ begin
     else Series.LinePen.Color := SeriesColors[Random(Length(SeriesColors))];
 end;
 
+function LineSeriesColorExists(Chart: TChart; Color: TColor): Boolean;
+var
+  I: Integer;
+begin
+  for I := 0 to Chart.Series.Count-1 do
+    if Chart.Series[I] is TLineSeries then
+      if TLineSeries(Chart.Series[I]).SeriesColor = Color then
+      begin
+        Result := True;
+        exit;
+      end;
+  Result := False;
+end;
+
 function GetLineSeriesColor(Chart: TChart): TColor;
 var
-  I, J: Integer;
-  Exist: Boolean;
+  I: Integer;
 begin
   for I := Low(SeriesColors) to High(SeriesColors) do
-  begin
-    Exist := False;
-    for J := 0 to Chart.Series.Count-1 do
-      if Chart.Series[J] is TLineSeries then
-        if TLineSeries(Chart.Series[J]).LinePen.Color = SeriesColors[I] then
-        begin
-          Exist := True;
-          Break;
-        end;
-    if not Exist then
+    if not LineSeriesColorExists(Chart, SeriesColors[I]) then
     begin
       Result := SeriesColors[I];
-      Exit;
+      exit;
     end;
-  end;
   Result := SeriesColors[Random(Length(SeriesColors))];
 end;
+
+function GetRandomLineSeriesColor(Chart: TChart): TColor;
+var
+  I, Start: Integer;
+begin
+  Start := Random(Length(SeriesColors));
+  for I := Start to High(SeriesColors) do
+    if not LineSeriesColorExists(Chart, SeriesColors[I]) then
+    begin
+      Result := SeriesColors[I];
+      exit;
+    end;
+  for I := Low(SeriesColors) to Start-1 do
+    if not LineSeriesColorExists(Chart, SeriesColors[I]) then
+    begin
+      Result := SeriesColors[I];
+      exit;
+    end;
+  Result := SeriesColors[Start];
+end;
+{%endregion}
 
 end.
 

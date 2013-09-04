@@ -48,18 +48,14 @@ type
     FKind: TGraphKind;
 
     // Any additional graph params and properties. E.g. for expression graph
-    // stores a plotting function and parameters (TFormulaParams).
+    // it stores a plotting function and parameters (TFormulaParams).
     FParams: TObject;
-
-    //FSeries: TLineSeries;
-    //FSeriesIndex: Integer;
 
     function GetIndex: Integer;
     function GetValueX(Index: Integer): TValue;
     function GetValueY(Index: Integer): TValue;
     procedure SetValueX(Index: Integer; const Value: TValue);
     procedure SetValueY(Index: Integer; const Value: TValue);
-    procedure SetTitle(const Value: String);
     procedure SetValueCount(Value: Integer);
     function GetValueCount: Integer;
 
@@ -86,7 +82,7 @@ type
     procedure Sort;
 
     property Index: Integer read GetIndex;
-    property Title: String read FTitle write SetTitle;
+    property Title: String read FTitle;
     property AutoTitle: Boolean read FAutoTitle write FAutoTitle;
     property ValueCount: Integer read GetValueCount write SetValueCount;
     property ValuesX: TValueArray read FValuesX;
@@ -99,6 +95,7 @@ type
     property Params: TObject read FParams;
 
     procedure SetValuesXY(const Xs, Ys: TValueArray);
+    procedure SetTitle(const Value: String; AUndoable: Boolean = True);
 
     procedure Notify(AOperation: TPlotOperation);
 
@@ -116,10 +113,6 @@ type
     FOwner: TPlots;
     FItems: TGraphList;
     FFactorX, FFactorY: Integer;
-
-    //FChart: TChart;
-    //FSelector: TMultiSelectorTool;
-    //FHintValuesTool: TMarksTipTool;
 
     //function CreateGraph(Node: IXMLNode): TGraph; overload;
     //function CreateGraph(Params: TGraphAppendParams): TGraph; overload;
@@ -194,10 +187,6 @@ type
     procedure ApplyChartSettings;
 
     procedure Notify(AOperation: TPlotOperation; AGraph: TGraph = nil);
-
-    //property Chart: TChart read FChart write FChart;
-    //property Selector: TMultiSelectorTool read FSelector write FSelector;
-    //property HintValuesTool: TMarksTipTool read FHintValuesTool write FHintValuesTool;
   end;
 
   TPlotSetStatuses = (pssLoading);
@@ -223,15 +212,6 @@ type
     //procedure SaveXML(Node: IXMLNode; APlot: TPlot); overload;
     //procedure LoadXML(const AFileName: String; APacked: Boolean); overload;
     //procedure LoadXML(Node: IXMLNode); overload;
-  protected
-    //procedure DoPlotAdded(APlot: TPlot);
-    //procedure DoPlotDeleting(APlot: TPlot);
-    //procedure DoPlotDeleted(APlot: TPlot);
-    //procedure DoPlotChanged(APlot: TPlot);
-    //procedure DoProjectSaved;
-    //procedure DoProjectLoaded;
-    //procedure DoProjectReseting;
-    //procedure DoProjectReset;
   public
     constructor Create;
     destructor Destroy; override;
@@ -415,8 +395,8 @@ begin
   Result := FOwner.FItems.IndexOf(Self);
 end;
 
-{%region Title}
-procedure TGraph.SetTitle(const Value: String);
+{%region Undoable Properties Accessors}
+procedure TGraph.SetTitle(const Value: String; AUndoable: Boolean);
 begin
   if Value <> FTitle then
   begin
@@ -1036,7 +1016,7 @@ end;
 procedure TPlot.SetTitle(Value: String; AUndoable: Boolean = True);
 begin
   if AUndoable then
-    History.Append(TTitleEditCommand.Create(Self));
+    History.Append(TPlotTitleEditCommand.Create(Self));
   FTitle := Value;
   Notify(poPlotChanged);
 end;
@@ -1540,55 +1520,6 @@ begin
   Notify(poPlotDestroyed, APlot);
   APlot.Free;
 end;
-
-{%region Events}
-{
-procedure TPlots.DoPlotAdded(APlot: TPlot);
-begin
-  if Count > 1 then FModified := True;
-  Notify(poPlotAdded, APlot, nil);
-end;
-
-procedure TPlots.DoPlotDeleting(APlot: TPlot);
-begin
-  Notify(poPlotDestroying, APlot, nil);
-end;
-
-procedure TPlots.DoPlotDeleted(APlot: TPlot);
-begin
-  FModified := True;
-  Notify(poPlotDestroyed, APlot, nil);
-end;
-
-procedure TPlots.DoPlotChanged(APlot: TPlot);
-begin
-  FModified := True;
-  Notify(poPlotChanged, APlot, nil);
-end;
- }
-{procedure TPlots.DoProjectSaved;
-begin
-  FModified := False;
-  Notify(poProjectSaved, nil, nil);
-end;
-
-procedure TPlots.DoProjectLoaded;
-begin
-  FModified := False;
-  Notify(poProjectLoaded, nil, nil);
-end;
-
-procedure TPlots.DoProjectReseting;
-begin
-  Notify(poProjectReseting, nil, nil);
-end;
-
-procedure TPlots.DoProjectReset;
-begin
-  FModified := False;
-  Notify(poProjectReset, nil, nil);
-end;}
-{%endregion}
 
 {%region Enumerate Plots}
 function TPlots.GetCount: Integer;
