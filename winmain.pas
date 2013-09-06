@@ -6,7 +6,8 @@ interface
 
 uses
   Controls, Forms, ActnList, ComCtrls, ExtCtrls, Menus, TAGraph,
-  OriUndo, BGRAImageList,
+  OriUndo,
+  {$ifdef LINUX} BGRAImageList, {$endif}
   Plots, Diagram, SpectrumControls;
 
 type

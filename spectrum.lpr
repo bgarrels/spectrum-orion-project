@@ -10,7 +10,7 @@ uses
   Forms, tachartlazaruspkg, WinMain, DlgParamsRandom, DlgFormulaEditor,
   spectrumtypes, plotmath, plotreaders, plotreadersaux, SpectrumStrings, Plots,
   SpectrumControls, FrmRangePoints, FrmRange, diagram, spectrumsettings,
-  spectrumundo, bgrabitmappack;
+  spectrumundo;
 
 {$R *.res}
 
