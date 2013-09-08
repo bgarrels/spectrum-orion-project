@@ -5,7 +5,7 @@ unit WinMain;
 interface
 
 uses
-  Controls, Forms, ActnList, ComCtrls, ExtCtrls, Menus, TAGraph,
+  Controls, Forms, ActnList, ComCtrls, ExtCtrls, Menus, TAGraph, TASeries,
   OriUndo,
   {$ifdef LINUX} BGRAImageList, {$endif}
   Plots, Diagram, SpectrumControls;
@@ -138,8 +138,8 @@ type
     procedure ActionProjectOpenExecute(Sender: TObject);
     procedure ActionProjectSaveAsExecute(Sender: TObject);
     procedure ActionProjectSaveExecute(Sender: TObject);
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure PlotsBookChangeBounds(Sender: TObject);
   {%endregion}
@@ -179,12 +179,16 @@ implementation
 uses
   OriIniFile, OriDebugConsole,
   SpectrumTypes, SpectrumSettings, SpectrumStrings,
-  PlotMath, DlgFormulaEditor;
+  PlotMath, PlotReader, DlgFormulaEditor;
 
 {$R *.lfm}
 
 {%region TMainWnd}
+
+{%region (De)Initialization}
 procedure TMainWnd.FormCreate(Sender: TObject);
+var
+  Ini: TOriIniFile;
 begin
   FToolbarTabs := TNotebookTabs.Create(ToolbarBook);
   FToolbarTabs.TabsPosition := ntpTop;
@@ -206,18 +210,27 @@ begin
   PlotSet.RegisterNotifyClient(Self);
   PlotSet.AddPlot;
 
+  Ini := TOriIniFile.Create;
+  try
+    Preferences.Load(Ini);
+    Preferences.LoadStates(Ini);
+  finally
+    Ini.Free;
+  end;
+
   History.OnChanged := @UndoChanged;
   History.OnUndone := @UndoUndone;
   UndoChanged(History, nil, nil);
 end;
 
-procedure TMainWnd.FormDestroy(Sender: TObject);
+procedure TMainWnd.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 var
   Diagram: TDiagram;
   Ini: TOriIniFile;
 begin
   Ini := TOriIniFile.Create;
   try
+    Preferences.SaveStates(Ini);
     SaveAllStates(Ini);
   finally
     Ini.Free;
@@ -227,6 +240,7 @@ begin
     Diagram.Free;
   FDiagrams.Free;
 end;
+{%endregion}
 
 {%region Form Events}
 procedure TMainWnd.FormShow(Sender: TObject);
@@ -376,6 +390,7 @@ procedure TMainWnd.ActionProjectSaveExecute(Sender: TObject);
 begin
   //
 end;
+
 {%endregion Project Actions}
 
 {%region Add Actions}
@@ -404,7 +419,7 @@ end;
 
 procedure TMainWnd.ActionAddFileExecute(Sender: TObject);
 begin
-  //
+  TPlotReader.AddFileDialog(CurPlot);
 end;
 
 procedure TMainWnd.ActionAddFolderExecute(Sender: TObject);
@@ -478,6 +493,7 @@ begin
   Diagram := CurDiagram;
   if APlot = Diagram.Plot then
     FStatusBar.ShowGraphCount(Diagram.CountTotal, Diagram.CountVisible);
+  // TODO Add to MRU
 end;
 
 procedure TMainWnd.ProcessGraphDeleted(APlot: TPlot);

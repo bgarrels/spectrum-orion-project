@@ -341,6 +341,7 @@ procedure TSpectrumStatusBar.SetPanel(APanel: TStatusPanel; const AText: String)
 begin
   APanel.Text := AText;
   APanel.Width := Canvas.TextWidth('   ' + AText + '   ');
+  Invalidate;
 end;
 {%endregion}
 

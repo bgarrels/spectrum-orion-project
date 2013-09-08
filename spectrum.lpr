@@ -8,9 +8,9 @@ uses
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
   Forms, tachartlazaruspkg, WinMain, DlgParamsRandom, DlgFormulaEditor,
-  spectrumtypes, plotmath, plotreaders, plotreadersaux, SpectrumStrings, Plots,
-  SpectrumControls, FrmRangePoints, FrmRange, diagram, spectrumsettings,
-  spectrumundo;
+  SpectrumTypes, PlotMath, PlotReaders, PlotReadersAux, SpectrumStrings, Plots,
+  SpectrumControls, FrmRangePoints, FrmRange, Diagram, SpectrumSettings,
+  SpectrumUndo, PlotReader;
 
 {$R *.res}
 

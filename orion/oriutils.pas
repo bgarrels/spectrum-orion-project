@@ -8,6 +8,11 @@ uses
 type
   TIntegerList = specialize TFPGList<Integer>;
 
+{%region Paths and FileNames}
+function EnsurePath(const APath: String): String;
+function ExtractFileExtNoDot(const FileName: String): String;
+{%endregion}
+
 {%region Log}
 procedure WriteLogString(const LogString: String; Params: array of const); overload;
 procedure WriteLogString(const FileName: String; const LogString: String; Params: array of const); overload;
@@ -58,4 +63,19 @@ begin
 end;
 {%endregion}
 
-end.
+{%region Paths and FileNames}
+// Procedure checks if a path exists and substitutes an existed if not.
+function EnsurePath(const APath: String): String;
+begin
+  if (APath = '') or not (DirectoryExistsUTF8(APath))
+    then Result := ExtractFilePath(ParamStrUTF8(0))
+    else Result := APath;
+end;
+
+function ExtractFileExtNoDot(const FileName: String): String;
+begin
+  Result := Copy(ExtractFileExt(FileName), 2, MaxInt);
+end;
+{%endregion}
+
+end.

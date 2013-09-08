@@ -14,6 +14,8 @@ procedure ScaleDPI(AControl: TControl; FromDPI: Integer);
 procedure MessageDlg(const S: String);
 procedure ErrorDlg(const S: String);
 procedure ErrorDlg(const S: String; Args: array of const);
+function ConfirmDlg(const S: String): Boolean;
+function ConfirmDlg(const S: String; Args: array of const): Boolean;
 {%endregion}
 
 {%region Form Helpers}
@@ -104,6 +106,16 @@ end;
 procedure ErrorDlg(const S: String; Args: array of const);
 begin
   ErrorDlg(Format(S, Args));
+end;
+
+function ConfirmDlg(const S: String): Boolean;
+begin
+  Result := Dialogs.MessageDlg(Application.Title, S, mtConfirmation, mbYesNo, '') = mrYes;
+end;
+
+function ConfirmDlg(const S: String; Args: array of const): Boolean;
+begin
+  Result := ConfirmDlg(Format(S, Args));
 end;
 {%endregion}
 

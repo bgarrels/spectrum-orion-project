@@ -62,6 +62,7 @@ type
   public
     constructor Create(AOwner: TPlot); overload;
     constructor Create(AValues: TGraphRec; const ATitle: String); overload;
+    constructor Create(const AValuesX, AValuesY: TValueArray; const ATitle: String); overload;
     destructor Destroy; override;
 
     function EditFormula: Boolean;
@@ -320,10 +321,19 @@ end;
 
 constructor TGraph.Create(AValues: TGraphRec; const ATitle: String);
 begin
+  Create(AValues.X, AValues.Y, ATitle);
+  //FTitle := ATitle;
+  //FAutoTitle := True;
+  //FValuesX := AValues.X;
+  //FValuesY := AValues.Y;
+end;
+
+constructor TGraph.Create(const AValuesX, AValuesY: TValueArray; const ATitle: String);
+begin
   FTitle := ATitle;
   FAutoTitle := True;
-  FValuesX := AValues.X;
-  FValuesY := AValues.Y;
+  FValuesX := AValuesX;
+  FValuesY := AValuesY;
 end;
 
 destructor TGraph.Destroy;
@@ -428,6 +438,7 @@ begin
   //end;
 end;
 
+{%region Load/Save}
 {procedure TGraph.Load(Params: TGraphAppendParams);
 
   procedure LoadFormula(Params: TFormulaParams);
@@ -608,6 +619,7 @@ begin
     DecimalSeparator := OldSep;
   end;
 end; }
+{%endregion}
 
 //procedure TGraph.UpdateValues;
 //begin
@@ -1853,4 +1865,4 @@ end;
 {%endregion}
 
 {%endregion TPlots}
-end.
+end.

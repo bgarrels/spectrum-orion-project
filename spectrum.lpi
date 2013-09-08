@@ -45,7 +45,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="16">
+    <Units Count="17">
       <Unit0>
         <Filename Value="spectrum.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -141,6 +141,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="SpectrumUndo"/>
       </Unit15>
+      <Unit16>
+        <Filename Value="orion/plotreader.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="PlotReader"/>
+      </Unit16>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -154,9 +159,6 @@
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>
-      <Debugging>
-        <GenerateDebugInfo Value="False"/>
-      </Debugging>
       <Options>
         <Win32>
           <GraphicApplication Value="True"/>

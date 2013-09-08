@@ -8,6 +8,7 @@ uses
 //  TB2Toolbar,
 //  OriUtils,
 //  PropSaver, OriCombos, OriUtilsTChart
+  Classes,
   OriIniFile,
   SpectrumTypes;
 
@@ -18,7 +19,7 @@ type
   // редко используемые при необходимости читаются из файла
   // (например, фильтры для открытия папки)
   TPreferences = class
-  {
+  public
     LoadDefChartSetting: Boolean; // Загружать настройки графиков по умолчанию
     AnimatedChartZoom: Boolean;   // Анимированное масштабирование графиков
     AxisDblClickLimits: Boolean;  // двойной клик по оси - пределы, иначе свойства
@@ -29,14 +30,14 @@ type
     // горячие клавиши команд выделения, инициализируются в главном окне
     // используются некоторыми окнами, обладающими аналогичными командами,
     // чтобы сочетания клавиш в каждом конкретном окне были одинаковыми
-    scSelectAll: TShortCut;
-    scSelectNone: TShortCut;
-    scSelectInv: TShortCut;
-    scEditCopy: TShortCut;
+    //scSelectAll: TShortCut;
+    //scSelectNone: TShortCut;
+    //scSelectInv: TShortCut;
+    //scEditCopy: TShortCut;
 
     // для экспорта или копирования
     ExportParams: record
-      ChartCopyFormat: TCopyImageFormat;
+    //  ChartCopyFormat: TCopyImageFormat;
       DecSeparator: TDecimalSeparator;
       LineDelimiter: TLineDelimiter;
       ValueDelimiter: TValueDelimiter;
@@ -44,7 +45,7 @@ type
       ValueDelimSpec: String;
     end;
 
-    // состояния
+    // States
     ProjectOpenCurDir: String;
     ProjectOpenFilter: Integer;
 
@@ -52,17 +53,14 @@ type
     GraphsOpenFilter: Integer;     
     GraphsOpenFilterTable: Integer;
 
-    TitlePresets: TStringList; // шаблоны заголовков осей и диаграммы
-
-    // процедуры применения/использования некоторых состояний или настроек
+    TitlePresets: TStringList; // Templates of axes and chart titles
 
     constructor Create;
     destructor Destroy; override;
-    procedure Load(ASaver: TPropSaver);
-    procedure Save(ASaver: TPropSaver);
-    procedure LoadStates(ASaver: TPropSaver);
-    procedure SaveStates(ASaver: TPropSaver);
-    }
+    procedure Load(Ini: TOriIniFile);
+    procedure Save(Ini: TOriIniFile);
+    procedure LoadStates(Ini: TOriIniFile);
+    procedure SaveStates(Ini: TOriIniFile);
   end;
 
 {%region Program States}
@@ -132,29 +130,24 @@ procedure SaveFilePacked(const Data, FileName: String);
 
 // Возвращает список путей для поиска скриптов.
 function GetScriptPaths: TStringArray;
-
+}
 //------------------------------------------------------------------------------
 const
   CSomeStates = 'STT_SOMESTATES';
-  APP_MAIL = 'spectrum@orion-project.org';
-  APP_HOME = 'www.spectrum.orion-project.org';
-  PATH_SCRIPTS = 'scripts';
-  ACTN_HIDDEN_CTGR = 'Reserved';
-  ACTN_DEBUG_CMD = 999;
+  //APP_MAIL = 'spectrum@orion-project.org';
+  //APP_HOME = 'www.spectrum.orion-project.org';
+  //PATH_SCRIPTS = 'scripts';
+  //ACTN_HIDDEN_CTGR = 'Reserved';
+  //ACTN_DEBUG_CMD = 999;
 
-var
-  SMultSign: WideChar;
-}
 implementation
 
-//uses
+uses
 //  SysUtils, Menus, StrUtils, Clipbrd, ComCtrls, ZLib, WinInet,
-//  TB2Item,
-//  DKLang,
+  OriUtils;
 //  WinTextView, WinEnterText, PlotReaders;
 
 {%region TPreferences}
-(*
 {конструктор заполняет некоторые поля настроек по умолчанию.
  Стуация: непосредственно перед Preferences.Load возникает
  исключение и Load не выполняется (такое было, когда DKLang
@@ -172,9 +165,9 @@ begin
   TitlePresets.Free;
 end;
 
-procedure TPreferences.Load(ASaver: TPropSaver);
+procedure TPreferences.Load(Ini: TOriIniFile);
 begin
-  with ASaver do
+  with Ini do
   begin
     Section             := CMainSection;
     LoadDefChartSetting := ReadBool('LoadDefChartSetting', False);
@@ -185,7 +178,7 @@ begin
     SelectJustAdded     := ReadBool('SelectJustAdded', True);
 
     Section                         := 'EXPORT_PARAMS';
-    ExportParams.ChartCopyFormat    := TCopyImageFormat(ReadInteger('ChartCopyFormat', Ord(cifWmf)));
+    //ExportParams.ChartCopyFormat    := TCopyImageFormat(ReadInteger('ChartCopyFormat', Ord(cifWmf)));
     ExportParams.DecSeparator       := TDecimalSeparator(ReadInteger('DecimalSeparator', Ord(dseSystem)));
     ExportParams.LineDelimiter      := TLineDelimiter(ReadInteger('LineDelimiter', Ord(ldWindows)));
     ExportParams.ValueDelimiter     := TValueDelimiter(ReadInteger('ValueDelimiter', Ord(vdTab)));
@@ -194,9 +187,9 @@ begin
   end;
 end;
 
-procedure TPreferences.Save(ASaver: TPropSaver);
+procedure TPreferences.Save(Ini: TOriIniFile);
 begin
-  with ASaver do
+  with Ini do
   begin
     Section := CMainSection;
     WriteBool('LoadDefChartSetting', LoadDefChartSetting);
@@ -208,7 +201,7 @@ begin
 
     // export
     Section := 'EXPORT_PARAMS';
-    WriteInteger('ChartCopyFormat', Ord(ExportParams.ChartCopyFormat));
+    //WriteInteger('ChartCopyFormat', Ord(ExportParams.ChartCopyFormat));
     WriteInteger('DecimalSeparator', Ord(ExportParams.DecSeparator));
     WriteInteger('LineDelimiter', Ord(ExportParams.LineDelimiter));
     WriteInteger('ValueDelimiter', Ord(ExportParams.ValueDelimiter));
@@ -217,9 +210,9 @@ begin
   end;
 end;
 
-procedure TPreferences.LoadStates(ASaver: TPropSaver);
+procedure TPreferences.LoadStates(Ini: TOriIniFile);
 begin
-  with ASaver do
+  with Ini do
   begin
     Section                 := CSomeStates;
     ProjectOpenCurDir       := EnsurePath(ReadString('ProjectOpenCurDir', ''));
@@ -228,13 +221,13 @@ begin
     GraphsOpenFilter        := ReadInteger('GraphsOpenFilter', 1);
     GraphsOpenFilterTable   := ReadInteger('GraphsOpenFilterTable', 1);
 
-    ReadTextSection('TITLE_PRESETS', TitlePresets);
+    //ReadTextSection('TITLE_PRESETS', TitlePresets);
   end;
 end;
 
-procedure TPreferences.SaveStates(ASaver: TPropSaver);
+procedure TPreferences.SaveStates(Ini: TOriIniFile);
 begin
-  with ASaver do
+  with Ini do
   begin
     Section := CSomeStates;
     WriteString('ProjectOpenCurDir', ProjectOpenCurDir);
@@ -243,10 +236,9 @@ begin
     WriteInteger('GraphsOpenFilter', GraphsOpenFilter);
     WriteInteger('GraphsOpenFilterTable', GraphsOpenFilterTable);
 
-    WriteTextSection('TITLE_PRESETS', TitlePresets);
+    //WriteTextSection('TITLE_PRESETS', TitlePresets);
   end;
 end;
- *)
 {%endregion TPreferences}
 
 {%region Program States}
@@ -485,99 +477,14 @@ end;
 //  Result[0] := JoinPaths(ExtractFilePath(ParamStr(0)), PATH_SCRIPTS);
 //end;
 
-//{%region File Dialogs}
-//function OpenDataFilters: String;
-//begin
-//  Result :=
-//    LangManager.ConstantValue['Filter_TXT'] + ' (*.TXT)|*.txt|' +
-//    LangManager.ConstantValue['Filter_CSV'] + ' (*.CSV)|*.csv|' +
-//    LangManager.ConstantValue['Filter_DAT'] + ' (*.DAT)|*.dat|' +
-//    LangManager.ConstantValue['Filter_RS'] + ' (*.TR1,2,3,4)|*.tr1;*.tr2;*.tr3;*.tr4|' +
-//    LangManager.ConstantValue['Filter_OO'] + ' (*.Scope)|*.Scope|' +
-//    LangManager.ConstantValue['Filter_RAR'] + ' (*.RAR)|*.rar|' +
-//    LangManager.ConstantValue['Filter_ZIP'] + ' (*.ZIP)|*.zip|' +
-//    LangManager.ConstantValue['Filter_All'] + '|*.*|';
-//end;
-//
-//function OpenTableFilters: String;
-//begin
-//  Result :=
-//    LangManager.ConstantValue['Filter_TXT'] + ' (*.TXT)|*.txt|' +
-//    LangManager.ConstantValue['Filter_CSV'] + ' (*.CSV)|*.csv|' +
-//    LangManager.ConstantValue['Filter_DAT'] + ' (*.DAT)|*.dat|' +
-//    LangManager.ConstantValue['Filter_All'] + '|*.*|';
-//end;
-//
-//function OpenGraphsDialog(AFileNames: TStrings; var AFilterIndex: Integer): Boolean;
-//begin
-//  AFileNames.Clear;
-//  with TOpenDialog.Create(nil) do
-//  try
-//    Title := Constant('Dlg_OpenGraphs');
-////    Filter := OpenDataFilters;
-//    Filter := PlotReaders.TFileReaders.FileFilters;
-//    DefaultExt := 'txt';
-//    FileName := '';
-//    Options := Options + [ofPathMustExist, ofFileMustExist,
-//      ofAllowMultiSelect, ofDontAddToRecent];
-//    FilterIndex := Preferences.GraphsOpenFilter;
-//    InitialDir := Preferences.GraphsOpenCurDir;
-//    Result := Execute;
-//    if Result then
-//    begin
-//      Preferences.GraphsOpenFilter := FilterIndex;
-//      Preferences.GraphsOpenCurDir := ExtractFilePath(FileName);
-//      AFilterIndex := FilterIndex;
-//      AFileNames.Assign(Files);
-//    end;
-//  finally
-//    Free;
-//  end;
-//end;
-//
-//function OpenTableDialog(var AFileName: String): Boolean;
-//begin
-//  with TOpenDialog.Create(nil) do
-//  try
-//    Title := Constant('Dlg_OpenTable');
-//    Filter := OpenTableFilters;
-//    DefaultExt := 'txt';
-//    FileName := '';
-//    Options := Options + [ofPathMustExist, ofFileMustExist, ofDontAddToRecent];
-//    FilterIndex := Preferences.GraphsOpenFilterTable;
-//    InitialDir := Preferences.GraphsOpenCurDir;
-//    Result := Execute;
-//    if Result then
-//    begin
-//      Preferences.GraphsOpenFilterTable := FilterIndex;
-//      Preferences.GraphsOpenCurDir := ExtractFilePath(FileName);
-//      AFileName := FileName;
-//    end;
-//  finally
-//    Free;
-//  end;
-//end;
-//
-//function OpenFolderDialog: Boolean;
-//var
-//  CurDir: String;
-//begin
-//  CurDir := Preferences.GraphsOpenCurDir;
-//  // TODO: свой диалог выбора папки, в котором сразу же можно будет задать
-//  // фильтр и, возможно, посмотреть какие файлы будут выбраны.
-//  Result := OriUtils.OpenFolderDialog(Constant('Dlg_OpenFolder'), CurDir);
-//  if Result then Preferences.GraphsOpenCurDir := CurDir;
-//end;
-//{%endregion}
-
 initialization
-  //Preferences := TPreferences.Create;
+  Preferences := TPreferences.Create;
 
   //OriUtils.GetHelpFileName := GetHelpFileName;
 
   Randomize;
 
 finalization
-//  Preferences.Free;
+  Preferences.Free;
 
-end.
+end.

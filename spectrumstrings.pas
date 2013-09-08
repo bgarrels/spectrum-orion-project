@@ -16,6 +16,9 @@ resourcestring
   Dlg_DiagramTitlePrompt = 'Enter new diagram title:';
   Dlg_GraphTitleCaption = 'Graph Title';
   Dlg_GraphTitlePrompt = 'Enter new graph title:';
+  Dlg_OpenFolder = 'Add Graphs From Folder';
+  Dlg_OpenGraphs = 'Add Graphs';
+  Dlg_OpenTable = 'Add Table';
 
   Err_FileNotFound = 'File "%s" not found.';
   Err_FileTryNext = 'Try to open remaining files?';
@@ -27,6 +30,7 @@ resourcestring
     'Try to manually set on of predefined version numbers: 0 - Auto, 1 - FSE 40GHz, 2 - FSE 3GHz. ' + NL +
     '(Parameter RSFileVersion in main section of program configuration file).';
   Err_XYLengthsDiffer = 'TGraph.SetValuesXY: X and Y arrays must be equal length.';
+  Err_UnsupportedFile = 'It is not known how to read file "%s"';
 
   Filter_All = 'All files|*.*';
   Filter_AllCSV = 'All text data files (*.TXT;*.CSV;*.DAT)|*.TXT;*.CSV;*.DAT|';

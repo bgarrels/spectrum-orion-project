@@ -14,6 +14,7 @@ type
     FFormat: TFormatSettings;
   public
     constructor Create; reintroduce;
+    destructor Destroy; override;
     property Section: String read FSection write FSection;
     procedure WriteString(const Key, Value: String); overload;
     procedure WriteInteger(const Key: string; Value: Longint); overload;
@@ -66,9 +67,13 @@ function GetIniFileName: String;
 begin
   if IniFileName = '' then
   begin
-    if IsPortable
-      then IniFileName := GetLocalIniFileName
-      else IniFileName := GetAppConfigFileUTF8(False, True);
+    if IsPortable then
+      IniFileName := GetLocalIniFileName
+    else
+    begin
+      // Windows: c:\Users\<user name>\AppData\Local\spectrum\spectrum.cfg
+      IniFileName := GetAppConfigFileUTF8(False, {$ifdef WINDOWS}False{$else}True{$endif});
+    end;
   end;
   Result := IniFileName;
 end;
@@ -85,6 +90,12 @@ begin
     else inherited Create(GetIniFileName);
 
   Init;
+end;
+
+destructor TOriIniFile.Destroy;
+begin
+  if Dirty then UpdateFile;
+  inherited;
 end;
 
 procedure TOriIniFile.Init;

@@ -45,8 +45,8 @@ object MainWnd: TMainWnd
     0000000000000000000000000000000000000000000000000000000000000000
     0000
   }
+  OnClose = FormClose
   OnCreate = FormCreate
-  OnDestroy = FormDestroy
   OnShow = FormShow
   Position = poScreenCenter
   LCLVersion = '1.0.10.0'
@@ -521,7 +521,6 @@ object MainWnd: TMainWnd
     object ActionAddFile: TAction
       Category = 'Add'
       Caption = 'From File...'
-      Enabled = False
       Hint = 'Create new graph from file'
       ImageIndex = 16
       OnExecute = ActionAddFileExecute

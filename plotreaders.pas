@@ -4,7 +4,6 @@ interface
 
 uses
   Classes, SysUtils,
-//  PropSaver,
   SpectrumTypes;
 
 type
@@ -29,7 +28,7 @@ type
     созданному ридеру. Если же тип ридера не задан, то предполагается что данные
     кем-то откуда-то уже прочитаны, указатели на них содержатся в полях ValuesX/Y
     и никакой ридер использовать не нужно.
-  }
+  }              (*
   TGraphAppendParams = class
   public
     // Диаграмма, на которую добавляется график.
@@ -76,34 +75,35 @@ type
       const ASource: String = ''; const ATitle: String = ''); overload;
     // Способ создания данных определяется самим графиком по типу объекта.
     constructor Create(AAuxParam: TObject); overload;
-  end;
+  end;       *)
 
   TDataReader = class
   const
     ValueInc = 1000;
   protected
-    FPlot: TObject;
-    FSource: String;
-    FStream: TStream;
-    FOwnedStream: Boolean;
     FValueIndex: Integer;
     FValueCount: Integer;
-    FValuesX: PValueArray;
-    FValuesY: PValueArray;
+    FValuesX: TValueArray;
+    FValuesY: TValueArray;
+    FResults: TGraphRecs;
     procedure CheckValuesSize; inline;
-    procedure OpenSourceAsFile;
+    function GetResultCount: Integer;
+    function GetResult(Index: Integer): TGraphRec;
   public
-    constructor Create(Params: TGraphAppendParams); virtual;
-    destructor Destroy; override;
     function Configure: Boolean; virtual;
-    procedure ReadValues; virtual; abstract;
-    property Source: String read FSource;
-    property Stream: TStream read FStream;
+    procedure Read(const AFileName: String); virtual;
+    procedure Read(AStream: TStream); virtual; abstract;
+    property ResultCount: Integer read GetResultCount;
+    property Result[Index: Integer]: TGraphRec read GetResult;
     class function IsMulti: Boolean; virtual;
     class procedure FileFilters(Strings: TStrings); virtual;
     class procedure FileExts(Strings: TStrings); virtual;
   end;
 
+  // It's a holder for all TDataReaders that can read data from file.
+  // Use RegisterReader in initialization section to add a new reader
+  // to known file-readers list. Each file reader will be presented in
+  // its own line in filter list of 'Add Graph' open file dialog.
   TFileReaders = class
   private class var
     FReaders: TList;
@@ -140,18 +140,15 @@ type
     class var OneColumnFirst: TValue;           // а загружаются в главном FormCreate
     class var OneColumnInc: TValue;             // с помощью LoadFileOpeners
   public
-    procedure ReadValues; override;
-    procedure SkipLines(Amount: Integer);
-    function ReadString: String;
+    procedure Read(AStream: TStream); override;
   end;
 
   TCSVFileReader = class(TCSVDataReader)
   public
-    constructor Create(Params: TGraphAppendParams); override;
     class procedure FileFilters(Strings: TStrings); override;
     class procedure FileExts(Strings: TStrings); override;
   end;
-
+(*
   TTableGraph = record
     ColumnX: Byte;
     ColumnY: Byte;
@@ -183,7 +180,7 @@ type
 
   TTableFileReader = class(TTableDataReader)
   public
-    constructor Create(Params: TGraphAppendParams); override;
+    //constructor Create(Params: TGraphAppendParams); override;
   end;
 
   TClipbrdDataReader = class(TCSVDataReader)
@@ -196,7 +193,7 @@ type
   protected
     procedure ProcessString(const Str: String); override;
   public
-    constructor Create(Params: TGraphAppendParams); override;
+    //constructor Create(Params: TGraphAppendParams); override;
     destructor Destroy; override;
     procedure ReadValues; override;
     class function IsMulti: Boolean; override;
@@ -204,7 +201,7 @@ type
 
   TClipbrdTableReader = class(TTableDataReader)
   public
-    constructor Create(Params: TGraphAppendParams); override;
+    //constructor Create(Params: TGraphAppendParams); override;
   end;
 
 //procedure LoadReadersSettings(ASaver: TPropSaver);
@@ -216,13 +213,13 @@ function FileIsArchive(const AFileName: String): Boolean;
 
 const
   CDefaultFolderFilter = '*.txt;*.dat';
-
+*)
 implementation
 
 uses
   {Controls,} Clipbrd,
-  OriStrings,
-  {Plots,} PlotReadersAux, SpectrumStrings{, WinOpenTable};
+  OriStrings, OriUtils,
+  PlotReadersAux, SpectrumStrings{, WinOpenTable};
 
 {%region Saving/Loading of settings and states of openers}
 //procedure LoadReadersSettings(ASaver: TPropSaver);
@@ -259,7 +256,7 @@ uses
 //  end;
 //end;
 {%endregion}
-
+(*
 function RefineOpener(AOpener: TDataReaderClass; const AFileName: String = ''): TDataReaderClass;
 begin
   if FileIsRS(AFileName)
@@ -304,27 +301,18 @@ begin
   AuxParam := AAuxParam;
 end;
 {%endregion}
-
+*)
 {%region TDataReader}
-constructor TDataReader.Create(Params: TGraphAppendParams);
+procedure TDataReader.Read(const AFileName: String);
+var
+  S: TStream;
 begin
-  FPlot := Params.Plot;
-  FValuesX := Params.ValuesX;
-  FValuesY := Params.ValuesY;
-  FSource := Params.Source;
-  FStream := Params.Stream;
-end;
-
-destructor TDataReader.Destroy;
-begin
-  if FOwnedStream then FStream.Free;
-  inherited;
-end;
-
-procedure TDataReader.OpenSourceAsFile;
-begin
-  FStream := TFileStream.Create(FSource, fmOpenRead or fmShareDenyWrite);
-  FOwnedStream := True;
+  S := TFileStream.Create(AFileName, fmOpenRead or fmShareDenyWrite);
+  try
+    Read(S);
+  finally
+    S.Free;
+  end;
 end;
 
 function TDataReader.Configure: Boolean;
@@ -337,14 +325,24 @@ begin
   if FValueIndex = FValueCount then
   begin
     Inc(FValueCount, ValueInc);
-    SetLength(FValuesX^, FValueCount);
-    SetLength(FValuesY^, FValueCount);
+    SetLength(FValuesX, FValueCount);
+    SetLength(FValuesY, FValueCount);
   end;
 end;
 
 class function TDataReader.IsMulti: Boolean;
 begin
   Result := False;
+end;
+
+function TDataReader.GetResultCount: Integer;
+begin
+  Result := Length(FResults);
+end;
+
+function TDataReader.GetResult(Index: Integer): TGraphRec;
+begin
+  Result := FResults[Index];
 end;
 
 class procedure TDataReader.FileFilters(Strings: TStrings);
@@ -359,7 +357,7 @@ end;
 {%endregion}
 
 {%region TCSVDataReader}
-function TCSVDataReader.ReadString: String;
+{function TCSVDataReader.ReadString: String;
 var
   I, J, L: Integer;
   P: Int64;
@@ -403,19 +401,19 @@ begin
           end;
       end;
   SetLength(Result, I);
-end;
+end;   }
 
-procedure TCSVDataReader.SkipLines(Amount: Integer);
-var
-  I: Integer;
-begin
-  I := 0;
-  while (I < Amount) and (Stream.Position < Stream.Size) do
-  begin
-    ReadString;
-    Inc(I);
-  end;
-end;
+//procedure TCSVDataReader.SkipLines(Amount: Integer);
+//var
+//  I: Integer;
+//begin
+//  I := 0;
+//  while (I < Amount) and (Stream.Position < Stream.Size) do
+//  begin
+//    ReadString;
+//    Inc(I);
+//  end;
+//end;
 
 procedure TCSVDataReader.InitValueDelimiters;
 var I: Integer;
@@ -437,7 +435,7 @@ begin
   FFloatFmt.ThousandSeparator := #0;
 end;
 
-procedure TCSVDataReader.ReadValues;
+procedure TCSVDataReader.Read(AStream: TStream);
 var
   I: Integer;
   Size, Pos: Int64;
@@ -447,20 +445,26 @@ var
   InStr: String;
   PrevSeparator: Boolean;
   StrIndex, StrLen: Integer;
+  Stream: TStream;
 begin
   FOneColumnX := OneColumnFirst;
 
-  // разделителии значений и формат
+  Stream := AStream;
+  FValueCount := 0;
+  FValueIndex := 0;
+  FLinesRead := 0;
+  FValuesX := nil;
+  FValuesY := nil;
+
   InitFloatFormat;
   InitValueDelimiters;
 
-  // рабочая строка
+  // working line
   FLinesRead := 0;
   StrIndex := 0;
   StrLen := StrInc;
   SetLength(InStr, StrLen);
 
-  // для пропуска дублирующихся разделителй
   PrevSeparator := False;
 
   Pos := 0;
@@ -469,34 +473,21 @@ begin
   while Pos < Size do
   begin
     Stream.Position := Pos;
-    // Читаем очередной кусок файла.
-    // для сравнения: чтение по кускам на пару порядков быстрее,
-    // чем чтение по одному байту: Stream.ReadBuffer(InByte, 1);
+    // Read next buffer
     BufRead := Stream.Read(InBuffer, BufSize);
     Inc(Pos, BufRead);
-    // обрабатываем очередной буфер
+    // Process buffer
     for I := 0 to BufRead-1 do
     begin
       InByte := InBuffer[I];
-      // обрабатываем очередной байт
+      // Process next byte
       case InByte of
-// Вроде как ноль - стандартный детектор бинарного фйла; например, так
-// определяет "бинарность" AkelPad. Но нулевые байты встречаются, например,
-// в файлах samples\climate\*.per, а в остальном это нормальные текстовые файлы
-// и как-то странно их не читать из-за этого нуля. Поэтому нуль-байт трактуем
-// как конец строки, а бинарность определяем по наличию "малых" значений (< #9).
-//        0: // в текстовом файле не может быть нулевых байтов
-//          raise ESpectrumError.CreateDK('Err_IllegalChar');
-
-        $A, $D, $0: // найден конец строки
+        $A, $D, $0: // EOL founded
           begin
-            // строка еще пустая, несколько переводов подряд - игнорируем
+            // Working line is empty yet
             if StrIndex = 0 then Continue;
-            // часть рабочей строки (InStr), содержащая очередную строку файла,
-            // заканчивается двойным #0 (т.к. InStr м.б. длинее текущей строки
-            // файла, нужно как-то ограничить только что прочитанную из файла
-            // строку от  данных, оставшихся от предыдущих чтений; используем
-            // #0#0 т.к. одинарный ноль используется как разделитель значений).
+            // Part of working line (InStr) containing current line of file
+            // ends with double #0. Single #0 is used as values delimiter.
             Inc(StrIndex);
             InStr[StrIndex] := #0;
             if StrIndex = StrLen then
@@ -512,16 +503,16 @@ begin
             Continue;
           end;
 
-        else // значимый символ - добавляем к строке
+        else // Meaning char - add to working line
         begin
-            if Ord(InByte) < 9 then
+            if Ord(InByte) < 9 then // May be file is binary
               raise ESpectrumError.Create(Err_IllegalChar);
 
-          if InByte in FValDelimiters then // если он не входит в разделители
-            if not PrevSeparator then // от двойных разделителей оставляем один
+          if InByte in FValDelimiters then
+            if not PrevSeparator then //  Doubled delimiters is ignored
             begin
-              if StrIndex > 0 then // если разделитель в начале строки, то выбрасываем его
-              begin // все разделители заменяем нулями для ускорения ProcessString
+              if StrIndex > 0 then // Delimiter at the begining of line - throw it away
+              begin // All delimiters are replaced with zero to speed-up ProcessString
                 Inc(StrIndex);
                 InStr[StrIndex] := #0;
               end;
@@ -535,7 +526,7 @@ begin
             InStr[StrIndex] := Chr(InByte);
           end;
         end;
-      end; // case InByte of
+      end; // Case InByte of
 
       if StrIndex = StrLen then
       begin
@@ -543,11 +534,10 @@ begin
         SetLength(InStr, StrLen);
       end;
 
-    end; // обработка буфера
-  end; // чтение из файла
+    end; // Process buffer
+  end; // Process stream
 
-  // обрабатываем последнюю строку в файле,
-  // если он не заканчивается переносом
+  // Process the last line in file
   if StrIndex > 0 then
   begin
     Inc(StrIndex);
@@ -562,22 +552,14 @@ begin
     ProcessString(InStr);
   end;
 
-  // указатели на массивы м.б. nil в производных классах
-  if FValuesX <> nil then SetLength(FValuesX^, FValueIndex);
-  if FValuesY <> nil then SetLength(FValuesY^, FValueIndex);
+  if FValuesX <> nil then SetLength(FValuesX, FValueIndex);
+  if FValuesY <> nil then SetLength(FValuesY, FValueIndex);
+
+  SetLength(FResults, 1);
+  FResults[0].X := FValuesX;
+  FResults[0].Y := FValuesY;
 end;
 
-{ Если строка состоит из нескольких частей, то обрабатываются только первые
-  две части, т.е. считаем, что строка имеет вид: XXXX YYYY (разделитель - #0)
-  Если первая из частей не распознается как число, считаем, что строка не
-  верная и пропускаем ее (это позволит игнорировать строки параметров измерений,
-  которые сохраняют некоторые приборы (Парам: ХХХ), а не выдирать из них
-  значение параметра, как будто это значение графика).
-  Если вторая часть строки не распознается как число, то такая строка тоже
-  считается неправильной и пропускается. Предполагается, что одноколоночные
-  графики состоят из одной колонки и не содержат мусора после значения в строке.
-  Если же такое все-таки есть, то такой файл нужно открыть как таблицу и там
-  явно указать, в какой колонке содержатся нужные значения. }
 procedure TCSVDataReader.ProcessString(const Str: String);
 var
   P, P1: PChar;
@@ -596,13 +578,13 @@ begin
       begin
         if not TextToFloat(P1, Value, fvExtended, FFloatFmt) then
           if DecSeparator = dsAuto then
-          begin // переключаем разделитель
+          begin // Toggle decimal separator
             if FFloatFmt.DecimalSeparator = '.'
               then FFloatFmt.DecimalSeparator := ','
               else FFloatFmt.DecimalSeparator := '.';
             if not TextToFloat(P1, Value, fvExtended, FFloatFmt)
-              then Exit; // пропускаем плохую строку
-          end else Exit; // пропускаем плохую строку
+              then Exit; // Skip bad line
+          end else Exit; // Skip bad line
         case ValueCount of
           0:
           begin
@@ -624,15 +606,15 @@ begin
     case ValueCount of
       1:
         begin
-          FValuesX^[FValueIndex] := FOneColumnX;
-          FValuesY^[FValueIndex] := Value1;
+          FValuesX[FValueIndex] := FOneColumnX;
+          FValuesY[FValueIndex] := Value1;
           FOneColumnX := FOneColumnX + OneColumnInc;
           Inc(FValueIndex);
         end;
       2:
         begin
-          FValuesX^[FValueIndex] := Value1;
-          FValuesY^[FValueIndex] := Value2;
+          FValuesX[FValueIndex] := Value1;
+          FValuesY[FValueIndex] := Value2;
           Inc(FValueIndex);
         end;
     end;
@@ -641,12 +623,6 @@ end;
 {%endregion}
 
 {%region TCSVFileReader}
-constructor TCSVFileReader.Create(Params: TGraphAppendParams);
-begin
-  inherited;
-  OpenSourceAsFile;
-end;
-
 class procedure TCSVFileReader.FileFilters(Strings: TStrings);
 begin
   Strings.Add(Filter_TXT);
@@ -662,7 +638,7 @@ begin
   Strings.Add('csv');
 end;
 {%endregion}
-
+(*
 {%region 'TTableDataReader'}
 class function TTableDataReader.IsMulti: Boolean;
 begin
@@ -774,24 +750,24 @@ end;
 {%endregion}
 
 {%region TTableFileReader}
-constructor TTableFileReader.Create(Params: TGraphAppendParams);
-begin
-  inherited;
-  OpenSourceAsFile;
-end;
+//constructor TTableFileReader.Create(Params: TGraphAppendParams);
+//begin
+//  inherited;
+//  OpenSourceAsFile;
+//end;
 {%endregion}
 
 {%region TClipbrdDataReader}
-constructor TClipbrdDataReader.Create(Params: TGraphAppendParams);
-begin
-  inherited;
-
-  FValuesX := @ValuesX;
-  FValuesY := @ValuesY;
-
-  FStream := TStringStream.Create(Clipboard.AsText);
-  FOwnedStream := True;
-end;
+//constructor TClipbrdDataReader.Create(Params: TGraphAppendParams);
+//begin
+//  inherited;
+//
+//  FValuesX := @ValuesX;
+//  FValuesY := @ValuesY;
+//
+//  FStream := TStringStream.Create(Clipboard.AsText);
+//  FOwnedStream := True;
+//end;
 
 destructor TClipbrdDataReader.Destroy;
 begin
@@ -871,15 +847,15 @@ end;
 {%endregion}
 
 {%region TClipbrdTableReader}
-constructor TClipbrdTableReader.Create(Params: TGraphAppendParams);
-begin
-  inherited;
-
-  FStream := TStringStream.Create(Clipboard.AsText);
-  FOwnedStream := True;
-end;
+//constructor TClipbrdTableReader.Create(Params: TGraphAppendParams);
+//begin
+//  inherited;
+//
+//  FStream := TStringStream.Create(Clipboard.AsText);
+//  FOwnedStream := True;
+//end;
 {%endregion}
-
+*)
 {%region TFileReaders}
 class function TFileReaders.GetReadersCount: Integer;
 begin
@@ -908,7 +884,7 @@ var
   Ext: String;
   Strs: TStringList;
 begin
-  Ext := Copy(ExtractFileExt(FileName), 2, MaxInt);
+  Ext := ExtractFileExtNoDot(FileName);
   Strs := TStringList.Create;
   try
     for I := 0 to FReaders.Count-1 do
@@ -953,9 +929,9 @@ end;
 
 initialization
   TFileReaders.RegisterReader(TCSVFileReader);
-  TFileReaders.RegisterReader(TRSFileReader);
-  TFileReaders.RegisterReader(TOOFileReader);
-  TFileReaders.RegisterReader(TDagatronFileReaders);
+  //TFileReaders.RegisterReader(TRSFileReader);
+  //TFileReaders.RegisterReader(TOOFileReader);
+  //TFileReaders.RegisterReader(TDagatronFileReaders);
 
 finalization
   TFileReaders.FReaders.Free;

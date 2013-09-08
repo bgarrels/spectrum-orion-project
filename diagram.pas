@@ -21,6 +21,7 @@ type
     FChart: TChart;
     FLines: TGraphLines;
 
+    procedure Create(APlot: TPlot; AParent: TCustomControl);
     procedure CreateChart(AParent: TCustomControl);
 
     procedure Notify(AOperation: TPlotOperation; APlot: TPlot; AGraph: TGraph);
@@ -35,9 +36,11 @@ type
     function GetLine(AGraph: TGraph): TLineSeries;
     function GetCountTotal: Integer;
     function GetCountVisible: Integer;
+
   public
-    constructor Create(APlot: TPlot; AParent: TCustomControl);
-    destructor Destroy; override;
+    class function Create(APlot: TPlot; AParent: TCustomControl): TDiagram;
+    procedure Free;
+
     procedure Rename; overload;
     procedure Rename(AGraph: TGraph); overload;
     property Plot: TPlot read FPlot;
@@ -53,10 +56,14 @@ uses
   OriUtils_TChart,
   SpectrumStrings;
 
-constructor TDiagram.Create(APlot: TPlot; AParent: TCustomControl);
+class function TDiagram.Create(APlot: TPlot; AParent: TCustomControl): TDiagram;
 begin
-  _AddRef; // Else, TInterfacedObject will destroyed by releasing of last interface
+  Result := TDiagram(NewInstance);
+  Result.Create(APlot, AParent);
+end;
 
+procedure TDiagram.Create(APlot: TPlot; AParent: TCustomControl);
+begin
   FPlot := APlot;
 
   CreateChart(AParent);
@@ -67,7 +74,7 @@ begin
     FPlot.Owner.RegisterNotifyClient(Self);
 end;
 
-destructor TDiagram.Destroy;
+procedure TDiagram.Free;
 begin
   if Assigned(FPlot.Owner) then
     FPlot.Owner.UnRegisterNotifyClient(Self);
@@ -75,7 +82,7 @@ begin
   FLines.Free;
   FPlot.Free;
   FChart.Free;
-  inherited;
+  FreeInstance;
 end;
 
 procedure TDiagram.CreateChart(AParent: TCustomControl);
@@ -87,10 +94,14 @@ begin
   FChart.Parent := AParent;
   FChart.BackColor := clWindow;
 
-  FChart.Margins.Left := 0;
-  FChart.Margins.Right := 0;
-  FChart.Margins.Top := 0;
-  FChart.Margins.Bottom := 0;
+  //FChart.Margins.Left := 0;
+  //FChart.Margins.Right := 0;
+  //FChart.Margins.Top := 0;
+  //FChart.Margins.Bottom := 0;
+  FChart.LeftAxis.Grid.Style := psSolid;
+  FChart.LeftAxis.Grid.Color := clSilver;
+  FChart.BottomAxis.Grid.Style := psSolid;
+  FChart.BottomAxis.Grid.Color := clSilver;
 
   M := FChart.Canvas.TextHeight('I');
   FChart.MarginsExternal.Left := M;
@@ -180,18 +191,19 @@ end;
 procedure TDiagram.UpdateLine(AGraph: TGraph);
 var
   I: Integer;
-  Series: TLineSeries;
+  Line: TLineSeries;
 begin
-  I := FLines.IndexOf(AGraph);
-  if I < 0 then exit;
-  Series := FLines.Data[I];
-  Series.BeginUpdate;
-  try
-    Series.Clear;
-    for I := 0 to AGraph.ValueCount-1 do
-      Series.AddXY(AGraph.ValuesX[I], AGraph.ValuesY[i]);
-  finally
-    Series.EndUpdate;
+  Line := GetLine(AGraph);
+  if Assigned(Line) then
+  begin
+    Line.BeginUpdate;
+    try
+      Line.Clear;
+      for I := 0 to AGraph.ValueCount-1 do
+        Line.AddXY(AGraph.ValuesX[I], AGraph.ValuesY[I]);
+    finally
+      Line.EndUpdate;
+    end;
   end;
 end;
 {%endregion}

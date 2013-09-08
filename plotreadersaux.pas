@@ -6,7 +6,7 @@ uses
   Classes,
   PlotReaders;
 
-type
+(*type
 
   TRSFileReader = class(TDataReader)
   private
@@ -15,7 +15,7 @@ type
     class var ReadLowValues: Boolean;
     class var RSFileVersion: Byte;
   public
-    constructor Create(Params: TGraphAppendParams); override;
+    //constructor Create(Params: TGraphAppendParams); override;
     destructor Destroy; override;
     procedure ReadValues; override;
     class procedure FileFilters(Strings: TStrings); override;
@@ -34,34 +34,34 @@ type
   public
     class procedure FileFilters(Strings: TStrings); override;
   end;
-
+       *)
 implementation
 
 uses
   SysUtils,
   OriStrings,
   SpectrumTypes, SpectrumStrings;
-
+(*
 {%region TRSFileReader}
-constructor TRSFileReader.Create(Params: TGraphAppendParams);
-var
-  SetFile: String;
-begin
-  inherited;
-  if Assigned(Params.Stream) then
-  begin
-    FStream := Params.Stream;
-    FSettings := TStream(Params.AuxParam);
-  end
-  else
-  begin
-    SetFile := ChangeFileExt(FSource, '.set');
-    if not FileExists(SetFile) then
-      raise ESpectrumError.CreateFmt(Err_RSNoSetFile, [SetFile]);
-    OpenSourceAsFile;
-    FSettings := TFileStream.Create(SetFile, fmOpenRead or fmShareDenyWrite);
-  end;
-end;
+//constructor TRSFileReader.Create(Params: TGraphAppendParams);
+//var
+//  SetFile: String;
+//begin
+//  inherited;
+//  if Assigned(Params.Stream) then
+//  begin
+//    FStream := Params.Stream;
+//    FSettings := TStream(Params.AuxParam);
+//  end
+//  else
+//  begin
+//    SetFile := ChangeFileExt(FSource, '.set');
+//    if not FileExists(SetFile) then
+//      raise ESpectrumError.CreateFmt(Err_RSNoSetFile, [SetFile]);
+//    OpenSourceAsFile;
+//    FSettings := TFileStream.Create(SetFile, fmOpenRead or fmShareDenyWrite);
+//  end;
+//end;
 
 destructor TRSFileReader.Destroy;
 begin
@@ -234,5 +234,5 @@ begin
   Strings.Add(Filter_Dag);
 end;
 {%endregion}
-
+    *)
 end.

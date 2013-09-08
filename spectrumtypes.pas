@@ -27,6 +27,7 @@ type
     X, Y: TValueArray;
   end;
   PGraphRec = ^TGraphRec;
+  TGraphRecs = array of TGraphRec;
 
   TGraphRec2 = record
     X, Y1, Y2: TValueArray;
@@ -160,4 +161,4 @@ begin
 end;
 {%endregion}
 
-end.
+end.
