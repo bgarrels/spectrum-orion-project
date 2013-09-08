@@ -6,14 +6,11 @@ uses
   Classes,
   PlotReaders;
 
-(*type
-
+type
+(*
   TRSFileReader = class(TDataReader)
   private
     FSettings: TStream;
-  public
-    class var ReadLowValues: Boolean;
-    class var RSFileVersion: Byte;
   public
     //constructor Create(Params: TGraphAppendParams); override;
     destructor Destroy; override;
@@ -21,7 +18,7 @@ uses
     class procedure FileFilters(Strings: TStrings); override;
     class procedure FileExts(Strings: TStrings); override;
   end;
-
+*)
   TOOFileReader = class(TCSVFileReader)
     class procedure FileFilters(Strings: TStrings); override;
     class procedure FileExts(Strings: TStrings); override;
@@ -34,13 +31,12 @@ uses
   public
     class procedure FileFilters(Strings: TStrings); override;
   end;
-       *)
+
 implementation
 
 uses
   SysUtils,
-  OriStrings,
-  SpectrumTypes, SpectrumStrings;
+  OriStrings, SpectrumStrings, SpectrumSettings;
 (*
 {%region TRSFileReader}
 //constructor TRSFileReader.Create(Params: TGraphAppendParams);
@@ -162,7 +158,7 @@ begin
   Strings.Add('tr4');
 end;
 {%endregion}
-
+*)
 
 {%region TOOFileReader}
 class procedure TOOFileReader.FileFilters(Strings: TStrings);
@@ -175,7 +171,6 @@ begin
   Strings.Add('scope');
 end;
 {%endregion}
-
 
 {%region TDagatronFileReaders}
 procedure TDagatronFileReaders.InitFloatFormat;
@@ -197,8 +192,8 @@ begin
     Inc(P);
     if P^ = #0 then
     begin
-      // перва€ колонка это врем€, ее пропускаем
-      // остальные колонки собираем в кучу
+      // First column is timestamp, skip it.
+      // The rest columns are sticked together.
       if CharPos(P1, ':') = 0 then
       begin
         S := S + P1;
@@ -206,25 +201,25 @@ begin
       P1 := P + 1;
     end;
   until P1^ = #0;
-  // ”дал€ем все не цифровые символы с конца
-  // должно подучитьс€ значение частоты
+  // Remove all non digit chars from the end
   for I := Length(S) downto 1 do
     if S[I] in ['0'..'9'] then
     begin
       SetLength(S, I);
       Break;
     end;
-  // ѕропускаем вс€кий мусор (типа строки "14:12:53  р         0")
-  // » нулевые значени€ (например строка "17:10:48            0")
+  // Skip some scrap (lines like "14:12:53  р         0")
+  // and zero values (lines like  "17:10:48            0")
+  // (samples are taken from a real file written by Dagatron counter)
   if TryStrToFloat(S, Value, FFloatFmt) and (Value > 0) then
   begin
     CheckValuesSize;
     if FValueIndex > 0 then
-      // несколько одинаковых значений подр€д пропускаем
-      if FValuesY^[FValueIndex-1] = Value then Exit;
-    FValuesX^[FValueIndex] := FOneColumnX;
-    FValuesY^[FValueIndex] := Value;
-    FOneColumnX := FOneColumnX + OneColumnInc;
+      // Skip several consecutive identical values
+      if FValuesY[FValueIndex-1] = Value then Exit;
+    FValuesX[FValueIndex] := FOneColumnX;
+    FValuesY[FValueIndex] := Value;
+    FOneColumnX := FOneColumnX + Preferences.OneColumnInc;
     Inc(FValueIndex);
   end;
 end;
@@ -234,5 +229,5 @@ begin
   Strings.Add(Filter_Dag);
 end;
 {%endregion}
-    *)
+
 end.

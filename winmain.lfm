@@ -1,10 +1,10 @@
 object MainWnd: TMainWnd
-  Left = 582
-  Height = 729
-  Top = 133
+  Left = 236
+  Height = 637
+  Top = 78
   Width = 918
   Caption = 'Spectrum'
-  ClientHeight = 729
+  ClientHeight = 637
   ClientWidth = 918
   Icon.Data = {
     7E04000000000100010010100000010020006804000016000000280000001000
@@ -52,7 +52,7 @@ object MainWnd: TMainWnd
   LCLVersion = '1.0.10.0'
   object PlotsBook: TNotebook
     Left = 0
-    Height = 687
+    Height = 595
     Top = 42
     Width = 918
     Align = alClient

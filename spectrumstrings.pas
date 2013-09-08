@@ -24,12 +24,12 @@ resourcestring
   Err_FileTryNext = 'Try to open remaining files?';
   Err_IllegalChar = 'Illegal symbol in input data (the data may be binary).';
   Err_ReadData = 'Error while reading data from %s.';
-  Err_TooFewPoints = '%s' + NL2 + 'Too few points for plotting.';
+  Err_TooFewPoints = 'Too few points for plotting.';
   Err_RSNoSetFile = 'Could not find the spectrum settings file (%s).';
   Err_RSUnknownVersion = 'Could not automatically determine the version of spectrum file. ' + NL +
     'Try to manually set on of predefined version numbers: 0 - Auto, 1 - FSE 40GHz, 2 - FSE 3GHz. ' + NL +
     '(Parameter RSFileVersion in main section of program configuration file).';
-  Err_XYLengthsDiffer = 'TGraph.SetValuesXY: X and Y arrays must be equal length.';
+  Err_XYLengthsDiffer = 'Arrays of X and Y values must have equal length.';
   Err_UnsupportedFile = 'It is not known how to read file "%s"';
 
   Filter_All = 'All files|*.*';

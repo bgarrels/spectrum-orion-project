@@ -8,7 +8,6 @@ uses
 
 type
   TByteSet = set of Byte;
-  TDecimalSeparator = (dsAuto, dsSystem, dsPoint, dsComma);
   TDecimalSeparator1 = (ds1Point, ds1Comma);
   TOpenDialogKing = (odkSimple, odkTable);
 
@@ -134,12 +133,6 @@ type
     procedure InitValueDelimiters; virtual;
     procedure InitFloatFormat; virtual;
   public
-    class var ValueSeparators: String;          // параметры "открывателя"
-    class var DecSeparator: TDecimalSeparator;  // задаются в окне настроек
-    class var SkipFirstLines: Integer;          // программы, там же сохраняются,
-    class var OneColumnFirst: TValue;           // а загружаются в главном FormCreate
-    class var OneColumnInc: TValue;             // с помощью LoadFileOpeners
-  public
     procedure Read(AStream: TStream); override;
   end;
 
@@ -204,9 +197,6 @@ type
     //constructor Create(Params: TGraphAppendParams); override;
   end;
 
-//procedure LoadReadersSettings(ASaver: TPropSaver);
-//procedure SaveReadersSettings(ASaver: TPropSaver);
-
 function RefineOpener(AOpener: TDataReaderClass; const AFileName: String = ''): TDataReaderClass;
 function FileIsRS(const AFileName: String): Boolean;
 function FileIsArchive(const AFileName: String): Boolean;
@@ -219,43 +209,8 @@ implementation
 uses
   {Controls,} Clipbrd,
   OriStrings, OriUtils,
-  PlotReadersAux, SpectrumStrings{, WinOpenTable};
+  PlotReadersAux, SpectrumStrings, SpectrumSettings{, WinOpenTable};
 
-{%region Saving/Loading of settings and states of openers}
-//procedure LoadReadersSettings(ASaver: TPropSaver);
-//begin
-//  with ASaver do
-//  begin
-//    Section                          := CMainSection;
-//    TCSVDataReader.ValueSeparators   := ReadString('ValueSeparators', '');
-//    TCSVDataReader.DecSeparator      := TDecimalSeparator(ReadInteger('DecimalSeparator', Ord(dsAuto)));
-//    TCSVDataReader.SkipFirstLines    := ReadInteger('SkipFirstLines', 0);
-//    TCSVDataReader.OneColumnFirst    := ReadFloat('OneColumnFirst', 1);
-//    TCSVDataReader.OneColumnInc      := ReadFloat('OneColumnInc', 1);
-//
-//    TTableDataReader.PreviewLineCount  := ReadInteger('PreviewLineCountTable', 25);
-//    // The rest settings of TFileOpenerTable are read in WinOpenTable.LoadState
-//
-//    TRSFileReader.ReadLowValues       := ReadBool('RSReadLowValues', False);
-//    TRSFileReader.RSFileVersion       := ReadInteger('RSFileVersion', 0);
-//  end;
-//end;
-//
-//procedure SaveReadersSettings(ASaver: TPropSaver);
-//begin
-//  with ASaver do
-//  begin
-//    Section := CMainSection;
-//    WriteString('ValueSeparators', TCSVDataReader.ValueSeparators);
-//    WriteInteger('DecimalSeparator', Ord(TCSVDataReader.DecSeparator));
-//    WriteInteger('SkipFirstLines', TCSVDataReader.SkipFirstLines);
-//    WriteFloat('OneColumnFirst', TCSVDataReader.OneColumnFirst);
-//    WriteFloat('OneColumnInc', TCSVDataReader.OneColumnInc);
-//
-//    WriteInteger('PreviewLineCountTable', TTableDataReader.PreviewLineCount);
-//  end;
-//end;
-{%endregion}
 (*
 function RefineOpener(AOpener: TDataReaderClass; const AFileName: String = ''): TDataReaderClass;
 begin
@@ -419,15 +374,15 @@ procedure TCSVDataReader.InitValueDelimiters;
 var I: Integer;
 begin
   FValDelimiters := [];
-  for I := 1 to Length(ValueSeparators) do
-    Include(FValDelimiters, Ord(ValueSeparators[I]));
+  for I := 1 to Length(Preferences.ValueSeparators) do
+    Include(FValDelimiters, Ord(Preferences.ValueSeparators[I]));
   Include(FValDelimiters, $9);
   Include(FValDelimiters, $20);
 end;
 
 procedure TCSVDataReader.InitFloatFormat;
 begin
-  case DecSeparator of
+  case Preferences.DecSeparator of
     dsPoint: FFloatFmt.DecimalSeparator := '.';
     dsComma: FFloatFmt.DecimalSeparator := ',';
     else     FFloatFmt.DecimalSeparator := DecimalSeparator;
@@ -447,7 +402,7 @@ var
   StrIndex, StrLen: Integer;
   Stream: TStream;
 begin
-  FOneColumnX := OneColumnFirst;
+  FOneColumnX := Preferences.OneColumnFirst;
 
   Stream := AStream;
   FValueCount := 0;
@@ -567,7 +522,7 @@ var
   Value1, Value2: TValue;
   ValueCount: Byte;
 begin
-  if FLinesRead > SkipFirstLines then
+  if FLinesRead > Preferences.SkipFirstLines then
   begin
     ValueCount := 0;
     P := PChar(Str);
@@ -577,7 +532,7 @@ begin
       if P^ = #0 then
       begin
         if not TextToFloat(P1, Value, fvExtended, FFloatFmt) then
-          if DecSeparator = dsAuto then
+          if Preferences.DecSeparator = dsAuto then
           begin // Toggle decimal separator
             if FFloatFmt.DecimalSeparator = '.'
               then FFloatFmt.DecimalSeparator := ','
@@ -608,7 +563,7 @@ begin
         begin
           FValuesX[FValueIndex] := FOneColumnX;
           FValuesY[FValueIndex] := Value1;
-          FOneColumnX := FOneColumnX + OneColumnInc;
+          FOneColumnX := FOneColumnX + Preferences.OneColumnInc;
           Inc(FValueIndex);
         end;
       2:
@@ -930,8 +885,8 @@ end;
 initialization
   TFileReaders.RegisterReader(TCSVFileReader);
   //TFileReaders.RegisterReader(TRSFileReader);
-  //TFileReaders.RegisterReader(TOOFileReader);
-  //TFileReaders.RegisterReader(TDagatronFileReaders);
+  TFileReaders.RegisterReader(TOOFileReader);
+  TFileReaders.RegisterReader(TDagatronFileReaders);
 
 finalization
   TFileReaders.FReaders.Free;

@@ -60,7 +60,6 @@ type
     function GetValueCount: Integer;
 
   public
-    constructor Create(AOwner: TPlot); overload;
     constructor Create(AValues: TGraphRec; const ATitle: String); overload;
     constructor Create(const AValuesX, AValuesY: TValueArray; const ATitle: String); overload;
     destructor Destroy; override;
@@ -99,8 +98,6 @@ type
     procedure SetTitle(const Value: String; AUndoable: Boolean = True);
 
     procedure Notify(AOperation: TPlotOperation);
-
-    //property Series: TLineSeries read FSeries write FSeries;
   end;
 
   TGraphList = specialize TFPGList<TGraph>;
@@ -313,23 +310,17 @@ end;
 {%endregion}
 
 {%region TGraph}
-constructor TGraph.Create(AOwner: TPlot);
-begin
-  FOwner := AOwner;
-  FAutoTitle := True;
-end;
-
 constructor TGraph.Create(AValues: TGraphRec; const ATitle: String);
 begin
   Create(AValues.X, AValues.Y, ATitle);
-  //FTitle := ATitle;
-  //FAutoTitle := True;
-  //FValuesX := AValues.X;
-  //FValuesY := AValues.Y;
 end;
 
 constructor TGraph.Create(const AValuesX, AValuesY: TValueArray; const ATitle: String);
 begin
+  if (Length(AValuesX) < 2) or (Length(AValuesY) < 2) then
+     raise ESpectrumError.Create(Err_TooFewPoints);
+  if Length(AValuesX) <> Length(AValuesY) then
+     raise ESpectrumError.Create(Err_XYLengthsDiffer);
   FTitle := ATitle;
   FAutoTitle := True;
   FValuesX := AValuesX;
@@ -410,9 +401,10 @@ procedure TGraph.SetTitle(const Value: String; AUndoable: Boolean);
 begin
   if Value <> FTitle then
   begin
+    if AUndoable then
+      History.Append(TGraphTitleEditCommand.Create(Self));
     FTitle := Value;
     FAutoTitle := False;
-    //  History.Append(TTitleEditCommand.Create(Self));
     Notify(poGraphChanged);
   end;
 end;

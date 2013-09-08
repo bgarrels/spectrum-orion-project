@@ -15,6 +15,7 @@ uses
 {$R *.res}
 
 begin
+  Application.Title:='Spectrum';
   RequireDerivedFormResource := True;
   Application.Initialize;
   Application.CreateForm(TMainWnd, MainWnd);

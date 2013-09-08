@@ -19,7 +19,7 @@ const
 
 type
   TSimpleSearchKind = (skFindMax, skFindMin, skFindWHM, skFindDlt, skFindAvg, skIntegral);
-  TDecimalSeparator = (dseSystem, dsePoint, dseComma);
+  TDecimalSeparator = (dsAuto, dsSystem, dsPoint, dsComma);
   TLineDelimiter = (ldWindows, ldUnix, ldMac, ldSpecial);
   TValueDelimiter = (vdTab, vdSpace, vdCustom);
 
