@@ -82,9 +82,13 @@ type
   protected
     FValueIndex: Integer;
     FValueCount: Integer;
+    FLinesRead: Integer;
     FValuesX: TValueArray;
     FValuesY: TValueArray;
     FResults: TGraphRecs;
+    procedure ResetResults;
+    procedure ResetValues;
+    procedure AddResult(var X, Y: TValueArray);
     procedure CheckValuesSize; inline;
     function GetResultCount: Integer;
     function GetResult(Index: Integer): TGraphRec;
@@ -124,7 +128,6 @@ type
     StrInc = 256;
     BufSize = 4096;
   protected
-    FLinesRead: Integer;
     FValDelimiters: TByteSet;
     FFloatFmt: TFormatSettings;
     FOneColumnX: TValue;
@@ -275,6 +278,30 @@ begin
   Result := True;
 end;
 
+procedure TDataReader.ResetResults;
+begin
+  FResults := nil;
+end;
+
+procedure TDataReader.ResetValues;
+begin
+  FValueCount := 0;
+  FValueIndex := 0;
+  FLinesRead := 0;
+  FValuesX := nil;
+  FValuesY := nil;
+end;
+
+procedure TDataReader.AddResult(var X, Y: TValueArray);
+var
+  L: Integer;
+begin
+  L := Length(FResults);
+  SetLength(FResults, L+1);
+  FResults[L].X := X;
+  FResults[L].Y := Y;
+end;
+
 procedure TDataReader.CheckValuesSize;
 begin
   if FValueIndex = FValueCount then
@@ -405,11 +432,8 @@ begin
   FOneColumnX := Preferences.OneColumnFirst;
 
   Stream := AStream;
-  FValueCount := 0;
-  FValueIndex := 0;
-  FLinesRead := 0;
-  FValuesX := nil;
-  FValuesY := nil;
+  ResetResults;
+  ResetValues;
 
   InitFloatFormat;
   InitValueDelimiters;
@@ -510,9 +534,7 @@ begin
   if FValuesX <> nil then SetLength(FValuesX, FValueIndex);
   if FValuesY <> nil then SetLength(FValuesY, FValueIndex);
 
-  SetLength(FResults, 1);
-  FResults[0].X := FValuesX;
-  FResults[0].Y := FValuesY;
+  AddResult(FValuesX, FValuesY);
 end;
 
 procedure TCSVDataReader.ProcessString(const Str: String);
@@ -884,7 +906,7 @@ end;
 
 initialization
   TFileReaders.RegisterReader(TCSVFileReader);
-  //TFileReaders.RegisterReader(TRSFileReader);
+  TFileReaders.RegisterReader(TRSFileReader);
   TFileReaders.RegisterReader(TOOFileReader);
   TFileReaders.RegisterReader(TDagatronFileReaders);
 
