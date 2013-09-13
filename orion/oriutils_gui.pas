@@ -5,7 +5,7 @@ unit OriUtils_Gui;
 interface
 
 uses
-  Graphics, Controls, ExtCtrls, Forms;
+  Classes, Graphics, Controls, ExtCtrls, Forms;
 
 procedure SetDefaultColor(AControl: TWinControl; AColor: TColor = clNone);
 procedure ScaleDPI(AControl: TControl; FromDPI: Integer);
@@ -29,11 +29,32 @@ procedure SetPosNoOverlap(AForm: TForm; X, Y: Integer; Position: TPosition = poD
 procedure SetPosNoOverlap(AForm: TForm; X, Y, W, H: Integer; Position: TPosition = poDesigned); overload;
 {%endregion}
 
+{%region File Dialogs}
+type
+  TFileDialogParams = record
+    Title: String;
+    Filters: String;
+    FilterIndex: Integer;
+    FileName: String;
+    FileNames: TStrings;
+    InitialDir: String;
+    MultiSelect: Boolean;
+    DefaultExt: String;
+  end;
+
+function OpenFileDialog(var Params: TFileDialogParams): Boolean;
+{%endregion}
+
 implementation
 
 uses
-  SysUtils, Dialogs, LCLIntf;
+  {$ifdef WINDOWS}
+  Windows, CommDlg,
+  {$endif}
+  SysUtils, Dialogs, LCLIntf, LazUTF8,
+  OriStrings;
 
+{%region Controls}
 // Sets a default theme-aware color for TPanels. On some environments
 // (for example on Ubuntu Unity) the default window color is not clBtnFace.
 // But TPanel has clBtnFace color when we set clDefault for it.
@@ -90,7 +111,7 @@ begin
       ScaleDPI(Control.Controls[I], FromDPI);
   end;
 end;
-
+{%endregion}
 
 {%region Message Dialogs}
 procedure MessageDlg(const S: String);
@@ -118,7 +139,6 @@ begin
   Result := ConfirmDlg(Format(S, Args));
 end;
 {%endregion}
-
 
 {%region Form Helpers}
 procedure SaveFormPos(AForm: TForm; var ASavedPos: Longword);
@@ -208,5 +228,137 @@ begin
 end;
 {%endregion}
 
+{%region File Dialogs}
+{$ifdef WINDOWS}
+type TWinApiFileDlgType = (wadtOpen, wadtSave);
+
+function WinApiFileDialog(var Params: TFileDialogParams; DlgType: TWinApiFileDlgType): Boolean;
+var
+  fnStruct: TOpenFileName;
+  szFile: array[0..MAX_PATH] of Char;
+
+  procedure ParseMultipleFileNames;
+  var
+    I: Integer;
+    Index: Integer = 0;
+    CurDir: String = '';
+    FileName: String;
+  begin
+    for I := 0 to MAX_PATH do
+      if szFile[I] = #0 then
+      begin
+        if (I > 0) and (szFile[I-1] = #0) then // #0#0 ends the string
+        begin
+          if (Params.FileNames.Count = 0) and (CurDir <> '') then // single file is selected
+            if FileExists(CurDir) then
+               Params.FileNames.Add(SysToUTF8(CurDir));
+          exit;
+        end;
+        if CurDir <> '' then
+        begin
+          FileName := PChar(@(szFile[Index]));
+          FileName := IncludeTrailingPathDelimiter(CurDir) + FileName;
+          if FileExists(FileName) then
+            Params.FileNames.Add(SysToUTF8(FileName));
+        end
+        else CurDir := szFile;
+        Index := I+1;
+      end;
+  end;
+
+begin
+  Result := False;
+  FillChar(fnStruct{%H-}, SizeOf(TOpenFileName), 0);
+  with fnStruct do
+  begin
+    hwndOwner := Application.MainFormHandle;
+    lStructSize := SizeOf(TOpenFileName);
+    lpstrFile := {%H-}szFile;
+    StrPCopy(lpstrFile, UTF8ToSys(Params.FileName));
+    nMaxFile := Length(szFile);
+    lpstrFilter := PChar(ReplaceChar(Params.Filters, '|', #0) + #0#0);
+    nFilterIndex := Params.FilterIndex;
+    if Params.Title <> '' then
+      lpstrTitle := PChar(Params.Title);
+    if Params.InitialDir <> '' then
+      lpstrInitialDir := PChar(Params.InitialDir);
+    if Params.DefaultExt <> '' then
+      lpstrDefExt := PChar(Params.DefaultExt);
+    if Params.MultiSelect then
+      Flags := Flags or OFN_ALLOWMULTISELECT;
+    Flags := Flags or OFN_ENABLESIZING or OFN_EXPLORER;
+  end;
+  case DlgType of
+    wadtOpen:
+    begin
+      with fnStruct do
+        Flags := Flags or OFN_FILEMUSTEXIST or OFN_PATHMUSTEXIST;
+      Result := GetOpenFileName(@fnStruct);
+      if Result then
+      begin
+        if Params.MultiSelect and Assigned(Params.FileNames) then
+        begin
+          ParseMultipleFileNames;
+          if Params.FileNames.Count > 0 then
+            Params.FileName := Params.FileNames[0];
+        end
+        else Params.FileName := SysToUTF8(StrPas(szFile));
+        Params.FilterIndex := fnStruct.nFilterIndex;
+      end;
+    end;
+    wadtSave:
+    begin
+      Result := GetSaveFileName(@fnStruct);
+      if Result then
+      begin
+        Params.FileName := SysToUTF8(StrPas(szFile));
+        Params.FilterIndex := fnStruct.nFilterIndex;
+      end;
+    end;
+  end;
+end;
+{$endif}
+
+function OpenFileDialog(var Params: TFileDialogParams): Boolean;
+begin
+  if Assigned(Params.FileNames) then
+    Params.FileNames.Clear;
+{$ifdef WINDOWS}
+  Result := WinApiFileDialog(Params, wadtOpen);
+{$else}
+  with TOpenDialog.Create(nil) do
+  try
+    if Params.Title <> '' then
+      Title := Params.Title;
+    Filter := Params.Filters;
+    FileName := Params.FileName;
+    if Params.MultiSelect then
+      Options := Options + [ofAllowMultiSelect];
+    Options := Options + [ofFileMustExist, ofPathMustExist];
+    FilterIndex := Params.FilterIndex;
+    if Params.InitialDir <> '' then
+      InitialDir := Params.InitialDir;
+    if Params.DefaultExt <> '' then
+      DefaultExt := PChar(Params.DefaultExt);
+    Result := Execute;
+    if Result then
+    begin
+      Params.FilterIndex := FilterIndex;
+      Params.FileName := FileName;
+      if Assigned(Params.FileNames) then
+      begin
+        if Params.MultiSelect
+          then Params.FileNames.Assign(Files)
+          else Params.FileNames.Add(FileName);
+      end;
+    end;
+  finally
+    Free;
+  end;
+{$endif}
+end;
+
+
+{%endregion}
 end.
 
