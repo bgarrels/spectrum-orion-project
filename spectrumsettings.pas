@@ -27,6 +27,16 @@ type
     NoConfirmDelete: Boolean;     // Ќе подтверждать удаление графиков
     SelectJustAdded: Boolean;     // выдел€ть добавленные графики cелектором
 
+    // PlotReaders settings
+    ValueSeparators: String;
+    DecSeparator: TDecimalSeparator;
+    SkipFirstLines: Integer;
+    OneColumnFirst: TValue;
+    OneColumnInc: TValue;
+    TablePreviewLines: Integer;
+    RSReadLowValues: Boolean;
+    RSFileVersion: Byte;
+
     // гор€чие клавиши команд выделени€, инициализируютс€ в главном окне
     // используютс€ некоторыми окнами, обладающими аналогичными командами,
     // чтобы сочетани€ клавиш в каждом конкретном окне были одинаковыми
@@ -158,6 +168,8 @@ uses
 constructor TPreferences.Create;
 begin
   TitlePresets := TStringList.Create;
+  OneColumnFirst := 0;
+  OneColumnInc := 1;
 end;
 
 destructor TPreferences.Destroy;
@@ -179,11 +191,22 @@ begin
 
     Section                         := 'EXPORT_PARAMS';
     //ExportParams.ChartCopyFormat    := TCopyImageFormat(ReadInteger('ChartCopyFormat', Ord(cifWmf)));
-    ExportParams.DecSeparator       := TDecimalSeparator(ReadInteger('DecimalSeparator', Ord(dseSystem)));
+    ExportParams.DecSeparator       := TDecimalSeparator(ReadInteger('DecimalSeparator', Ord(dsSystem)));
     ExportParams.LineDelimiter      := TLineDelimiter(ReadInteger('LineDelimiter', Ord(ldWindows)));
     ExportParams.ValueDelimiter     := TValueDelimiter(ReadInteger('ValueDelimiter', Ord(vdTab)));
     ExportParams.LineDelimSpec      := ReadString('LineDelimiterSpec', '');
     ExportParams.ValueDelimSpec     := ReadString('ValueDelimiterSpec', '');
+
+    // PlotReader settings
+    Section           := 'DATA_READERS';
+    ValueSeparators   := ReadString('ValueSeparators', '');
+    DecSeparator      := TDecimalSeparator(ReadInteger('DecimalSeparator', Ord(dsAuto)));
+    SkipFirstLines    := ReadInteger('SkipFirstLines', 0);
+    OneColumnFirst    := ReadFloat('OneColumnFirst', 1);
+    OneColumnInc      := ReadFloat('OneColumnInc', 1);
+    TablePreviewLines := ReadInteger('PreviewLineCountTable', 25);
+    RSReadLowValues   := ReadBool('RSReadLowValues', False);
+    RSFileVersion     := ReadInteger('RSFileVersion', 0);
   end;
 end;
 
@@ -207,6 +230,15 @@ begin
     WriteInteger('ValueDelimiter', Ord(ExportParams.ValueDelimiter));
     WriteString('LineDelimiterSpec', ExportParams.LineDelimSpec);
     WriteString('ValueDelimiterSpec', ExportParams.ValueDelimSpec);
+
+    // PlotReader settings
+    Section := 'DATA_READERS';
+    WriteString('ValueSeparators', ValueSeparators);
+    WriteInteger('DecimalSeparator', Ord(DecSeparator));
+    WriteInteger('SkipFirstLines', SkipFirstLines);
+    WriteFloat('OneColumnFirst', OneColumnFirst);
+    WriteFloat('OneColumnInc', OneColumnInc);
+    WriteInteger('PreviewLineCountTable', TablePreviewLines);
   end;
 end;
 

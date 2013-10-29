@@ -19,6 +19,7 @@ type
 
 procedure DebugPrint(const Fmt: String; Args: array of const); overload;
 procedure DebugPrint(const Msg: String); overload;
+procedure DebugPrint(const Value: Double);
 
 implementation
 
@@ -30,6 +31,11 @@ uses
 var
   WndDebugConsole: TWndDebugConsole;
   SavedPos, SavedSize: Longword;
+
+procedure DebugPrint(const Value: Double);
+begin
+  DebugPrint(FloatToStr(Value));
+end;
 
 procedure DebugPrint(const Fmt: String; Args: array of const);
 begin

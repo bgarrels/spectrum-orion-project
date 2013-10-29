@@ -28,33 +28,28 @@ type
 implementation
 
 uses
-  SysUtils, Controls, Dialogs, Forms,
+  SysUtils, Controls, Forms,
   OriUtils_Gui,
   SpectrumTypes, SpectrumSettings, SpectrumStrings, PlotReaders;
 
 {%region Dialog Invokers}
-function OpenGraphsDialog(AFileNames: TStrings; var AFilterIndex: Integer): Boolean;
+function OpenGraphsDialog(AFileNames: TStrings; out AFilterIndex: Integer): Boolean;
+var
+  Params: TFileDialogParams;
 begin
-  AFileNames.Clear;
-  with TOpenDialog.Create(nil) do
-  try
-    Title := Dlg_OpenGraphs;
-    Filter := TFileReaders.FileFilters;
-    FileName := '';
-    Options := Options + [ofPathMustExist, ofFileMustExist,
-      ofAllowMultiSelect, ofDontAddToRecent];
-    FilterIndex := Preferences.GraphsOpenFilter;
-    InitialDir := Preferences.GraphsOpenCurDir;
-    Result := Execute;
-    if Result then
-    begin
-      Preferences.GraphsOpenFilter := FilterIndex;
-      Preferences.GraphsOpenCurDir := ExtractFilePath(FileName);
-      AFilterIndex := FilterIndex;
-      AFileNames.Assign(Files);
-    end;
-  finally
-    Free;
+  FillChar(Params{%H-}, SizeOf(TFileDialogParams), 0);
+  Params.Title := Dlg_OpenGraphs;
+  Params.Filters := TFileReaders.FileFilters;
+  Params.FileNames := AFileNames;
+  Params.MultiSelect:= True;
+  Params.InitialDir := Preferences.GraphsOpenCurDir;
+  Params.FilterIndex := Preferences.GraphsOpenFilter;
+  Result := OpenFileDialog(Params);
+  if Result then
+  begin
+    Preferences.GraphsOpenFilter := Params.FilterIndex;
+    Preferences.GraphsOpenCurDir := ExtractFilePath(Params.FileName);
+    AFilterIndex := Params.FilterIndex;
   end;
 end;
 

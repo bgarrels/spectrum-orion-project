@@ -6,18 +6,14 @@ uses
   Classes,
   PlotReaders;
 
-(*type
+type
 
   TRSFileReader = class(TDataReader)
   private
     FSettings: TStream;
   public
-    class var ReadLowValues: Boolean;
-    class var RSFileVersion: Byte;
-  public
-    //constructor Create(Params: TGraphAppendParams); override;
-    destructor Destroy; override;
-    procedure ReadValues; override;
+    procedure Read(const AFileName: String); override;
+    procedure Read(AStream: TStream); override;
     class procedure FileFilters(Strings: TStrings); override;
     class procedure FileExts(Strings: TStrings); override;
   end;
@@ -34,42 +30,37 @@ uses
   public
     class procedure FileFilters(Strings: TStrings); override;
   end;
-       *)
+
 implementation
 
 uses
   SysUtils,
-  OriStrings,
-  SpectrumTypes, SpectrumStrings;
-(*
-{%region TRSFileReader}
-//constructor TRSFileReader.Create(Params: TGraphAppendParams);
-//var
-//  SetFile: String;
-//begin
-//  inherited;
-//  if Assigned(Params.Stream) then
-//  begin
-//    FStream := Params.Stream;
-//    FSettings := TStream(Params.AuxParam);
-//  end
-//  else
-//  begin
-//    SetFile := ChangeFileExt(FSource, '.set');
-//    if not FileExists(SetFile) then
-//      raise ESpectrumError.CreateFmt(Err_RSNoSetFile, [SetFile]);
-//    OpenSourceAsFile;
-//    FSettings := TFileStream.Create(SetFile, fmOpenRead or fmShareDenyWrite);
-//  end;
-//end;
+  OriStrings, SpectrumStrings, SpectrumSettings, SpectrumTypes;
 
-destructor TRSFileReader.Destroy;
+{%region TRSFileReader}
+procedure TRSFileReader.Read(const AFileName: String);
+var
+  DataStream: TStream;
+  SetFile: String;
 begin
-  FSettings.Free;
-  inherited;
+  SetFile := ChangeFileExt(AFileName, '.set');
+  if not FileExists(SetFile) then
+    raise ESpectrumError.CreateFmt(Err_RSNoSetFile, [SetFile]);
+
+  FSettings := TFileStream.Create(SetFile, fmOpenRead or fmShareDenyWrite);
+  try
+    DataStream := TFileStream.Create(AFileName, fmOpenRead or fmShareDenyWrite);
+    try
+      Read(DataStream);
+    finally
+      DataStream.Free;
+    end;
+  finally
+    FSettings.Free;
+  end;
 end;
 
-procedure TRSFileReader.ReadValues;
+procedure TRSFileReader.Read(AStream: TStream);
 var
   Vers: Byte;
   Buf: array [0..3] of Char;
@@ -84,11 +75,14 @@ begin
   Xmax := 0; // warning suppress
   Y := 0; // warning suppress
 
-  Vers := RSFileVersion;
+  ResetResults;
+  ResetValues;
+
+  Vers := Preferences.RSFileVersion;
   if Vers = 0 then
   begin // try autodetect
-    FStream.Seek($0029, soFromBeginning);
-    FStream.Read(Buf, 4);
+    AStream.Seek($0029, soFromBeginning);
+    AStream.Read(Buf, 4);
     if (Buf[0] = '1') and (Buf[1] = '.') and (Buf[3] = '0') then
       case Buf[2] of
         '8': Vers := 1; // Version 1.80 - FSE 40GHz
@@ -117,36 +111,38 @@ begin
   FSettings.Read(Xmax, 8);
   Xstep := (Xmax - Xmin) / 499.0;
   X := Xmin;
-  IncValue := 1 + Ord(ReadLowValues);
-  SetLength(FValuesX^, 500 * IncValue);
-  SetLength(FValuesY^, 500 * IncValue);
-  FStream.Seek(dwAddrData, soFromBeginning);
+  IncValue := 1 + Ord(Preferences.RSReadLowValues);
+  SetLength(FValuesX, 500 * IncValue);
+  SetLength(FValuesY, 500 * IncValue);
+  AStream.Seek(dwAddrData, soFromBeginning);
   FValueIndex := 0;
   I := 0;
   while I < 500 do
   begin
-    FStream.Read(Y, 4);
-    FValuesX^[FValueIndex] := X;
-    FValuesY^[FValueIndex] := Y;
+    AStream.Read(Y, 4);
+    FValuesX[FValueIndex] := X;
+    FValuesY[FValueIndex] := Y;
     Inc(FValueIndex, IncValue);
     X := X + Xstep;
     Inc(I);
   end;
-  if ReadLowValues then
+  if Preferences.RSReadLowValues then
   begin
     X := Xmin;
     FValueIndex := 1;
     I := 0;
     while I < 500 do
     begin
-      FStream.Read(Y, 4);
-      FValuesX^[FValueIndex] := X;
-      FValuesY^[FValueIndex] := Y;
+      AStream.Read(Y, 4);
+      FValuesX[FValueIndex] := X;
+      FValuesY[FValueIndex] := Y;
       Inc(FValueIndex, IncValue);
       X := X + Xstep;
       Inc(I);
     end;
   end;
+
+  AddResult(FValuesX, FValuesY);
 end;
 
 class procedure TRSFileReader.FileFilters(Strings: TStrings);
@@ -163,7 +159,6 @@ begin
 end;
 {%endregion}
 
-
 {%region TOOFileReader}
 class procedure TOOFileReader.FileFilters(Strings: TStrings);
 begin
@@ -175,7 +170,6 @@ begin
   Strings.Add('scope');
 end;
 {%endregion}
-
 
 {%region TDagatronFileReaders}
 procedure TDagatronFileReaders.InitFloatFormat;
@@ -197,8 +191,8 @@ begin
     Inc(P);
     if P^ = #0 then
     begin
-      // перва€ колонка это врем€, ее пропускаем
-      // остальные колонки собираем в кучу
+      // First column is timestamp, skip it.
+      // The rest columns are sticked together.
       if CharPos(P1, ':') = 0 then
       begin
         S := S + P1;
@@ -206,25 +200,25 @@ begin
       P1 := P + 1;
     end;
   until P1^ = #0;
-  // ”дал€ем все не цифровые символы с конца
-  // должно подучитьс€ значение частоты
+  // Remove all non digit chars from the end
   for I := Length(S) downto 1 do
     if S[I] in ['0'..'9'] then
     begin
       SetLength(S, I);
       Break;
     end;
-  // ѕропускаем вс€кий мусор (типа строки "14:12:53  р         0")
-  // » нулевые значени€ (например строка "17:10:48            0")
+  // Skip some scrap (lines like "14:12:53  р         0")
+  // and zero values (lines like  "17:10:48            0")
+  // (samples are taken from a real file written by Dagatron counter)
   if TryStrToFloat(S, Value, FFloatFmt) and (Value > 0) then
   begin
     CheckValuesSize;
     if FValueIndex > 0 then
-      // несколько одинаковых значений подр€д пропускаем
-      if FValuesY^[FValueIndex-1] = Value then Exit;
-    FValuesX^[FValueIndex] := FOneColumnX;
-    FValuesY^[FValueIndex] := Value;
-    FOneColumnX := FOneColumnX + OneColumnInc;
+      // Skip several consecutive identical values
+      if FValuesY[FValueIndex-1] = Value then Exit;
+    FValuesX[FValueIndex] := FOneColumnX;
+    FValuesY[FValueIndex] := Value;
+    FOneColumnX := FOneColumnX + Preferences.OneColumnInc;
     Inc(FValueIndex);
   end;
 end;
@@ -234,5 +228,5 @@ begin
   Strings.Add(Filter_Dag);
 end;
 {%endregion}
-    *)
+
 end.

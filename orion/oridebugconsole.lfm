@@ -1,7 +1,7 @@
 object WndDebugConsole: TWndDebugConsole
-  Left = 640
+  Left = 469
   Height = 445
-  Top = 389
+  Top = 307
   Width = 672
   Caption = 'Debug Console'
   ClientHeight = 445
@@ -37,7 +37,6 @@ object WndDebugConsole: TWndDebugConsole
     BorderSpacing.Top = 3
     Caption = 'Toolbar'
     EdgeBorders = []
-    Flat = False
     Indent = 0
     ParentShowHint = False
     ShowCaptions = True
