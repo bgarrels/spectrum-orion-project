@@ -53,6 +53,8 @@ resourcestring
   Status_Modified = 'Modified';
   Status_Graphs = 'Graphs';
 
+  Tooltab_DataTable = 'Data Table';
+
   Undo_AddGraph = 'Append Graph';
   Undo_DeleteGraph = 'Delete Graph';
   Undo_DeleteGraphs = 'Delete Graphs';

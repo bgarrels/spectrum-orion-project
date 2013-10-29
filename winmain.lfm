@@ -1,7 +1,7 @@
 object MainWnd: TMainWnd
-  Left = 582
+  Left = 564
   Height = 729
-  Top = 133
+  Top = 156
   Width = 918
   Caption = 'Spectrum'
   ClientHeight = 729
@@ -50,16 +50,6 @@ object MainWnd: TMainWnd
   OnShow = FormShow
   Position = poScreenCenter
   LCLVersion = '1.0.10.0'
-  object PlotsBook: TNotebook
-    Left = 0
-    Height = 687
-    Top = 42
-    Width = 918
-    Align = alClient
-    OnChangeBounds = PlotsBookChangeBounds
-    TabOrder = 0
-    TabStop = True
-  end
   object ToolbarBook: TNotebook
     Left = 0
     Height = 42
@@ -68,7 +58,7 @@ object MainWnd: TMainWnd
     PageIndex = 0
     Align = alTop
     Color = clBtnFace
-    TabOrder = 1
+    TabOrder = 0
     TabStop = True
     object PageProject: TPage
       object ToolBarProject: TToolBar
@@ -154,41 +144,41 @@ object MainWnd: TMainWnd
           Action = ActionDiagramNew
         end
         object ToolButton18: TToolButton
-          Left = 67
+          Left = 61
           Top = 0
           Action = ActionDiagramRename
         end
         object ToolButton19: TToolButton
-          Left = 155
+          Left = 138
           Top = 0
           Action = ActionDiagramDelete
         end
         object ToolButton20: TToolButton
-          Left = 243
+          Left = 215
           Top = 0
           Action = ActionDiagramSaveAsImage
         end
         object ToolButton21: TToolButton
-          Left = 384
+          Left = 334
           Top = 0
           Action = ActionDiagramSaveAsProject
         end
         object ToolButton23: TToolButton
-          Left = 233
+          Left = 205
           Top = 0
           Width = 10
           Caption = 'ToolButton23'
           Style = tbsSeparator
         end
         object ToolButton27: TToolButton
-          Left = 543
+          Left = 467
           Top = 0
           Action = ActionDiagramPrint
           DropdownMenu = MenuPlotPrint
           Style = tbsDropDown
         end
         object ToolButton32: TToolButton
-          Left = 533
+          Left = 457
           Top = 0
           Width = 10
           Caption = 'ToolButton32'
@@ -260,45 +250,45 @@ object MainWnd: TMainWnd
           Action = ActionEditPasteTable
         end
         object ToolButton13: TToolButton
-          Left = 316
+          Left = 296
           Top = 0
           Width = 10
           Caption = 'ToolButton13'
           Style = tbsSeparator
         end
         object ToolButton14: TToolButton
-          Left = 326
+          Left = 306
           Top = 0
           Action = ActionEditCopyFormat
         end
         object ToolButton15: TToolButton
-          Left = 447
+          Left = 409
           Top = 0
           Action = ActionEditPasteFormat
         end
         object ToolButton28: TToolButton
-          Left = 582
+          Left = 522
           Top = 0
           Action = ActionEditSelectGraphs
           DropdownMenu = MenuEditSelect
           Style = tbsDropDown
         end
         object ToolButton29: TToolButton
-          Left = 572
+          Left = 512
           Top = 0
           Width = 10
           Caption = 'ToolButton29'
           Style = tbsSeparator
         end
         object ToolButton30: TToolButton
-          Left = 681
+          Left = 608
           Top = 0
           Width = 10
           Caption = 'ToolButton30'
           Style = tbsSeparator
         end
         object ToolButton31: TToolButton
-          Left = 691
+          Left = 618
           Top = 0
           Action = ActionEditDelete
           DropdownMenu = MenuEditDelete
@@ -328,12 +318,12 @@ object MainWnd: TMainWnd
         TabOrder = 0
         Transparent = True
         object ToolButton1: TToolButton
-          Left = 373
+          Left = 317
           Top = 0
           Action = ActionAddRandom
         end
         object ToolButton5: TToolButton
-          Left = 528
+          Left = 447
           Top = 0
           Action = ActionAddFormula
         end
@@ -345,17 +335,68 @@ object MainWnd: TMainWnd
           Style = tbsDropDown
         end
         object ToolButton25: TToolButton
-          Left = 124
+          Left = 107
           Top = 0
           Action = ActionAddFolder
         end
         object ToolButton26: TToolButton
-          Left = 252
+          Left = 214
           Top = 0
           Action = ActionAddTable
         end
       end
     end
+  end
+  object PanelContent: TPanel
+    Left = 0
+    Height = 663
+    Top = 42
+    Width = 918
+    Align = alClient
+    BevelOuter = bvNone
+    ClientHeight = 663
+    ClientWidth = 918
+    TabOrder = 1
+    object ToolsBook: TNotebook
+      Left = 0
+      Height = 663
+      Top = 0
+      Width = 222
+      PageIndex = 0
+      Align = alLeft
+      TabOrder = 0
+      TabStop = True
+      object PageDataTable: TPage
+      end
+    end
+    object Splitter1: TSplitter
+      Left = 222
+      Height = 663
+      Top = 0
+      Width = 5
+      ResizeStyle = rsPattern
+    end
+    object PlotsBook: TNotebook
+      Left = 227
+      Height = 663
+      Top = 0
+      Width = 691
+      Align = alClient
+      OnChangeBounds = PlotsBookChangeBounds
+      TabOrder = 2
+      TabStop = True
+    end
+  end
+  object PanelTabs: TPanel
+    Left = 0
+    Height = 24
+    Top = 705
+    Width = 918
+    Align = alBottom
+    AutoSize = True
+    BevelOuter = bvNone
+    Constraints.MinHeight = 24
+    TabOrder = 2
   end
   object ActionList: TActionList
     Images = Images16
@@ -3313,5 +3354,44 @@ object MainWnd: TMainWnd
         0000000000002E2EC63900000002000000030000000300000002
       }
     end
+  end
+  object ToolTabsImages: TImageList
+    left = 280
+    top = 328
+    Bitmap = {
+      4C69010000001000000010000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      000000000000000000000000000000000000E0D0C0FFE0C8C0FFE0C8C0FFD0C0
+      B0FFD0C0B0FFD0B8B0FFD0B8A0FFC0B0A0FFC0B0A0FFC0B0A0FFC0A8A0FFC0A8
+      A0FFC0A890FF000000000000000000000000E0D0C0FFFFFFFFFFFFFFFFFFFFFF
+      FFFFC09880FFFFFFFFFFFFFFFFFFFFFFFFFFC09880FFFFF8F0FFFFF8F0FFFFF0
+      E0FF604830FF000000000000000000000000E0C8C0FFC0B0A0FFC0A890FFC0A0
+      90FFB09080FFC0B0A0FFC0A890FFC0A090FFB09080FFC0B0A0FFC0A890FFC0A0
+      90FF604830FF000000000000000000000000E0C8C0FFFFFFFFFFFFFFFFFFFFFF
+      FFFFC09880FFFFFFFFFFFFFFFFFFFFF8FFFFC09880FFFFF0F0FFFFE8E0FFFFE8
+      E0FF604830FF000000000000000000000000D0C0B0FFC0B0A0FFC0A890FFC0A0
+      90FFB09080FFC0B0A0FFC0A890FFC0A090FFB09080FFC0B0A0FFC0A890FFC0A0
+      90FF604830FF000000000000000000000000D0C0B0FFFFFFFFFFFFFFFFFFFFFF
+      FFFFC09880FFFFF8FFFFFFF8F0FFFFF0F0FFC09880FFFFE8E0FFFFE0D0FFF0E0
+      D0FF604830FF000000000000000000000000D0B8B0FFC0B0A0FFC0A890FFC0A0
+      90FFB09080FFC0B0A0FFC0A890FFC0A090FFB09080FFC0B0A0FFC0A890FFC0A0
+      90FF604830FF000000000000000000000000D0B8A0FFFFFFFFFFFFFFFFFFFFFF
+      FFFFC09880FFFFF8F0FFFFF0E0FFFFE8E0FFC09880FFFFE0D0FFF0D8C0FFF0D8
+      C0FF604830FF000000000000000000000000D0B0A0FFC0B0A0FFC0A890FFC0A0
+      90FFB09080FFC0B0A0FFC0A890FFC0A090FFB09080FFC0B0A0FFC0A890FFC0A0
+      90FF604830FF000000000000000000000000C0B0A0FFFFFFFFFFFFF8FFFFFFF8
+      F0FFC09880FFFFE8E0FFFFE8E0FFFFE0D0FFC09880FFF0D8C0FFF0D0C0FFF0D0
+      B0FF604830FF000000000000000000000000C0B0A0FFC0B0A0FFC0A890FFC0A0
+      90FFB09080FFC0B0A0FFC0A890FFC0A090FFB09080FFC0B0A0FFC0A890FFC0A0
+      90FF604830FF000000000000000000000000C0A8A0FFFFF8F0FFFFF0F0FFFFF0
+      E0FFC09880FFFFE0D0FFF0E0D0FFF0D8C0FFC09880FFF0D0C0FFF0D0B0FFF0D0
+      B0FF604830FF000000000000000000000000C0A8A0FF604830FF604830FF6048
+      30FF604830FF604830FF604830FF604830FF604830FF604830FF604830FF6048
+      30FF604830FF0000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000000000000000000000000000000000000000
+      0000000000000000000000000000
+    }
   end
 end

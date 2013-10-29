@@ -1,0 +1,113 @@
+object WndTestColors: TWndTestColors
+  Left = 1065
+  Height = 300
+  Top = 251
+  Width = 274
+  Caption = 'Test Colors'
+  ClientHeight = 300
+  ClientWidth = 274
+  LCLVersion = '1.0.10.0'
+  object GroupBox1: TGroupBox
+    Left = 8
+    Height = 272
+    Top = 8
+    Width = 256
+    Caption = 'Blend'
+    ClientHeight = 254
+    ClientWidth = 252
+    TabOrder = 0
+    object BlendColor1: TColorBox
+      Left = 64
+      Height = 22
+      Top = 8
+      Width = 176
+      DropDownCount = 32
+      ItemHeight = 16
+      TabOrder = 0
+    end
+    object Label1: TLabel
+      Left = 8
+      Height = 16
+      Top = 16
+      Width = 39
+      Caption = 'Color 1'
+      ParentColor = False
+    end
+    object Label2: TLabel
+      Left = 8
+      Height = 16
+      Top = 48
+      Width = 39
+      Caption = 'Color 2'
+      ParentColor = False
+    end
+    object BlendColor2: TColorBox
+      Left = 64
+      Height = 22
+      Top = 40
+      Width = 176
+      DropDownCount = 32
+      ItemHeight = 16
+      TabOrder = 1
+    end
+    object Label3: TLabel
+      Left = 8
+      Height = 16
+      Top = 80
+      Width = 31
+      Caption = 'Blend'
+      ParentColor = False
+    end
+    object BlendTestButton: TButton
+      Left = 165
+      Height = 25
+      Top = 104
+      Width = 75
+      Caption = 'Test Color'
+      OnClick = BlendTestButtonClick
+      TabOrder = 2
+    end
+    object PanelBlend: TPanel
+      Left = 8
+      Height = 138
+      Top = 104
+      Width = 144
+      BevelOuter = bvNone
+      BorderStyle = bsSingle
+      ParentColor = False
+      TabOrder = 3
+    end
+    object BlendValue: TEdit
+      Left = 64
+      Height = 23
+      Top = 73
+      Width = 176
+      TabOrder = 4
+      Text = '0'
+    end
+    object LabelColor1: TLabel
+      Left = 165
+      Height = 16
+      Top = 144
+      Width = 64
+      Caption = 'LabelColor1'
+      ParentColor = False
+    end
+    object LabelColor2: TLabel
+      Left = 165
+      Height = 16
+      Top = 176
+      Width = 64
+      Caption = 'LabelColor2'
+      ParentColor = False
+    end
+    object LabelBlended: TLabel
+      Left = 165
+      Height = 16
+      Top = 208
+      Width = 72
+      Caption = 'LabelBlended'
+      ParentColor = False
+    end
+  end
+end

@@ -7,9 +7,9 @@ interface
 uses
   Graphics;
 
-function Lighten(C: TColor; Amount: Integer): TColor;
-function Blend(C1, C2: TColor; W1: Integer): TColor;
-function MixColors(C1, C2: TColor; W1: Integer): TColor;
+function Lighten(Color: TColor; Amount: Integer): TColor;
+function Blend(Color1, Color2: TColor; W1: Integer): TColor;
+function MixColors(Color1, Color2: TColor; W1: Integer): TColor;
 
 const
 {%region 'Web colors'}
@@ -152,11 +152,12 @@ const
 
 implementation
 
-function Lighten(C: TColor; Amount: Integer): TColor;
+{%region Color methods}
+function Lighten(Color: TColor; Amount: Integer): TColor;
 var
-  R, G, B: Integer;
+  C, R, G, B: Integer;
 begin
-  //if C < 0 then C := GetSysColor(C and $000000FF);
+  C := ColorToRGB(Color);
   R := C and $FF + Amount;
   G := C shr 8 and $FF + Amount;
   B := C shr 16 and $FF + Amount;
@@ -166,12 +167,12 @@ begin
   Result := R or (G shl 8) or (B shl 16);
 end;
 
-function Blend(C1, C2: TColor; W1: Integer): TColor;
+function Blend(Color1, Color2: TColor; W1: Integer): TColor;
 var
-  W2, A1, A2, D, F, G: Integer;
+  W2, A1, A2, D, F, G, C1, C2: Integer;
 begin
-  //if C1 < 0 then C1 := GetSysColor(C1 and $FF);
-  //if C2 < 0 then C2 := GetSysColor(C2 and $FF);
+  C1 := ColorToRGB(Color1);
+  C2 := ColorToRGB(Color2);
 
   if W1 >= 100 then D := 1000
   else D := 100;
@@ -195,20 +196,21 @@ begin
   Result := Result or G;
 end;
 
-function MixColors(C1, C2: TColor; W1: Integer): TColor;
+function MixColors(Color1, Color2: TColor; W1: Integer): TColor;
 var
-  W2: Cardinal;
+  W2, C1, C2: Cardinal;
 begin
   Assert(W1 in [0..255]);
   W2 := W1 xor 255;
-  //if Integer(C1) < 0 then C1 := GetSysColor(C1 and $000000FF);
-  //if Integer(C2) < 0 then C2 := GetSysColor(C2 and $000000FF);
+  C1 := ColorToRGB(Color1);
+  C2 := ColorToRGB(Color2);
   Result := Integer(
     ((Cardinal(C1) and $FF00FF) * Cardinal(W1) +
     (Cardinal(C2) and $FF00FF) * W2) and $FF00FF00 +
     ((Cardinal(C1) and $00FF00) * Cardinal(W1) +
     (Cardinal(C2) and $00FF00) * W2) and $00FF0000) shr 8;
 end;
+{%endregion}
 
 end.
 

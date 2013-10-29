@@ -5,7 +5,7 @@ unit SpectrumControls;
 interface
 
 uses
-  Classes, Controls, ComCtrls, ExtCtrls, Buttons, FGL;
+  Classes, Controls, ComCtrls, ExtCtrls, Buttons, FGL, Graphics, ImgList;
 
 type
   TNotebookTab = class;
@@ -17,9 +17,11 @@ type
   private
     FTabs: TNotebookTabList;
     FNotebook: TNotebook;
+    FImages: TCustomImageList;
     FTabsPosition: TNotebookTabPosition;
     FOnTabActivated: TNotifyEvent;
     function GetActiveTab: TNotebookTab;
+    function GetTab(Index: Integer): TNotebookTab;
     procedure InvalidateTabs;
     procedure SetTabsPosition(Value: TNotebookTabPosition);
   protected
@@ -34,27 +36,39 @@ type
     procedure RenameTab(const Title: String; Feature: TObject);
     procedure ShowTab(Index: Integer);
     property OnTabActivated: TNotifyEvent read FOnTabActivated write FOnTabActivated;
+    property Images: TCustomImageList read FImages write FImages;
+    property Tabs[Index: Integer]: TNotebookTab read GetTab;
   end;
 
   TNotebookTab = class(TCustomSpeedButton)
   private
     FOwner: TNotebookTabs;
+    FTitle: String;
     FChecked: Boolean;
     FFeature: TObject;
     FTabIndex: Integer;
+    FImageIndex: Integer;
+    FPadding: Integer;
     procedure SetChecked(Value: Boolean);
     procedure UpdateBorderSpacing;
     procedure SetTitle(const Value: String);
-    function GetTitle: String;
+    procedure SetImageIndex(Index: Integer);
+    procedure SetPadding(Value: Integer);
   protected
     procedure PaintBackground(var PaintRect: TRect); override;
+    function DrawGlyph(ACanvas: TCanvas; const AClient: TRect; const AOffset: TPoint;
+      AState: TButtonState; ATransparent: Boolean; BiDiFlags: Longint): TRect; override;
   public
     constructor Create(AOwner: TNotebookTabs); reintroduce;
     procedure Click; override;
+    procedure GetPreferredSize(var PreferredWidth, PreferredHeight: integer;
+      Raw: Boolean = False; WithThemeSpace: Boolean = True); override;
     property Checked: Boolean read FChecked write SetChecked;
     property Feature: TObject read FFeature;
     property TabIndex: Integer read FTabIndex;
-    property Title: String read GetTitle write SetTitle;
+    property Title: String read FTitle write SetTitle;
+    property ImageIndex: Integer read FImageIndex write SetImageIndex;
+    property Padding: Integer read FPadding write SetPadding;
   end;
 
   TSpectrumStatusBar = class(TStatusBar)
@@ -72,15 +86,44 @@ type
     procedure ShowGraphCount(TotalCount, VisibleCount: Integer);
   end;
 
+  TToolPanelHeader = class(TCustomPanel)
+  private const
+    ImageMargin = 2;
+    TextIndent = 2;
+    ButtonMargin = 1;
+  private
+    FCloseButton: TSpeedButton;
+    FImages: TCustomImageList;
+    FImageIndex: Integer;
+    FImageMargin: Integer;
+    FButtonMargin: Integer;
+    FTextIndent: Integer;
+    procedure SetImages(Value: TCustomImageList);
+    procedure SetImageIndex(Value: Integer);
+  protected
+    procedure Paint; override;
+    procedure AdjustSize; override;
+  public
+    constructor Create(AOwner: TWinControl); reintroduce;
+    destructor Destroy; override;
+    property Images: TCustomImageList read FImages write SetImages;
+    property ImageIndex: Integer read FImageIndex write SetImageIndex;
+  end;
+
 implementation
 
 uses
-  SysUtils, Graphics,
-  OriStrings,
+  SysUtils, RtlConsts,
+  OriStrings, OriGraphics,
   SpectrumStrings;
 
 const
   SourceDPI = 96;
+
+function CanPaintImage(AImages: TCustomImageList; AImageIndex: Integer): Boolean;
+begin
+  Result := Assigned(AImages) and (AImageIndex > -1) and (AImageIndex < AImages.Count)
+end;
 
 {%region TNotebookTabs}
 constructor TNotebookTabs.Create(ANotebook: TNotebook);
@@ -208,6 +251,13 @@ begin
       Exit;
   Result := nil;
 end;
+
+function TNotebookTabs.GetTab(Index: Integer): TNotebookTab;
+begin
+  if (Index < 0) or (Index >= FTabs.Count) then
+    raise EListError.CreateFmt(SListIndexError, [Index]);
+  Result := FTabs[Index];
+end;
 {%endregion}
 
 {%region TNotebookTab}
@@ -216,6 +266,8 @@ begin
   inherited Create(AOwner);
 
   FOwner := AOwner;
+  FImageIndex := -1;
+  FPadding := 12;
 
   AutoSize := True;
   Align := alLeft;
@@ -244,6 +296,13 @@ end;
 procedure TNotebookTab.Click;
 begin
   FOwner.ShowTab(TabIndex);
+end;
+
+procedure TNotebookTab.GetPreferredSize(var PreferredWidth, PreferredHeight: integer;
+  Raw: Boolean = False; WithThemeSpace: Boolean = True);
+begin
+  inherited GetPreferredSize(PreferredWidth, PreferredHeight, Raw, WithThemeSpace);
+  Inc(PreferredWidth, FPadding + FPadding);
 end;
 
 procedure TNotebookTab.PaintBackground(var PaintRect: TRect);
@@ -279,6 +338,22 @@ begin
   end;
 end;
 
+function TNotebookTab.DrawGlyph(ACanvas: TCanvas; const AClient: TRect; const AOffset: TPoint;
+  AState: TButtonState; ATransparent: Boolean; BiDiFlags: Longint): TRect;
+var
+  Offset: TPoint;
+begin
+  if CanPaintImage(FOwner.Images, FImageIndex) then
+  begin
+    Offset := AOffset;
+    if FTitle = '' then
+    begin
+      Offset.X := (AClient.Right - AClient.Left - FOwner.Images.Width) div 2;
+    end;
+    Result := inherited DrawGlyph(ACanvas, AClient, Offset, AState, ATransparent, BiDiFlags);
+  end;
+end;
+
 procedure TNotebookTab.SetChecked(Value: Boolean);
 begin
   if FChecked <> Value then
@@ -290,14 +365,28 @@ end;
 
 procedure TNotebookTab.SetTitle(const Value: String);
 begin
-  inherited Caption := '   ' + Value + '   ';
+  FTitle := Value;
+  Caption := Value;
   InvalidatePreferredSize;
   AdjustSize;
 end;
 
-function TNotebookTab.GetTitle: String;
+procedure TNotebookTab.SetPadding(Value: Integer);
 begin
-  Result := Trim(inherited Caption);
+  if FPadding <> Value then
+  begin
+    FPadding := Value;
+    InvalidatePreferredSize;
+    AdjustSize;
+    Invalidate;
+  end;
+end;
+
+procedure TNotebookTab.SetImageIndex(Index: Integer);
+begin
+  FImageIndex := Index;
+  if CanPaintImage(FOwner.Images, Index) then
+    FOwner.Images.GetBitmap(Index, Glyph);
 end;
 {%endregion}
 
@@ -344,6 +433,99 @@ begin
   Invalidate;
 end;
 {%endregion}
+
+{%region TToolPanelHeader}
+constructor TToolPanelHeader.Create(AOwner: TWinControl);
+begin
+  inherited Create(AOwner);
+
+  FImageMargin := ScaleX(ImageMargin, SourceDPI);
+  FButtonMargin := ScaleX(ButtonMargin, SourceDPI);
+  FTextIndent := ScaleX(TextIndent, SourceDPI);
+
+  Align := alTop;
+  Parent := AOwner;
+  BorderSpacing.Left := ScaleX(3, SourceDPI);
+  BorderSpacing.Right := BorderSpacing.Left;
+  Alignment := taLeftJustify;
+  BevelInner := bvNone;
+  BevelOuter := bvNone;
+
+  FCloseButton := TSpeedButton.Create(Self);
+  FCloseButton.Parent := Self;
+  FCloseButton.Align := alRight;
+  FCloseButton.Flat := True;
+  FCloseButton.Glyph.LoadFromLazarusResource('close');
+  FCloseButton.BorderSpacing.Around := 1;
+
+  AutoSize := True;
+end;
+
+destructor TToolPanelHeader.Destroy;
+begin
+  FCloseButton.Free;
+  inherited;
+end;
+
+procedure TToolPanelHeader.Paint;
+var
+  R: TRect;
+  TS: TTextStyle;
+begin
+  R := ClientRect;
+
+  Canvas.Pen.Color := cl3DShadow;
+  Canvas.Brush.Color := clBtnFace;
+  Canvas.Rectangle(R);
+
+  if Assigned(FCloseButton) then
+    Dec(R.Right, FCloseButton.Width + FButtonMargin*2);
+
+  if CanPaintImage(FImages, FImageIndex) then
+  begin
+    FImages.Draw(Canvas, FImageMargin, FImageMargin, FImageIndex);
+    Inc(R.Left, FImages.Width + FImageMargin);
+  end;
+
+  if Caption <> '' then
+  begin
+    Inc(R.Left, FTextIndent);
+
+    TS := Canvas.TextStyle;
+    TS.Alignment := BidiFlipAlignment(Self.Alignment, UseRightToLeftAlignment);
+    if BiDiMode <> bdLeftToRight then TS.RightToLeft := True;
+    TS.Layout := tlCenter;
+    TS.Opaque := False;
+    TS.Clipping := False;
+    TS.SystemFont := Canvas.Font.IsDefault;
+    Canvas.Font.Color := Font.Color;
+    Canvas.TextRect(R, R.Left, R.Top, Caption, TS);
+  end;
+end;
+
+procedure TToolPanelHeader.SetImages(Value: TCustomImageList);
+begin
+  FImages := Value;
+  Constraints.MinHeight := FImages.Height + FImageMargin*2;
+  AdjustSize;
+  Invalidate;
+end;
+
+procedure TToolPanelHeader.SetImageIndex(Value: Integer);
+begin
+  if FImageIndex <> Value then
+  begin
+    FImageIndex := Value;
+    Invalidate;
+  end;
+end;
+
+procedure TToolPanelHeader.AdjustSize;
+begin
+  inherited;
+  if Assigned(FCloseButton) then
+    FCloseButton.Width := FCloseButton.Height;
+end;
 
 end.
 

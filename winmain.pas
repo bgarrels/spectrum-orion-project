@@ -5,10 +5,9 @@ unit WinMain;
 interface
 
 uses
-  Controls, Forms, ActnList, ComCtrls, ExtCtrls, Menus, TAGraph, TASeries,
-  OriUndo,
+  Controls, Forms, ActnList, ComCtrls, ExtCtrls, Menus, TAGraph, OriUndo,
   {$ifdef LINUX} BGRAImageList, {$endif}
-  Plots, Diagram, SpectrumControls;
+  Plots, Diagram, SpectrumControls, PlotControls;
 
 type
   {$ifdef LINUX}
@@ -50,6 +49,7 @@ type
     ActionProjectOpen: TAction;
     ActionAddRandom: TAction;
     ActionList: TActionList;
+    ToolTabsImages: TImageList;
     Images24: TImageList;
     Images16: TImageList;
     MenuItem1: TMenuItem;
@@ -61,6 +61,11 @@ type
     MenuItem7: TMenuItem;
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
+    PageDataTable: TPage;
+    PanelTabs: TPanel;
+    PlotsBook: TNotebook;
+    Splitter1: TSplitter;
+    ToolsBook: TNotebook;
     PageAdd: TPage;
     PageEdit: TPage;
     PageDiagram: TPage;
@@ -70,12 +75,12 @@ type
     MenuPlotPrint: TPopupMenu;
     MenuEditSelect: TPopupMenu;
     MenuEditDelete: TPopupMenu;
+    PanelContent: TPanel;
     ToolBarAdd: TToolBar;
     ToolBarAdd1: TToolBar;
     ToolBarEdit: TToolBar;
     ToolbarBook: TNotebook;
     PageProject: TPage;
-    PlotsBook: TNotebook;
     ToolBar1: TToolBar;
     ToolBarProject: TToolBar;
     ToolButton1: TToolButton;
@@ -146,15 +151,19 @@ type
   private
     FToolbarTabs: TNotebookTabs;
     FPlotTabs: TNotebookTabs;
+    FToolTabs: TNotebookTabs;
     FDiagrams: TDiagramList;
     FStatusBar: TSpectrumStatusBar;
+    FGraphGrid: TGraphGrid;
+
+    procedure InitComponents;
 
     procedure Notify(AOperation: TPlotOperation; APlot: TPlot; AGraph: TGraph);
     procedure ProcessProjectModified;
     procedure ProcessPlotAdded(APlot: TPlot);
     procedure ProcessPlotChanged(APlot: TPlot);
-    procedure ProcessGraphAdded(APlot: TPlot);
-    procedure ProcessGraphDeleted(APlot: TPlot);
+    procedure ProcessGraphAdded(APlot: TPlot; AGraph: TGraph);
+    procedure ProcessGraphDeleted(APlot: TPlot; AGraph: TGraph);
 
     procedure UndoChanged(Sender: TObject; CmdUndo, CmdRedo: TOriUndoCommand);
     procedure UndoUndone(Sender: TObject; Cmd: TOriUndoCommand);
@@ -177,7 +186,7 @@ var
 implementation
 
 uses
-  OriIniFile, OriDebugConsole,
+  OriIniFile,
   SpectrumTypes, SpectrumSettings, SpectrumStrings,
   PlotMath, PlotReader, DlgFormulaEditor;
 
@@ -190,19 +199,7 @@ procedure TMainWnd.FormCreate(Sender: TObject);
 var
   Ini: TOriIniFile;
 begin
-  FToolbarTabs := TNotebookTabs.Create(ToolbarBook);
-  FToolbarTabs.TabsPosition := ntpTop;
-  FToolbarTabs.Align := alTop;
-  FToolbarTabs.Parent := Self;
-
-  FPlotTabs := TNotebookTabs.Create(PlotsBook);
-  FPlotTabs.TabsPosition := ntpBottom;
-  FPlotTabs.Align := alBottom;
-  FPlotTabs.Parent := Self;
-  FPlotTabs.OnTabActivated := @PlotsTabActivated;
-
-  FStatusBar := TSpectrumStatusBar.Create(Self);
-  FStatusBar.Top := FPlotTabs.Top + FPlotTabs.Height;
+  InitComponents;
 
   // initialize plot set
   FDiagrams := TDiagramList.Create;
@@ -239,6 +236,52 @@ begin
   for Diagram in FDiagrams do
     Diagram.Free;
   FDiagrams.Free;
+end;
+
+procedure TMainWnd.InitComponents;
+
+  procedure InitToolTab(AIndex, AImageIndex: Integer; AHint: String);
+  begin
+    with FToolTabs.Tabs[AIndex] do
+    begin
+      Title := '';
+      Hint := AHint;
+      ShowHint := True;
+      ImageIndex := AImageIndex;
+      Padding := 6;
+    end;
+  end;
+
+var
+  Header: TToolPanelHeader;
+begin
+  FToolbarTabs := TNotebookTabs.Create(ToolbarBook);
+  FToolbarTabs.TabsPosition := ntpTop;
+  FToolbarTabs.Align := alTop;
+  FToolbarTabs.Parent := Self;
+
+  FToolTabs := TNotebookTabs.Create(ToolsBook);
+  FToolTabs.TabsPosition := ntpBottom;
+  FToolTabs.Align := alLeft;
+  FToolTabs.Parent := PanelTabs;
+  FToolTabs.Images := ToolTabsImages;
+  InitToolTab(0, 0, SpectrumStrings.Tooltab_DataTable);
+
+  Header := TToolPanelHeader.Create(PageDataTable);
+  Header.Caption := SpectrumStrings.Tooltab_DataTable;
+  Header.Images := ToolTabsImages;
+  Header.ImageIndex := 0;
+
+  FGraphGrid := TGraphGrid.Create(PageDataTable);
+
+  FPlotTabs := TNotebookTabs.Create(PlotsBook);
+  FPlotTabs.TabsPosition := ntpBottom;
+  FPlotTabs.Align := alClient;
+  FPlotTabs.Parent := PanelTabs;
+  FPlotTabs.OnTabActivated := @PlotsTabActivated;
+
+  FStatusBar := TSpectrumStatusBar.Create(Self);
+  FStatusBar.Top := PanelTabs.Top + PanelTabs.Height;
 end;
 {%endregion}
 
@@ -460,8 +503,8 @@ begin
     poModified: ProcessProjectModified;
     poPlotAdded: ProcessPlotAdded(APlot);
     poPlotChanged: ProcessPlotChanged(APlot);
-    poGraphAdded: ProcessGraphAdded(APlot);
-    poGraphDeleted: ProcessGraphDeleted(APlot);
+    poGraphAdded: ProcessGraphAdded(APlot, AGraph);
+    poGraphDeleted: ProcessGraphDeleted(APlot, AGraph);
   end;
 end;
 
@@ -486,7 +529,7 @@ begin
   FPlotTabs.RenameTab(APlot.Title, GetDiagram(APlot));
 end;
 
-procedure TMainWnd.ProcessGraphAdded(APlot: TPlot);
+procedure TMainWnd.ProcessGraphAdded(APlot: TPlot; AGraph: TGraph);
 var
   Diagram: TDiagram;
 begin
@@ -494,9 +537,11 @@ begin
   if APlot = Diagram.Plot then
     FStatusBar.ShowGraphCount(Diagram.CountTotal, Diagram.CountVisible);
   // TODO Add to MRU
+  if Assigned(FGraphGrid) then
+    FGraphGrid.Graph := AGraph;
 end;
 
-procedure TMainWnd.ProcessGraphDeleted(APlot: TPlot);
+procedure TMainWnd.ProcessGraphDeleted(APlot: TPlot; AGraph: TGraph);
 var
   Diagram: TDiagram;
 begin
@@ -529,5 +574,6 @@ end;
 {%endregion}
 
 {%endregion TMainWnd}
+
 end.
 
